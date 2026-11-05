@@ -6,7 +6,7 @@ This plugin lets an AI agent such as Claude Code use Exploratory. It does two th
 
 MCP (Model Context Protocol) is how an AI client such as Claude Code connects to Exploratory and uses its features. For example, the AI can read data or build a chart. An MCP server is the entry point that receives the requests from the AI. This plugin adds two MCP servers:
 
-- Server MCP (`exploratory-server`): reads published content on exploratory.io. Published content is a note, dashboard, slide, chart, analytics or data that was published there. The agent reads the published values of charts and analytics. It can also ask the server to compute values from the data.
+- Server MCP (`exploratory-server`): reads published content on exploratory.io. Published content is a note, dashboard, slide, chart, analytics or data that was published there. Its main strength is data. Publish prepared data and use it like a data mart. The agent reads the semantic information of the data: what a row means, column descriptions, aggregation rules and business metric definitions. Then it asks the server to compute exact results with that information. The agent can also read the values of published charts and analytics.
 - Desktop MCP (`exploratory-desktop`): works with local projects in Exploratory Desktop.
 
 Claude Code, Codex, Cursor and Antigravity get both MCP servers. Grok Bot (a chat client where you add MCP servers by message) gets the Server MCP only.
@@ -18,7 +18,7 @@ Claude Code, Codex, Cursor and Antigravity get both MCP servers. Grok Bot (a cha
 - The Desktop MCP needs the latest Exploratory Desktop. Get it from https://exploratory.io.
 - Sign in to Exploratory Desktop. The Desktop MCP works as the user who is signed in to the app.
 - Start the app before you use the Desktop MCP. Installing the plugin only registers the MCP servers. It does not start the app.
-- The Desktop MCP works on macOS and Windows with the clients listed above.
+- The Desktop MCP works with Claude Code, Codex, Cursor and Antigravity, on macOS and Windows.
 - The launcher (`scripts/exploratory-desktop-mcp.js`) starts the relay. The relay (`exploratory-mcp.bundle.js`) is a small program that connects the agent and Exploratory Desktop.
 - Node.js must be installed and on your PATH. The launcher and the Claude Code hooks use `node`.
 - The launcher looks for the relay in this order:
@@ -36,7 +36,7 @@ Claude Code, Codex, Cursor and Antigravity get both MCP servers. Grok Bot (a cha
 | Grok Bot | Server MCP only |
 | Antigravity | Both MCP servers and the skills |
 
-The skill tells the agent which tool to use for which question. It also tells the agent how to report numbers. The tools work without the skill, because the server sends short usage instructions. If a client has no Desktop MCP, the skill uses the Server MCP only.
+The skills give the agent the knowledge it needs to operate Exploratory and to analyze data. Examples: which tool fits a question, how to build charts and analytics, and which conditions to state with a number. The tools also work without the skills, but the skills help the agent use Exploratory correctly. If a client has no Desktop MCP, the skills use the Server MCP only.
 
 ### Claude Code
 
@@ -278,7 +278,7 @@ MIT
 
 MCP（Model Context Protocol）は、AI（Claude Code など）が Exploratory に接続して、その機能を使うためのつなぎ方です。たとえば、AI がデータを読んだり、チャートを作ったりできます。MCP サーバーは、AI からの依頼を受け取る窓口です。このプラグインは、2 つの MCP サーバーを追加します。
 
-- Server MCP（`exploratory-server`）: exploratory.io のパブリッシュされたコンテンツを読みます。公開されたチャートやアナリティクスの値を読めます。データから値を計算するよう、サーバーに頼むこともできます。
+- Server MCP（`exploratory-server`）: exploratory.io のパブリッシュされたコンテンツを読みます。一番の強みはデータです。加工済みのデータをパブリッシュしておけば、データマートのように使えます。AI は、データの意味の情報（1 行が何を表すか、列の説明、集計のルール、ビジネス指標の定義）を読み、それを踏まえてサーバーで正確に集計させます。パブリッシュされたチャートやアナリティクスの値も読めます。
 - Desktop MCP（`exploratory-desktop`）: 手元の Exploratory Desktop のプロジェクトを操作します。
 
 Claude Code・Codex・Cursor・Antigravity では、2 つの MCP サーバーを両方使えます。Grok Bot（チャットで MCP サーバーを追加するクライアント）では、Server MCP だけを使えます。
@@ -290,7 +290,7 @@ Claude Code・Codex・Cursor・Antigravity では、2 つの MCP サーバーを
 - Desktop MCP には、Exploratory Desktop の最新版が必要です。https://exploratory.io から入手してください。
 - Exploratory Desktop にサインインしてください。Desktop MCP は、アプリにサインインしている利用者として動きます。
 - Desktop MCP を使う前に、アプリを起動してください。プラグインは MCP を登録するだけで、アプリは起動しません。
-- Desktop MCP は、上のクライアントで使えます。対応する OS は macOS と Windows です。
+- Desktop MCP は、Claude Code・Codex・Cursor・Antigravity で使えます。対応する OS は macOS と Windows です。
 - 起動用スクリプト（`scripts/exploratory-desktop-mcp.js`）は、中継を動かします。中継（`exploratory-mcp.bundle.js`）は、エージェントと Exploratory Desktop をつなぐ小さなプログラムです。
 - Node.js をインストールし、PATH に通してください。起動用スクリプトと Claude Code のフックは `node` を使います。
 - 起動用スクリプトは、次の順に中継を探します。
@@ -308,7 +308,7 @@ Claude Code・Codex・Cursor・Antigravity では、2 つの MCP サーバーを
 | Grok Bot | Server MCP だけ |
 | Antigravity | 2 つの MCP サーバーとスキル |
 
-スキルは、質問に応じてどのツールを使い、数値をどう伝えるかを AI に教えます。サーバーが短い使い方を AI に渡すため、スキルがなくてもツールは使えます。Desktop MCP がないクライアントでは、スキルは Server MCP だけを使います。
+スキルは、Exploratory の操作とデータ分析に必要な知識を AI に渡します。たとえば、質問に合うツールの選び方、チャートやアナリティクスの作り方、数値に添えて伝える条件です。スキルがなくてもツールは使えますが、スキルがあると AI が Exploratory を正しく使いやすくなります。Desktop MCP がないクライアントでは、スキルは Server MCP だけを使います。
 
 #### Claude Code
 
