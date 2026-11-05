@@ -197,7 +197,7 @@ test('CLI accepts English and legacy saved values with the same instructions', (
 test('public command examples use the published English option values', () => {
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
   const configs = [...readme.matchAll(/--config (\w+)=(\S+)/g)];
-  assert.equal(configs.length, 3);
+  assert.equal(configs.length, 6); // 英語と日本語で 3 件ずつ
   for (const [, key, value] of configs) assert(fields[key].options.includes(value));
   assert(!/analysis[-_]effort/i.test(readme));
 

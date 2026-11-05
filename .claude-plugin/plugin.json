@@ -2,7 +2,7 @@
   "name": "exploratory",
   "displayName": "Exploratory",
   "version": "0.1.0",
-  "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
+  "description": "Work with Exploratory Desktop, search and read published notes, dashboards, charts, analytics and data, and query data on the server.",
   "author": {
     "name": "Exploratory, Inc.",
     "url": "https://exploratory.io",
@@ -44,7 +44,7 @@
     "review_hook": {
       "type": "string",
       "title": "Review hook",
-      "description": "false: never review. true: review before the first create, after wrangling, and after chart and analytics create or edit calls.",
+      "description": "false: never review. true: ask the agent to review its work. The review runs before the first chart or analytics create, after wrangling, after a note is created, and after chart and analytics create or edit calls (once per chart or analytics, up to 8 charts and analytics together per session).",
       "default": "false",
       "options": [
         "false",
@@ -54,7 +54,7 @@
     "plan_gate": {
       "type": "string",
       "title": "Plan gate",
-      "description": "true: after an R report (HTML) is saved, block creation in Exploratory until the plan (<title>_Exploratory作成計画.md) is saved (independent of the review hook). false: do nothing.",
+      "description": "true: after an R report (HTML) is saved, refuse create calls until the agent saves a plan file (<title>_Exploratory作成計画.md). Also refuse custom R steps (exp_custom) that start in the wrong form. The custom R check refuses once an expression that a product command can do. false: do nothing.",
       "default": "true",
       "options": [
         "false",

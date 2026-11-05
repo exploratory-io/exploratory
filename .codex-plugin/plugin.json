@@ -1,7 +1,7 @@
 {
   "name": "exploratory",
   "version": "0.1.0",
-  "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
+  "description": "Work with Exploratory Desktop, search and read published notes, dashboards, charts, analytics and data, and query data on the server.",
   "author": {
     "name": "Exploratory, Inc.",
     "url": "https://exploratory.io",

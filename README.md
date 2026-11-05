@@ -2,29 +2,43 @@
 
 [日本語](#日本語)
 
-One plugin connects Claude Code and Codex to two MCP servers: `exploratory-server` for items published on [exploratory.io](https://exploratory.io), and `exploratory-desktop` for creating and editing data, charts, analytics, and reports in local Exploratory Desktop projects. Cursor and Antigravity can use both servers too (Desktop on your own Mac). Grok Bot keeps its Server-only configuration.
+This plugin lets your AI agent read items on [exploratory.io](https://exploratory.io) that you can view. It also lets the agent build data, charts, analytics and reports in Exploratory Desktop on your computer.
 
-Ask about the notes, dashboards, slides, charts, analytics and data you can view on exploratory.io. Numbers come from the published charts and analytics, or are computed on the server from the data, not estimated by the AI.
+MCP (Model Context Protocol) is an open standard that lets an AI use an outside app. This plugin adds two MCP servers:
+
+- Server MCP (`exploratory-server`): reads items on exploratory.io. An item is a note, dashboard, slide, chart, analytics or data that was published there.
+- Desktop MCP (`exploratory-desktop`): works with local projects in Exploratory Desktop.
+
+Claude Code, Codex, Cursor and Antigravity get both MCP servers. Grok Bot (a chat client where you add MCP servers by message) gets the Server MCP only.
+
+The agent reads the published values of charts and analytics. It can also ask the server to compute values from the data.
 
 ## Before you connect
 
-- You need an Exploratory account on exploratory.io. You sign in with it in the browser; there is no API key to set up.
-- The Server MCP can read only what you can view on exploratory.io: your own items, items shared with you, and your teams' items.
-- To use the Desktop MCP (Claude Code, Codex, Cursor and Antigravity), the latest version of Exploratory Desktop must be running. Installing the plugin registers the MCP servers; it does not start the app.
-- The Desktop MCP works on macOS and Windows, whichever client you use. Its launcher looks for the bridge in the installed app: `/Applications/Exploratory.app` on macOS, and `package.nw\mcp` under `Program Files\Exploratory` (then `%LOCALAPPDATA%\Exploratory`) on Windows. To use another location, set `EXPLORATORY_MCP_BUNDLE` to the bridge's path. The launcher starts the bridge with `node`, so `node` must be on your PATH. The hooks (Claude Code) also run with `node`, so they need it too.
-- If Exploratory Desktop is not running, Desktop tools return a not-running error. Start the app; you can then use the tools again in the same conversation.
+- You need an Exploratory account on exploratory.io. Sign in with it in the browser. You do not need an API key.
+- The Server MCP reads only what you can view on exploratory.io: your own items, items shared with you, and your teams' items.
+- The Desktop MCP needs the latest Exploratory Desktop. Get it from https://exploratory.io.
+- Sign in to Exploratory Desktop. The Desktop MCP works as the user who is signed in to the app.
+- Start the app before you use the Desktop MCP. Installing the plugin only registers the MCP servers. It does not start the app.
+- The Desktop MCP works on macOS and Windows with the clients listed above.
+- Node.js must be installed and on your PATH. The launcher and the Claude Code hooks use `node`.
+- The launcher (`scripts/exploratory-desktop-mcp.js`) starts the relay (`exploratory-mcp.bundle.js`). The relay is a small program that connects the agent and Exploratory Desktop.
+- The launcher looks for the relay in this order:
+  1. The path in `EXPLORATORY_MCP_BUNDLE`, if you set it.
+  2. macOS: `/Applications/Exploratory.app/Contents/Resources/app.nw/mcp/exploratory-mcp.bundle.js`
+  3. Windows: `Program Files\Exploratory\package.nw\mcp\exploratory-mcp.bundle.js`, then `%LOCALAPPDATA%\Exploratory\package.nw\mcp\exploratory-mcp.bundle.js`
 
 ## Install
 
 | Client | What gets installed |
 |---|---|
-| Claude Code | Both MCP servers, Server and Desktop skills, Claude-only hooks |
+| Claude Code | Both MCP servers, Server and Desktop skills, Claude Code-only hooks |
 | Codex | Both MCP servers and Server and Desktop skills |
-| Cursor (any model, including Grok) | Two MCPs: Server and Desktop (Desktop on your own Mac) |
-| Grok Bot | MCP server only |
-| Antigravity | Two MCPs: Server and Desktop (Desktop on your own Mac) |
+| Cursor (any model, including Grok) | Both MCP servers and the skills |
+| Grok Bot | Server MCP only |
+| Antigravity | Both MCP servers and the skills |
 
-The skill tells the agent which tool to use for which question and how to report numbers. Without it the tools still work: the server sends short usage instructions of its own. On a client that has only the Server MCP, the entry skill still applies and uses the Server MCP alone when no Desktop MCP is registered.
+The skill tells the agent which tool to use for which question. It also tells the agent how to report numbers. The tools work without the skill, because the server sends short usage instructions. If a client has no Desktop MCP, the skill uses the Server MCP only.
 
 ### Claude Code
 
@@ -47,7 +61,7 @@ Start a new session to use it.
 
 ### Cursor
 
-Install the repository as a Cursor plugin (`.cursor-plugin`). It registers two MCP servers, `exploratory-server` and `exploratory-desktop`:
+Install the repository as a Cursor plugin (`.cursor-plugin`). It registers two MCP servers: `exploratory-server` and `exploratory-desktop`.
 
 ```sh
 git clone https://github.com/exploratory-io/exploratory
@@ -60,7 +74,7 @@ Then sign in to the Server MCP:
 agent mcp login exploratory-server
 ```
 
-`exploratory-desktop` uses the Exploratory Desktop app that is running on your computer. To write the settings by hand instead, add both to `~/.cursor/mcp.json`:
+`exploratory-desktop` uses the Exploratory Desktop app that is running on your computer. To write the settings by hand, add both servers to `~/.cursor/mcp.json`:
 
 ```json
 {
@@ -93,33 +107,16 @@ git clone https://github.com/exploratory-io/exploratory
 agy plugin install ./exploratory
 ```
 
-The Desktop MCP uses the Exploratory Desktop app that is already running. Start `agy`, run `/plugin`, open the plugin `exploratory` (MCP server `exploratory-server`) and choose Sign in. Approve on Exploratory's consent page, then paste the authorization code shown in the browser back into `agy`. In the Antigravity app, use Authenticate next to the server under Agent settings > Customizations.
+The Desktop MCP uses the Exploratory Desktop app that is running on your computer. To sign in to the Server MCP:
 
-## Desktop settings and development builds
+1. Start `agy`.
+2. Run `/plugin`.
+3. Open the plugin `exploratory` (MCP server `exploratory-server`).
+4. Choose Sign in.
+5. Approve on Exploratory's consent page.
+6. Paste the authorization code from the browser into `agy`.
 
-Claude Code provides `ai_summary` (default `false`), `save_comments` (`false`), `review_hook` (`false`), and `plan_gate` (`true`). Configure them with `/plugin configure exploratory@exploratory`. For example:
-
-```sh
-claude plugin install exploratory@exploratory \
-  --config ai_summary=true \
-  --config save_comments=true \
-  --config review_hook=true
-```
-
-Hooks and the plan gate run only in Claude Code. Codex does not install these hooks or expose Claude's plugin options.
-
-The plan gate (`plan_gate`, on by default) works after the analysis skill has been used and an R report (HTML) has been saved. Until the analysis plan (`<title>_Exploratory作成計画.md`) is saved, it stops `create_wrangling_step`, `create_branch`, `create_chart`, `create_analytics`, `create_note` and `save_result_as_dataframe` calls (deny). After the note is created, it stops the end of the turn up to 3 times (block) while charts have not been checked as images, or while no fix has been made.
-
-Separately, whenever `plan_gate` is `true` (whether or not the analysis skill was used), the custom R gate checks every `create_wrangling_step` call that has an `exp_custom` step. It denies an expression that starts with `{`, `. %>%`, `<name> <-` or `<name> %>%` (any name, for example `d <- .` or `df %>%`). It also denies once an expression that product commands can do (it calls `group_by`, `summarize`, `filter`, `arrange`, `pivot_longer`, `pivot_wider`, a join, `top_n`, `distinct` or `count`); sending the same expression again lets it through. To turn the gates off, set `plan_gate` to `false` with `/plugin configure exploratory@exploratory`.
-
-For a development build, set the bridge bundle and its app data directory in the environment before launching your agent:
-
-```sh
-EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
-EXPLORATORY_HOME=/path/to/development-app-data codex
-```
-
-Use the same variables before `claude` for Claude Code. The launcher first checks `EXPLORATORY_MCP_BUNDLE`, then the bundle inside the installed app (`/Applications/Exploratory.app` on macOS; `Program Files\Exploratory\package.nw\mcp`, then `%LOCALAPPDATA%\Exploratory\package.nw\mcp` on Windows). `EXPLORATORY_HOME` is inherited by the bridge. The plugin does not pass a token; the bridge reads its own credentials. If no bundle is found, the launcher writes one error line to stderr and exits with code 1.
+In the Antigravity app, select Authenticate next to the server under Agent settings > Customizations.
 
 ## Try it
 
@@ -137,13 +134,64 @@ Use the same variables before `claude` for Claude Code. The launcher first check
 | Charts and analytics | `chart_get_data` returns the numbers behind a chart; `chart_get_image` returns the chart as an image; `analytics_get_result` returns coefficients, p-values and other results |
 | Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet |
 
-The Server tools listed above are read-only (`dataframe_export` creates a download link that is valid for 15 minutes). Desktop tools can create and edit local projects, and they include operations that change or remove things: deleting charts, analytics, notes, dashboards, steps, branches, parameters and connections; publishing notes, dashboards and data frames and unpublishing them; and running R code with `execute_r_script`. Review what your agent proposes before it writes. See the [Server MCP reference](docs/mcp.md) for arguments, errors and limits.
+The Server MCP tools in the table are read-only. `dataframe_export` creates a download link that is valid for 15 minutes.
+
+The Desktop MCP tools create and edit local projects. They work with these items:
+
+- Data frames, wrangling steps, branches, parameters and connections
+- Charts and analytics
+- Notes and dashboards
+
+Some Desktop MCP tools change or remove things:
+
+- Delete charts, analytics, notes, dashboards, steps, branches, parameters and connections.
+- Publish and unpublish notes, dashboards and data frames.
+- Run R code with `execute_r_script`.
+
+Review what your agent proposes before it writes. The [Exploratory MCP reference](docs/mcp.md) covers the Server MCP tools only: arguments, errors and limits. Your AI client shows the Desktop MCP tools in its tool list.
+
+## Settings (Claude Code)
+
+Claude Code has four plugin settings:
+
+| Setting | Default | What it does |
+|---|---|---|
+| `ai_summary` | `false` | Creates and saves an AI Summary for the charts and analytics you create |
+| `save_comments` | `false` | Saves an explanatory comment on the charts you create |
+| `review_hook` | `false` | Asks the agent to review its work (see below and [Privacy](#privacy)) |
+| `plan_gate` | `true` | Makes the agent save a plan before it builds (see [Plan gate](#plan-gate)) |
+
+With `review_hook` on, the agent reviews its work at four times:
+
+- Before the first `create_chart` or `create_analytics`.
+- After each wrangling step.
+- After a note is created.
+- After chart and analytics create or edit calls. This review happens once for each chart or analytics. The limit is 8 charts and analytics together in a session. Set `EXPLORATORY_REVIEW_CHART_LIMIT` to change the limit.
+
+To see the settings, run `claude plugin configure exploratory@exploratory`. To change them, send a JSON object to that command with `--values-stdin`. You can also set them when you install:
+
+```sh
+claude plugin install exploratory@exploratory \
+  --config ai_summary=true \
+  --config save_comments=true \
+  --config review_hook=true
+```
+
+Hooks and the plan gate run only in Claude Code. Codex does not install them and does not have these settings.
+
+### Plan gate
+
+The plan gate stops the agent from building before it saves a plan. It is on by default (`plan_gate` = `true`).
+
+To turn it off, set `plan_gate` to `false`. Use the `claude plugin configure` command above.
+
+For the refused calls and the rules, see [Plan gate (Claude Code)](docs/mcp.md#plan-gate-claude-code).
 
 ## Data and permissions
 
-- The Server MCP reads published items. The Desktop MCP can create and edit local project content and publish when requested; review the operations your agent proposes.
-- Server MCP calls run as the signed-in user and never go beyond what that user can view on exploratory.io. A publisher can turn off MCP access for an item, or keep the rows of a data item private. This does not apply to the Desktop MCP, which works through the Exploratory Desktop app on your computer, as the user signed in to the app.
-- To disconnect a client from the Server MCP, open Account Settings on exploratory.io and remove it under Connected AI Apps. This does not stop the Desktop MCP; it stops working when you quit Exploratory Desktop.
+- The Server MCP reads published items. The Desktop MCP can create and edit local project content. It can publish when you ask. Review the operations your agent proposes.
+- Server MCP calls run as the signed-in user. They never go beyond what that user can view on exploratory.io. A publisher can turn off MCP access for an item. A publisher can also keep the rows of a data item private. These controls do not apply to the Desktop MCP. The Desktop MCP works in a different way. It works through the Exploratory Desktop app on your computer, as the user signed in to the app.
+- To disconnect a client from the Server MCP, open Account Settings on exploratory.io and remove it under Connected AI Apps. This does not stop the Desktop MCP. The Desktop MCP stops when you quit Exploratory Desktop.
 
 ## Update and uninstall
 
@@ -155,16 +203,38 @@ The Server tools listed above are read-only (`dataframe_export` creates a downlo
 | Grok Bot | Nothing to update | Remove `exploratory-server` from Grok Bot's connections |
 | Antigravity | Run `git pull` in the cloned folder, then `agy plugin install` again | Remove the plugin in Antigravity's plugin settings |
 
-Uninstalling does not revoke Server MCP access. To revoke it, also remove the client under Connected AI Apps on exploratory.io. This applies to the Server MCP only; the Desktop MCP stops working when you quit Exploratory Desktop.
+Uninstalling does not revoke Server MCP access. To revoke it, also remove the client under Connected AI Apps on exploratory.io.
+
+## Troubleshooting
+
+| Problem | What to do |
+|---|---|
+| `node` is not found | Install Node.js and add `node` to your PATH. |
+| The Desktop MCP tools return a not-running error | Start Exploratory Desktop. Then use the tools again in the same conversation. |
+| The launcher writes "Exploratory Desktop MCP bundle was not found. Install Exploratory or set EXPLORATORY_MCP_BUNDLE." and exits with code 1 | Install Exploratory Desktop, or set `EXPLORATORY_MCP_BUNDLE` to the path of the relay (see [Before you connect](#before-you-connect)). |
+| The Server MCP asks you to sign in | Sign in again: `/mcp` in Claude Code, `codex mcp login exploratory-server` in Codex, `agent mcp login exploratory-server` in Cursor. In Grok Bot, remove the connection and add it again. |
+| The Desktop MCP does not work as you expect | Check that you are signed in to Exploratory Desktop. |
 
 ## Privacy
 
-- Server MCP: calls go to `https://exploratory.io/mcp` and run as the signed-in user. They read published items only, are read-only, and never go beyond what that user can view.
-- Desktop MCP: it runs on your computer and its relay talks to your local Exploratory Desktop. It reads and edits local project content (data frames, charts, analytics, notes, dashboards) through the app. The app itself also sends a usage record, described in the next item.
-- Desktop MCP usage records: Exploratory Desktop sends one usage record per Desktop MCP tool call to the exploratory.io server you are signed in to, so we can improve how the tools are used. A record holds the tool name, its arguments (which can include formulas and values you entered), whether it succeeded, the error type and message, the size of the result (not its content), the duration, the Exploratory Desktop version, the AI client's name and version, and session and item IDs. Records are sent only while you are signed in and AI features are on, and never for local data catalog tools.
-- What a tool returns (rows, column names, chart images, errors) becomes part of your conversation, so it is sent to the provider of the AI you use (for example Anthropic, OpenAI, Google or xAI) under that provider's terms. Do not use the plugin on data that you may not send to that provider.
-- Hooks (Claude Code only): they run locally with `node`, send nothing over the network and write state files to the plugin data folder, or to `exploratory-plugin-review` in the system temp folder when none is set. The files are not deleted automatically; delete them yourself if you do not want them kept. With `review_hook` on, a `-charts.json` file stores the arguments and results of `create_chart`, `update_chart`, `create_analytics` and `update_analytics` saved as-is in the same `-charts.json` (this can include column names and filter values); for notes it stores the note ID or title. The plan gate (`plan_gate`, on by default) stores the SHA-1 of R expressions, the paths of the report and plan files, and chart IDs, and reads `*計画*.md` and `*plan*.md` files in your working folder. To turn them off, set `review_hook` and `plan_gate` to `false` with `/plugin configure exploratory@exploratory`, or uninstall the plugin.
-- The hook for `Write`, `Bash` and `Skill` calls starts on every such call, but records nothing unless the analysis skill was used first.
+- Server MCP: calls go to `https://exploratory.io/mcp`. They run as the signed-in user. They read published items only and are read-only. They never go beyond what that user can view.
+- Desktop MCP: it runs on your computer. Its relay talks to your local Exploratory Desktop. It reads and edits local project content (data frames, charts, analytics, notes, dashboards) through the app.
+- Desktop MCP usage records: Exploratory Desktop sends one usage record for each Desktop MCP tool call. It sends the record to the exploratory.io server you are signed in to. We use the records to improve the tools.
+  - A record holds the tool name and its arguments. The arguments can include formulas and values you entered.
+  - A record also holds these items: success or failure, and the error type and message.
+  - It holds the size of the result (not the content) and the duration.
+  - It holds the Exploratory Desktop version, and the AI client name and version.
+  - It holds the session and item IDs.
+  - Exploratory Desktop sends records only while you are signed in and AI features are on. It never sends records for local data catalog tools.
+- Tool results: what a tool returns (rows, column names, chart images, errors) becomes part of your conversation. It goes to the provider of your AI (for example Anthropic, OpenAI, Google or xAI) under that provider's terms. Do not use the plugin on data that you may not send to that provider.
+- Hooks (Claude Code only): they run locally with `node` and send nothing over the network.
+  - The hooks write state files to the plugin data folder. If no folder is set, they write to `exploratory-plugin-review` in the system temp folder. The plugin does not delete these files. Delete them yourself if you do not want them kept.
+  - With `review_hook` on, the hooks save the arguments and results of `create_chart`, `update_chart`, `create_analytics` and `update_analytics` as they are in a `-charts.json` file. This can include column names and filter values. For notes, they save the note ID or title.
+  - With `plan_gate` on (the default), the hooks save a SHA-1 hash (a short code made from the text) of each R expression. They also save the paths of the report and plan files, and chart IDs. They read the `*計画*.md` and `*plan*.md` files in your working folder. These file names are in Japanese. `計画` means "plan".
+  - To turn off the record hooks, set `review_hook` and `plan_gate` to `false`. You can also uninstall the plugin.
+  - The `settings` hook also passes the setting values to the agent as context.
+  - The `settings` hook still runs on every Desktop MCP call, also when both settings are `false`. It writes a small marker file (`-settings`) for the session in the same folder.
+  - The plan-record hook starts on every call of `Skill`, `Write`, `Bash` and `PowerShell`. It also starts on these Desktop MCP calls: `execute_r_script`, `create_chart`, `get_chart_image`, `get_chart_data`, `update_chart`, `update_analytics`, `update_note`, `update_dashboard`, `create_note` and `create_dashboard`. It records nothing unless the analysis skill was used first.
 - Exploratory's privacy policy: https://exploratory.io/privacy
 
 ## Support
@@ -173,13 +243,36 @@ Write to support@exploratory.io.
 
 ## Security
 
-Do not put tokens or passwords into prompts or files. The plugin does not pass a token; the Desktop bridge reads its own credentials. The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`. The hint is only a hint: a client that honors it can ask you to confirm, depending on the client and your permission settings. Copying to another project is not marked. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Do not put tokens or passwords into prompts or files. The plugin does not pass a token. The relay reads its own credentials.
+
+The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`. This is only a hint. A client that honors it can ask you to confirm. This depends on the client and your permission settings. Copying to another project is not marked.
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Docs
 
-- [MCP reference](docs/mcp.md): endpoint, authorization, tools, errors and limits
+- [Exploratory MCP reference](docs/mcp.md): endpoint, authorization, tools, errors and limits
 - [Security policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)
+
+## Development builds
+
+To use a development build, set these variables before you start your agent:
+
+- `EXPLORATORY_MCP_BUNDLE`: the path of the relay file.
+- `EXPLORATORY_HOME`: the app data folder of the development build.
+
+```sh
+EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
+EXPLORATORY_HOME=/path/to/development-app-data claude
+```
+
+For Codex, end the command with `codex`.
+
+- The launcher checks `EXPLORATORY_MCP_BUNDLE` first. Then it checks the installed app (see [Before you connect](#before-you-connect)).
+- The relay inherits `EXPLORATORY_HOME` from the launcher.
+- The plugin does not pass a token. The relay reads its own credentials.
+- If the launcher finds no relay, it writes one error line to stderr and exits with code 1.
 
 ## License
 
@@ -189,29 +282,43 @@ MIT
 
 ## 日本語
 
-Claude Code と Codex に、exploratory.io の公開項目を読む `exploratory-server` と、手元の Exploratory Desktop でデータ・チャート・分析・レポートを作成・編集する `exploratory-desktop` の2つの MCP を登録するプラグインです。Cursor と Antigravity も2つの MCP（Desktop は手元の Mac で）を使えます。Grok Bot の設定は Server 用だけです。
+このプラグインを使うと、AI エージェントが、exploratory.io であなたが閲覧できるアイテムを読めます。手元の Exploratory Desktop で、データ・チャート・アナリティクス・レポートを作ることもできます。
 
-exploratory.io で閲覧できるノート・ダッシュボード・スライド・チャート・アナリティクス・データについて質問できます。数値は、公開されたチャートやアナリティクスの値か、サーバーがデータから計算した値です。AI が推測した値ではありません。
+MCP（Model Context Protocol）は、AI が外のアプリを使えるようにするオープンな標準です。このプラグインは、2 つの MCP サーバーを追加します。
+
+- Server MCP（`exploratory-server`）: exploratory.io の公開アイテムを読みます。公開アイテムは、そこに公開されたノート・ダッシュボード・スライド・チャート・アナリティクス・データです。
+- Desktop MCP（`exploratory-desktop`）: 手元の Exploratory Desktop のプロジェクトを操作します。
+
+Claude Code・Codex・Cursor・Antigravity では、2 つの MCP サーバーを両方使えます。Grok Bot（チャットで MCP サーバーを追加するクライアント）では、Server MCP だけを使えます。
+
+エージェントは、公開されたチャートやアナリティクスの値を読みます。サーバーに、データから値を計算させることもできます。
 
 ### 使う前に
 
-- exploratory.io の Exploratory アカウントが必要です。ブラウザでこのアカウントにサインインします。API キーの設定は要りません。
-- Server MCP が読めるのは、あなたが exploratory.io で閲覧できるものだけです（自分のアイテム、共有されたアイテム、所属チームのアイテム）。
-- Desktop MCP を使うには（Claude Code・Codex・Cursor・Antigravity 共通）、Exploratory Desktop の最新版が起動している必要があります。プラグインの導入は MCP の登録までを行います。
-- Desktop MCP は、どのクライアントでも macOS と Windows で動きます。起動処理は、インストールしたアプリの中の中継を探します。macOS は `/Applications/Exploratory.app`、Windows は `Program Files\Exploratory`（次に `%LOCALAPPDATA%\Exploratory`）の `package.nw\mcp` です。別の場所を使うときは、`EXPLORATORY_MCP_BUNDLE` に中継のパスを指定します。中継は `node` で起動するため、`node` が PATH に必要です。フック（Claude Code）も `node` で動くため、同じく必要です。
-- Exploratory Desktop が起動していないときは、Desktop のツールが未起動のエラーを返します。アプリを起動すれば、同じ会話でまたツールを使えます。
+- exploratory.io の Exploratory アカウントが必要です。このアカウントで、ブラウザからサインインします。API キーは要りません。
+- Server MCP が読めるのは、あなたが exploratory.io で閲覧できるものだけです。自分の公開アイテム、共有された公開アイテム、所属チームの公開アイテムが対象です。
+- Desktop MCP には、Exploratory Desktop の最新版が必要です。https://exploratory.io から入手してください。
+- Exploratory Desktop にサインインしてください。Desktop MCP は、アプリにサインインしている利用者として動きます。
+- Desktop MCP を使う前に、アプリを起動してください。プラグインが行うのは MCP の登録までです。アプリは起動しません。
+- Desktop MCP は、上のクライアントで、macOS と Windows で動きます。
+- Node.js をインストールし、PATH に通してください。起動処理と Claude Code のフックは `node` を使います。
+- 起動処理（`scripts/exploratory-desktop-mcp.js`）が、中継（`exploratory-mcp.bundle.js`）を起動します。中継は、エージェントと Exploratory Desktop をつなぐ小さなプログラムです。
+- 起動処理は、次の順に中継を探します。
+  1. `EXPLORATORY_MCP_BUNDLE` に指定したパス（指定した場合）
+  2. macOS: `/Applications/Exploratory.app/Contents/Resources/app.nw/mcp/exploratory-mcp.bundle.js`
+  3. Windows: `Program Files\Exploratory\package.nw\mcp\exploratory-mcp.bundle.js`、なければ `%LOCALAPPDATA%\Exploratory\package.nw\mcp\exploratory-mcp.bundle.js`
 
 ### 入れ方
 
 | クライアント | 入るもの |
 |---|---|
-| Claude Code | 2つの MCP・Server と Desktop のスキル・Claude 専用フック |
-| Codex | 2つの MCP・Server と Desktop のスキル |
-| Cursor（Grok を含むどのモデルでも） | 2つの MCP（Server と Desktop。Desktop は手元の Mac で） |
-| Grok Bot | MCP サーバーだけ |
-| Antigravity | 2つの MCP（Server と Desktop。Desktop は手元の Mac で） |
+| Claude Code | 2 つの MCP サーバー、Server と Desktop のスキル、Claude Code 専用のフック |
+| Codex | 2 つの MCP サーバー、Server と Desktop のスキル |
+| Cursor（Grok を含むどのモデルでも） | 2 つの MCP サーバーとスキル |
+| Grok Bot | Server MCP だけ |
+| Antigravity | 2 つの MCP サーバーとスキル |
 
-スキルは、質問に応じてどのツールを使い、数値をどう伝えるかを AI に教えます。スキルがなくてもツールは使えます。サーバー自身も短い使い方を AI に渡します。Server の MCP だけのクライアントでも入口のスキルは働き、Desktop の MCP が登録されていなければ Server の MCP だけを使います。
+スキルは、質問に応じてどのツールを使い、数値をどう伝えるかを AI に教えます。サーバーが短い使い方を AI に渡すため、スキルがなくてもツールは使えます。Desktop MCP がないクライアントでは、スキルは Server MCP だけを使います。
 
 #### Claude Code
 
@@ -234,20 +341,20 @@ codex mcp login exploratory-server
 
 #### Cursor
 
-リポジトリを Cursor のプラグイン（`.cursor-plugin`）として入れます。`exploratory-server` と `exploratory-desktop` の 2 つの MCP が入ります。
+リポジトリを Cursor のプラグイン（`.cursor-plugin`）として入れます。2 つの MCP サーバー（`exploratory-server` と `exploratory-desktop`）が登録されます。
 
 ```sh
 git clone https://github.com/exploratory-io/exploratory
 agent --plugin-dir ./exploratory
 ```
 
-そのあと Server の MCP にサインインします。
+そのあと、Server MCP にサインインします。
 
 ```sh
 agent mcp login exploratory-server
 ```
 
-`exploratory-desktop` は、起動している Exploratory Desktop を使います。手で書く場合は、`~/.cursor/mcp.json` に両方を書きます。
+`exploratory-desktop` は、手元で起動している Exploratory Desktop を使います。設定を手で書く場合は、`~/.cursor/mcp.json` に両方のサーバーを追加します。
 
 ```json
 {
@@ -280,24 +387,16 @@ git clone https://github.com/exploratory-io/exploratory
 agy plugin install ./exploratory
 ```
 
-`agy` を起動して `/plugin` を開き、プラグイン `exploratory`（MCP サーバー `exploratory-server`）の「Sign in」を選びます。Exploratory の同意画面で許可し、ブラウザに表示された認可コードを `agy` に貼り付けます。Antigravity のアプリでは、エージェントの設定の Customizations で、サーバーの横の Authenticate からサインインします。
+Desktop MCP は、手元で起動している Exploratory Desktop を使います。Server MCP にサインインする手順は、次のとおりです。
 
-### Desktop の設定と開発版
+1. `agy` を起動します。
+2. `/plugin` を実行します。
+3. プラグイン `exploratory`（MCP サーバー `exploratory-server`）を開きます。
+4. Sign in を選びます。
+5. Exploratory の同意画面で許可します。
+6. ブラウザに表示された認可コードを `agy` に貼り付けます。
 
-Claude Code の設定は `ai_summary`（既定 `false`）、`save_comments`（`false`）、`review_hook`（`false`）、`plan_gate`（`true`）です。`/plugin configure exploratory@exploratory` で変更できます。コマンドの例は英語版の Desktop settings を参照してください。フックと計画の関所は Claude Code だけで動作します。Codex には Claude の利用者設定とフックを入れません。
-
-計画の関所（`plan_gate`、既定はオン）は、分析のスキルを使い、R のレポート（HTML）を保存した後に働きます。分析の計画（`<題名>_Exploratory作成計画.md`）を保存するまで、`create_wrangling_step`・`create_branch`・`create_chart`・`create_analytics`・`create_note`・`save_result_as_dataframe` の呼び出しを止めます（deny）。ノートを作った後は、作ったチャートを画像で確かめていない間や、直す操作が 0 回の間、会話の終わりを最大 3 回止めます（block）。
-
-これとは別に、`plan_gate` が `true` の間は、分析のスキルを使ったかどうかに関係なく、カスタム R の関所が `exp_custom` を含む `create_wrangling_step` の呼び出しを毎回調べます。式が `{`・`. %>%`・`名前 <-`・`名前 %>%`（名前は何でもよく、`d <- .` や `df %>%` など）で始まると止めます（deny）。製品のコマンドで作れる式（`group_by`・`summarize`・`filter`・`arrange`・`pivot_longer`・`pivot_wider`・結合・`top_n`・`distinct`・`count` を呼ぶ式）は最初の 1 回だけ止め、同じ式をもう一度送ると通ります。止めるには、`/plugin configure exploratory@exploratory` で `plan_gate` を `false` にします。
-
-開発版を使う場合は、エージェントを起動する前に環境変数を指定します。
-
-```sh
-EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
-EXPLORATORY_HOME=/path/to/development-app-data claude
-```
-
-Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDLE`、次にインストールしたアプリの中の中継を探します（macOS は `/Applications/Exploratory.app`、Windows は `Program Files\Exploratory\package.nw\mcp`、次に `%LOCALAPPDATA%\Exploratory\package.nw\mcp`）。`EXPLORATORY_HOME` はそのまま中継へ渡ります。プラグインから token は渡さず、中継が認証情報を読みます。中継が見つからなければ、標準エラーへ1行出し終了コード1で終わります。
+Antigravity のアプリでは、エージェントの設定の Customizations で、サーバーの横の Authenticate を選びます。
 
 ### 試す
 
@@ -311,17 +410,68 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 
 | 分類 | ツール |
 |---|---|
-| 探す・読む | `search` でアイテムを一覧・検索し、`fetch` でノート・ダッシュボード・スライドを Markdown で読む |
+| 探す・読む | `search` で公開アイテムを一覧・検索し、`fetch` でノート・ダッシュボード・スライドを Markdown で読む |
 | チャート・アナリティクス | `chart_get_data` でチャートの数値、`chart_get_image` でチャートの画像、`analytics_get_result` で係数や P 値などの結果を取る |
 | データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存 |
 
-上の Server 用ツールは読み取り専用です（`dataframe_export` は 15 分有効のダウンロードリンクを作ります）。Desktop 用ツールは手元のプロジェクトを作成・編集できます。変更や削除を伴う操作も含みます。チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続の削除、ノート・ダッシュボード・データフレームの公開と公開の取り消し、`execute_r_script` による R の実行です。書き込みの前に、エージェントの提案を確認してください。Server の引数・エラー・制限は [MCP リファレンス](docs/mcp.ja.md)を見てください。
+表の Server MCP のツールは、読み取り専用です。`dataframe_export` は、15 分間有効なダウンロードリンクを作ります。
+
+Desktop MCP のツールは、手元のプロジェクトを作成・編集します。対象は次のとおりです。
+
+- データフレーム・加工のステップ・ブランチ・パラメータ・接続
+- チャートとアナリティクス
+- ノートとダッシュボード
+
+Desktop MCP のツールには、変更や削除を伴うものがあります。
+
+- チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続の削除
+- ノート・ダッシュボード・データフレームの公開と、公開の取り消し
+- `execute_r_script` による R の実行
+
+書き込みの前に、エージェントの提案を確認してください。[Exploratory MCP リファレンス](docs/mcp.ja.md)は、Server MCP のツールだけを扱います。引数・エラー・制限を載せています。Desktop MCP のツールは、AI クライアントが表示するツール一覧で確認できます。
+
+### 設定（Claude Code）
+
+プラグインの設定は、Claude Code だけにあり、次の 4 つです。
+
+| 設定 | 既定値 | 役割 |
+|---|---|---|
+| `ai_summary` | `false` | 作成したチャートとアナリティクスに、AI サマリを作って保存します |
+| `save_comments` | `false` | 作成したチャートに、説明のコメントを保存します |
+| `review_hook` | `false` | エージェントに作業の見直しを促します（下の説明と[プライバシー](#プライバシー)を見てください） |
+| `plan_gate` | `true` | 計画を保存するまで、作成の操作を止めます（[計画チェック](#計画チェックplan_gate)を見てください） |
+
+`review_hook` がオンのとき、エージェントは 4 つのときに作業を見直します。
+
+- 最初の `create_chart` か `create_analytics` の前
+- 加工のステップごとのあと
+- ノートを作ったあと
+- チャートとアナリティクスの作成・編集のあと。この見直しは、チャートまたはアナリティクスごとに 1 回です。上限は、1 セッションでチャートとアナリティクスを合わせて 8 件です。上限を変えるには、`EXPLORATORY_REVIEW_CHART_LIMIT` を指定します。
+
+設定を見るには、`claude plugin configure exploratory@exploratory` を実行します。変更するには、このコマンドに `--values-stdin` を付けて、JSON オブジェクトを渡します。インストール時に指定することもできます。
+
+```sh
+claude plugin install exploratory@exploratory \
+  --config ai_summary=true \
+  --config save_comments=true \
+  --config review_hook=true
+```
+
+フックと `plan_gate` は Claude Code だけで動きます。Codex には、これらを入れません。設定もありません。
+
+#### 計画チェック（`plan_gate`）
+
+計画チェックは、エージェントが計画を保存する前に作り始めるのを止めます。既定ではオンです（`plan_gate` = `true`）。
+
+止めるには、`plan_gate` を `false` にします。上の `claude plugin configure` のコマンドを使います。
+
+拒否する呼び出しと規則は、[計画チェック（Claude Code）](docs/mcp.ja.md#計画チェックclaude-code)を見てください。
 
 ### データと権限
 
-- Server MCP は公開項目を読みます。Desktop MCP は手元のプロジェクトを作成・編集し、依頼に応じて公開できます。エージェントが提案する操作を確認してください。
-- Server MCP の呼び出しはサインインした人として動き、その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、アイテムごとに MCP からの利用を止めたり、データの行を共有しないようにしたりできます。これは Desktop MCP には当てはまりません。Desktop MCP は、手元の Exploratory Desktop アプリを通して、アプリにサインインしている利用者として動く、別の仕組みです。
-- Server MCP の接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。Desktop MCP は止まりません。Exploratory Desktop を終了すると使えなくなります。
+- Server MCP は、公開アイテムを読みます。Desktop MCP は、手元のプロジェクトの内容を作成・編集し、依頼に応じて公開できます。エージェントが提案する操作を確認してください。
+- Server MCP の呼び出しは、サインインした人として動きます。その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、公開アイテムごとに MCP からのアクセスを止められます。データの行を非公開にすることもできます。この制御は、Desktop MCP には当てはまりません。Desktop MCP は別の仕組みです。手元の Exploratory Desktop を通して動きます。アプリにサインインしている利用者として動きます。
+- Server MCP の接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。この操作では Desktop MCP は止まりません。Desktop MCP は、Exploratory Desktop を終了すると止まります。
 
 ### 更新と削除
 
@@ -329,20 +479,42 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 |---|---|---|
 | Claude Code | `claude plugin marketplace update exploratory` のあと `claude plugin update exploratory@exploratory` を実行し、Claude Code を再起動 | `claude plugin uninstall exploratory@exploratory` |
 | Codex | `codex plugin marketplace upgrade exploratory` のあと、`codex plugin remove exploratory@exploratory` と `codex plugin add exploratory@exploratory` で入れ直す | `codex plugin remove exploratory@exploratory` |
-| Cursor | 取得したフォルダで `git pull` を実行し、もう一度 `agent --plugin-dir` で起動 | `--plugin-dir` をやめる。手で `~/.cursor/mcp.json` を書いた場合は `exploratory-server` と `exploratory-desktop` を消す |
+| Cursor | 取得したフォルダで `git pull` を実行し、もう一度 `agent --plugin-dir` で起動 | `--plugin-dir` をやめる。手で `~/.cursor/mcp.json` を書いた場合は、`exploratory-server` と `exploratory-desktop` を消す |
 | Grok Bot | 更新は不要 | Grok Bot の接続の一覧から `exploratory-server` を外す |
 | Antigravity | 取得したフォルダで `git pull` を実行し、もう一度 `agy plugin install` | Antigravity のプラグインの設定から外す |
 
-削除しただけでは、Server MCP のアクセスの許可は残ります。許可も取り消すときは、exploratory.io の「接続中のAIアプリ」からも外してください。これは Server MCP だけの手順です。Desktop MCP は、Exploratory Desktop を終了すると使えなくなります。
+削除しただけでは、Server MCP のアクセスの許可は残ります。許可も取り消すときは、exploratory.io の「接続中のAIアプリ」からもクライアントを外してください。
+
+### トラブルシューティング
+
+| 問題 | 対処 |
+|---|---|
+| `node` が見つからない | Node.js をインストールし、`node` を PATH に通します。 |
+| Desktop MCP のツールが「未起動」のエラーを返す | Exploratory Desktop を起動します。そのあと、同じ会話でもう一度ツールを使います。 |
+| 起動処理が「Exploratory Desktop MCP bundle was not found. Install Exploratory or set EXPLORATORY_MCP_BUNDLE.」と出力し、終了コード 1 で終わる | Exploratory Desktop をインストールするか、`EXPLORATORY_MCP_BUNDLE` に中継のパスを指定します（[使う前に](#使う前に)を見てください）。 |
+| Server MCP がサインインを求める | もう一度サインインします。Claude Code は `/mcp`、Codex は `codex mcp login exploratory-server`、Cursor は `agent mcp login exploratory-server` です。Grok Bot は、接続を外してから追加し直します。 |
+| Desktop MCP が思いどおりに動かない | Exploratory Desktop にサインインしているか確かめます。 |
 
 ### プライバシー
 
-- Server MCP: 呼び出しは `https://exploratory.io/mcp` に送られ、サインインした人として動きます。読むのは公開項目だけで、読み取り専用です。その人が閲覧できる範囲を超えません。
-- Desktop MCP: あなたのコンピューター上で動き、その中継は手元の Exploratory Desktop と通信します。アプリを通して、手元のプロジェクトの内容（データフレーム・チャート・アナリティクス・ノート・ダッシュボード）を読み、編集します。アプリ自体は、次の項目の利用記録も送ります。
-- Desktop MCP の利用記録: Exploratory Desktop は、Desktop MCP のツールを1回呼び出すたびに、利用記録を1件、サインインしている exploratory.io のサーバーへ送ります。ツールの使い方を改善するためです。記録には、ツールの名前、引数（利用者が入力した式や値が入ることがあります）、成功したかどうか、エラーの種類と文、結果の字数（結果の中身は含みません）、所要時間、Exploratory Desktop の版、AI クライアントの名前と版、セッションとアイテムの ID が入ります。記録を送るのは、サインインしていて、「AI機能を使う」がオンのときだけです。ローカルのデータカタログのツールでは送りません。
-- ツールの結果（行・列名・チャートの画像・エラー）は会話の一部になるので、使っている AI の提供元（例: Anthropic、OpenAI、Google、xAI）へ、その提供元の規約のもとで送られます。その提供元へ送ってはいけないデータには、このプラグインを使わないでください。
-- フック（Claude Code のみ）: `node` でローカルに動き、ネットワークには何も送りません。状態ファイルを、プラグインのデータフォルダ（未設定ならシステムの一時フォルダの `exploratory-plugin-review`）に書きます。ファイルは自動では消えないので、残したくなければ自分で消します。`review_hook` がオンのとき、`-charts.json` に `create_chart`・`update_chart`・`create_analytics`・`update_analytics` の引数と結果が、同じファイルにそのまま保存されます（列名やフィルタの値が入ることがあります）。ノートは noteId か題名を保存します。計画の関所（`plan_gate`、既定はオン）は、R 式の SHA-1、レポートと計画ファイルのパス、チャートの ID を保存し、作業フォルダの `*計画*.md` と `*plan*.md` を読みます。止めるには、`/plugin configure exploratory@exploratory` で `review_hook` と `plan_gate` を `false` にするか、プラグインを削除します。
-- `Write`・`Bash`・`Skill` のフックはそれらの呼び出しのたびに起動しますが、分析のスキルを使った後でなければ何も記録しません。
+- Server MCP: 呼び出しは `https://exploratory.io/mcp` に送られ、サインインした人として動きます。読むのは公開アイテムだけで、読み取り専用です。その人が閲覧できる範囲を超えません。
+- Desktop MCP: あなたのコンピューター上で動きます。中継が手元の Exploratory Desktop と通信し、アプリを通して、手元のプロジェクトの内容（データフレーム・チャート・アナリティクス・ノート・ダッシュボード）を読み、編集します。
+- Desktop MCP の利用記録: Exploratory Desktop は、Desktop MCP のツールを 1 回呼び出すたびに、利用記録を 1 件、サインインしている exploratory.io のサーバーへ送ります。この記録は、ツールの改善に使います。
+  - 記録には、ツールの名前と引数が入ります。引数には、利用者が入力した式や値が入ることがあります。
+  - 記録には、成功したかどうかと、エラーの種類とメッセージも入ります。
+  - 結果の大きさ（中身は含みません）と所要時間が入ります。
+  - Exploratory Desktop の版と、AI クライアントの名前と版が入ります。
+  - セッションと公開アイテムの ID が入ります。
+  - Exploratory Desktop が記録を送るのは、サインインしていて、AI 機能がオンのときだけです。ローカルのデータカタログのツールでは、記録を送りません。
+- ツールの結果: ツールが返すもの（行・列名・チャートの画像・エラー）は、会話の一部になります。使っている AI の提供元（例: Anthropic、OpenAI、Google、xAI）へ、その提供元の規約のもとで送られます。その提供元へ送ってはいけないデータには、このプラグインを使わないでください。
+- フック（Claude Code のみ）: `node` でローカルに動き、ネットワークには何も送りません。
+  - フックは、状態ファイルをプラグインのデータフォルダに書きます。フォルダが未設定のときは、システムの一時フォルダの `exploratory-plugin-review` に書きます。プラグインは、このファイルを消しません。残したくなければ、自分で消してください。
+  - `review_hook` がオンのときは、フックが `-charts.json` に、`create_chart`・`update_chart`・`create_analytics`・`update_analytics` の引数と結果を、そのまま保存します。列名やフィルタの値が入ることがあります。ノートは、ノート ID か題名を保存します。
+  - `plan_gate`（既定はオン）がオンのときは、フックが、R 式から作った SHA-1 ハッシュ（文字列から作る短いコード）を保存します。レポートと計画ファイルのパスと、チャートの ID も保存します。作業フォルダの `*計画*.md` と `*plan*.md` も読みます。これらのファイル名は日本語です。`計画` は「plan」の意味です。
+  - 記録のフックを止めるには、`review_hook` と `plan_gate` を `false` にします。プラグインを削除しても止まります。
+  - `settings` のフックは、設定の値をコンテキストとしてエージェントにも渡します。
+  - `settings` のフックは、Desktop MCP を呼び出すたびに起動します。2 つの設定が `false` でも同じです。同じフォルダに、セッションごとの小さな目印のファイル（`-settings`）を書きます。
+  - 計画記録のフックは、`Skill`・`Write`・`Bash`・`PowerShell` を呼び出すたびに起動します。次の Desktop MCP の呼び出しでも起動します。対象は次のとおりです: `execute_r_script`・`create_chart`・`get_chart_image`・`get_chart_data`・`update_chart`・`update_analytics`・`update_note`・`update_dashboard`・`create_note`・`create_dashboard`。分析のスキルを先に使っていなければ、何も記録しません。
 - Exploratory のプライバシーポリシー: https://exploratory.io/privacy
 
 ### サポート
@@ -351,13 +523,36 @@ support@exploratory.io へご連絡ください。
 
 ### セキュリティ
 
-トークンやパスワードをプロンプトやファイルに書かないでください。プラグインは token を渡しません。Desktop の中継が自分の認証情報を読みます。Desktop の MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けています。ヒントに従うクライアントなら確認を求めることがあります。クライアントと権限の設定によります。別プロジェクトへのコピーには付けません。脆弱性の報告は [SECURITY.md](SECURITY.md) を見てください。
+トークンやパスワードを、プロンプトやファイルに書かないでください。プラグインはトークンを渡しません。中継が自分で認証情報を読みます。
+
+Desktop MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けています。これは目印にすぎません。目印に従うクライアントは、実行前に確認を求めることがあります。確認の有無は、クライアントと権限の設定で変わります。別プロジェクトへのコピーには付けていません。
+
+脆弱性を見つけたときは、[SECURITY.md](SECURITY.md)（英語のみ）に従って報告してください。
 
 ### ドキュメント
 
-- [MCP リファレンス](docs/mcp.ja.md): エンドポイント・認証・ツール・エラー・制限
-- [セキュリティポリシー](SECURITY.md)
+- [Exploratory MCP リファレンス](docs/mcp.ja.md): エンドポイント・認証・ツール・エラー・制限
+- [セキュリティポリシー](SECURITY.md)（英語のみ）
 - [変更履歴](CHANGELOG.md)
+
+### 開発版を使う
+
+開発版を使うときは、エージェントを起動する前に、次の環境変数を指定します。
+
+- `EXPLORATORY_MCP_BUNDLE`: 中継のファイルのパス
+- `EXPLORATORY_HOME`: 開発版のアプリのデータフォルダ
+
+```sh
+EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
+EXPLORATORY_HOME=/path/to/development-app-data claude
+```
+
+Codex では、コマンドの末尾を `codex` にします。
+
+- 起動処理は、最初に `EXPLORATORY_MCP_BUNDLE` を調べます。次に、インストールしたアプリを調べます（[使う前に](#使う前に)を見てください）。
+- 中継は、起動処理から `EXPLORATORY_HOME` を引き継ぎます。
+- プラグインはトークンを渡しません。中継が自分で認証情報を読みます。
+- 起動処理が中継を見つけられないときは、標準エラーに 1 行を出し、終了コード 1 で終わります。
 
 ### ライセンス
 
