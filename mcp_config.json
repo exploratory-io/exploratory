@@ -2,6 +2,10 @@
   "mcpServers": {
     "exploratory-server": {
       "serverUrl": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "command": "sh",
+      "args": ["${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"]
     }
   }
 }

@@ -2,7 +2,7 @@
   "name": "exploratory",
   "displayName": "Exploratory",
   "version": "0.1.0",
-  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
+  "description": "Work with Exploratory Desktop, search and read published notes, dashboards, charts, analytics and data, and query data on the server.",
   "author": {
     "name": "Exploratory, Inc.",
     "email": "support@exploratory.io"
@@ -17,7 +17,16 @@
     "mcp"
   ],
   "category": "integrations",
-  "mcpServers": "./mcp.json",
+  "mcpServers": {
+    "exploratory-server": {
+      "type": "http",
+      "url": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"
+    }
+  },
   "license": "MIT",
   "logo": "./assets/icon.png"
 }

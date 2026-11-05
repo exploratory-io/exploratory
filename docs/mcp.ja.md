@@ -54,7 +54,7 @@ Grok Bot のチャットで次のように送ります。
 
 ## Cursor につなぐ（Grok などのモデルを含む）
 
-Cursor のエージェント（`agent` / `cursor-agent`）は、Grok を含め Cursor で選べるどのモデルでも使えます。この方法で入るのは MCP サーバーだけで、スキルは入りません。`~/.cursor/mcp.json`（プロジェクトだけなら `.cursor/mcp.json`）に次を書きます。
+Cursor のエージェント（`agent` / `cursor-agent`）は、Grok を含め Cursor で選べるどのモデルでも使えます。プラグインとして入れると（下記）、`exploratory-server` と `exploratory-desktop` の両方の MCP が入ります。スキルなしで Server の MCP だけを手で足すなら、`~/.cursor/mcp.json`（プロジェクトだけなら `.cursor/mcp.json`）に次を書きます。
 
 ```json
 {
@@ -72,7 +72,7 @@ Cursor のエージェント（`agent` / `cursor-agent`）は、Grok を含め C
 agent mcp login exploratory-server
 ```
 
-このリポジトリは Cursor のプラグイン（`.cursor-plugin/plugin.json`・`mcp.json`・同じスキル）にもなっています。手元に取得したものを試すには `agent --plugin-dir <このリポジトリのパス>` で起動します。
+このリポジトリは Cursor のプラグイン（両方の MCP をインラインで定義した `.cursor-plugin/plugin.json`・同じスキル）にもなっています。Desktop の MCP は起動している Exploratory Desktop を使います。手元に取得したものを試すには `agent --plugin-dir <このリポジトリのパス>` で起動します。
 
 ## Gemini CLI につなぐ
 

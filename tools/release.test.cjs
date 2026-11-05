@@ -38,6 +38,31 @@ test('client manifests and marketplace entries share the plugin name and version
   assert.equal(require('../.claude-plugin/plugin.json').supportUrl, 'mailto:support@exploratory.io');
 });
 
+test('Cursor registers inline Server and Desktop MCPs using the plugin install path', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, '.cursor-plugin/plugin.json'), 'utf8'));
+  const { mcpServers } = manifest;
+  assert.equal(typeof mcpServers, 'object');
+  assert(mcpServers !== null && !Array.isArray(mcpServers));
+  assert.deepEqual(Object.keys(mcpServers).sort(), ['exploratory-desktop', 'exploratory-server']);
+  assert.deepEqual(mcpServers['exploratory-server'], {
+    type: 'http', url: 'https://exploratory.io/mcp'
+  });
+  assert.deepEqual(mcpServers['exploratory-desktop'], {
+    type: 'stdio', command: '${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp'
+  });
+  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp'), fs.constants.X_OK);
+});
+
+test('Antigravity registers Server and Desktop MCPs using its plugin path variable', () => {
+  const { mcpServers } = JSON.parse(fs.readFileSync(path.join(root, 'mcp_config.json'), 'utf8'));
+  assert.deepEqual(Object.keys(mcpServers).sort(), ['exploratory-desktop', 'exploratory-server']);
+  assert.deepEqual(mcpServers['exploratory-server'], { serverUrl: 'https://exploratory.io/mcp' });
+  assert.deepEqual(mcpServers['exploratory-desktop'], {
+    command: 'sh', args: ['${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp']
+  });
+  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp'), fs.constants.X_OK);
+});
+
 test('all 8 settings combinations use the same policy for native options and environment', () => {
   let combinations = 0;
   for (const ai_summary of fields.ai_summary.options)

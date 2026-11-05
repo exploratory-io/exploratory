@@ -2,7 +2,7 @@
 
 [日本語](#日本語)
 
-One plugin connects Claude Code and Codex to two MCP servers: `exploratory-server` for items published on [exploratory.io](https://exploratory.io), and `exploratory-desktop` for creating and editing data, charts, analytics, and reports in local Exploratory Desktop projects. Cursor, Grok Bot, Gemini CLI, and Antigravity keep their Server-only configuration.
+One plugin connects Claude Code and Codex to two MCP servers: `exploratory-server` for items published on [exploratory.io](https://exploratory.io), and `exploratory-desktop` for creating and editing data, charts, analytics, and reports in local Exploratory Desktop projects. Cursor and Antigravity can use both servers too (Desktop on your own Mac). Grok Bot keeps its Server-only configuration.
 
 Ask about the notes, dashboards, slides, charts, analytics and data you can view on exploratory.io. Numbers come from the published charts and analytics, or are computed on the server from the data, not estimated by the AI.
 
@@ -10,8 +10,8 @@ Ask about the notes, dashboards, slides, charts, analytics and data you can view
 
 - You need an Exploratory account on exploratory.io. You sign in with it in the browser; there is no API key to set up.
 - The Server MCP can read only what you can view on exploratory.io: your own items, items shared with you, and your teams' items.
-- To use the Desktop MCP, the latest version of Exploratory Desktop must be running. Installing the plugin registers the MCP servers; it does not start the app.
-- The Desktop MCP currently works on macOS only: its launcher looks for `/Applications/Exploratory.app` (or the path in `EXPLORATORY_MCP_BUNDLE`) and starts it with `node`, so `node` must be on your PATH.
+- To use the Desktop MCP (Claude Code, Codex, Cursor and Antigravity), the latest version of Exploratory Desktop must be running. Installing the plugin registers the MCP servers; it does not start the app.
+- The Desktop MCP currently works on macOS only, whichever client you use: its launcher looks for `/Applications/Exploratory.app` (or the path in `EXPLORATORY_MCP_BUNDLE`) and starts it with `node`, so `node` must be on your PATH.
 - If Exploratory Desktop is not running, Desktop tools return a not-running error. Start the app; you can then use the tools again in the same conversation.
 
 ## Install
@@ -20,11 +20,9 @@ Ask about the notes, dashboards, slides, charts, analytics and data you can view
 |---|---|
 | Claude Code | Both MCP servers, Server and Desktop skills, Claude-only hooks |
 | Codex | Both MCP servers and Server and Desktop skills |
-| Cursor (any model, including Grok) | MCP server only (exploratory.io). The Desktop MCP is currently verified on Claude Code and Codex only |
+| Cursor (any model, including Grok) | Two MCPs: Server and Desktop (Desktop on your own Mac) |
 | Grok Bot | MCP server only |
-| Gemini CLI | MCP server and skill |
-| Antigravity | MCP server and the entry skill (Server MCP only when no Desktop MCP is registered) |
-| Gemini app (web) | MCP server only |
+| Antigravity | Two MCPs: Server and Desktop (Desktop on your own Mac) |
 
 The skill tells the agent which tool to use for which question and how to report numbers. Without it the tools still work: the server sends short usage instructions of its own. On a client that has only the Server MCP, the entry skill still applies and uses the Server MCP alone when no Desktop MCP is registered.
 
@@ -49,22 +47,34 @@ Start a new session to use it.
 
 ### Cursor
 
-Add this to `~/.cursor/mcp.json`:
+Install the repository as a Cursor plugin (`.cursor-plugin`). It registers two MCP servers, `exploratory-server` and `exploratory-desktop`:
+
+```sh
+git clone https://github.com/exploratory-io/exploratory
+agent --plugin-dir ./exploratory
+```
+
+Then sign in to the Server MCP:
+
+```sh
+agent mcp login exploratory-server
+```
+
+`exploratory-desktop` uses the Exploratory Desktop app that is running on your computer. To write the settings by hand instead, add both to `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "exploratory-server": {
+      "type": "http",
       "url": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "<path to the cloned repository>/scripts/exploratory-desktop-mcp"
     }
   }
 }
-```
-
-Then sign in:
-
-```sh
-agent mcp login exploratory-server
 ```
 
 ### Grok Bot
@@ -75,14 +85,6 @@ Send this in a chat:
 
 Then sign in from the card that appears.
 
-### Gemini CLI
-
-```sh
-gemini extensions install https://github.com/exploratory-io/exploratory
-```
-
-Start Gemini CLI and run `/mcp auth exploratory-server` to sign in. Until then, `gemini mcp list` shows the server as Disconnected.
-
 ### Antigravity
 
 ```sh
@@ -90,11 +92,7 @@ git clone https://github.com/exploratory-io/exploratory
 agy plugin install ./exploratory
 ```
 
-Start `agy`, run `/plugin`, open the plugin `exploratory` (MCP server `exploratory-server`) and choose Sign in. Approve on Exploratory's consent page, then paste the authorization code shown in the browser back into `agy`. In the Antigravity app, use Authenticate next to the server under Agent settings > Customizations.
-
-### Gemini app (web)
-
-On gemini.google.com, open Settings, then Connected Apps, select Add a custom app and enter `https://exploratory.io/mcp`. Google offers custom apps only on the web app, for personal Google Accounts (not work or school accounts), in the US, to users 18 or older with Keep Activity on.
+The Desktop MCP uses the Exploratory Desktop app that is already running. Start `agy`, run `/plugin`, open the plugin `exploratory` (MCP server `exploratory-server`) and choose Sign in. Approve on Exploratory's consent page, then paste the authorization code shown in the browser back into `agy`. In the Antigravity app, use Authenticate next to the server under Agent settings > Customizations.
 
 ## Desktop settings and development builds
 
@@ -146,11 +144,9 @@ The Server tools listed above are read-only. Desktop tools can create and edit l
 |---|---|---|
 | Claude Code | `claude plugin marketplace update exploratory`, then `claude plugin update exploratory@exploratory`, and restart Claude Code | `claude plugin uninstall exploratory@exploratory` |
 | Codex | `codex plugin marketplace upgrade exploratory`, then reinstall with `codex plugin remove exploratory@exploratory` and `codex plugin add exploratory@exploratory` | `codex plugin remove exploratory@exploratory` |
-| Cursor | Nothing to update (the setting is only the URL) | Remove `exploratory-server` from `~/.cursor/mcp.json` |
+| Cursor | Run `git pull` in the cloned folder and start `agent --plugin-dir` again | Stop using `--plugin-dir`; if you wrote `~/.cursor/mcp.json` by hand, remove `exploratory-server` and `exploratory-desktop` from it |
 | Grok Bot | Nothing to update | Remove `exploratory-server` from Grok Bot's connections |
-| Gemini CLI | `gemini extensions update exploratory` | `gemini extensions uninstall exploratory` |
 | Antigravity | Run `git pull` in the cloned folder, then `agy plugin install` again | Remove the plugin in Antigravity's plugin settings |
-| Gemini app (web) | Nothing to update | Remove it under Connected Apps on gemini.google.com |
 
 Uninstalling does not revoke access. To revoke it, also remove the client under Connected AI Apps on exploratory.io. This works for every client.
 
@@ -185,7 +181,7 @@ MIT
 
 ## 日本語
 
-Claude Code と Codex に、exploratory.io の公開項目を読む `exploratory-server` と、手元の Exploratory Desktop でデータ・チャート・分析・レポートを作成・編集する `exploratory-desktop` の2つの MCP を登録するプラグインです。Cursor・Grok Bot・Gemini CLI・Antigravity の設定は Server 用です。
+Claude Code と Codex に、exploratory.io の公開項目を読む `exploratory-server` と、手元の Exploratory Desktop でデータ・チャート・分析・レポートを作成・編集する `exploratory-desktop` の2つの MCP を登録するプラグインです。Cursor と Antigravity も2つの MCP（Desktop は手元の Mac で）を使えます。Grok Bot の設定は Server 用だけです。
 
 exploratory.io で閲覧できるノート・ダッシュボード・スライド・チャート・アナリティクス・データについて質問できます。数値は、公開されたチャートやアナリティクスの値か、サーバーがデータから計算した値です。AI が推測した値ではありません。
 
@@ -193,8 +189,8 @@ exploratory.io で閲覧できるノート・ダッシュボード・スライ�
 
 - exploratory.io の Exploratory アカウントが必要です。ブラウザでこのアカウントにサインインします。API キーの設定は要りません。
 - Server MCP が読めるのは、あなたが exploratory.io で閲覧できるものだけです（自分のアイテム、共有されたアイテム、所属チームのアイテム）。
-- Desktop MCP を使うには、Exploratory Desktop の最新版が起動している必要があります。プラグインの導入は MCP の登録までを行います。
-- Desktop MCP がいま動くのは macOS だけです。起動処理は `/Applications/Exploratory.app`（または `EXPLORATORY_MCP_BUNDLE` のパス）の中継を `node` で起動するため、`node` が PATH に必要です。
+- Desktop MCP を使うには（Claude Code・Codex・Cursor・Antigravity 共通）、Exploratory Desktop の最新版が起動している必要があります。プラグインの導入は MCP の登録までを行います。
+- Desktop MCP がいま動くのは、どのクライアントでも macOS だけです。起動処理は `/Applications/Exploratory.app`（または `EXPLORATORY_MCP_BUNDLE` のパス）の中継を `node` で起動するため、`node` が PATH に必要です。
 - Exploratory Desktop が起動していないときは、Desktop のツールが未起動のエラーを返します。アプリを起動すれば、同じ会話でまたツールを使えます。
 
 ### 入れ方
@@ -203,11 +199,9 @@ exploratory.io で閲覧できるノート・ダッシュボード・スライ�
 |---|---|
 | Claude Code | 2つの MCP・Server と Desktop のスキル・Claude 専用フック |
 | Codex | 2つの MCP・Server と Desktop のスキル |
-| Cursor（Grok を含むどのモデルでも） | MCP サーバーだけ（exploratory.io）。Desktop の MCP は今のところ Claude Code と Codex でだけ確かめています |
+| Cursor（Grok を含むどのモデルでも） | 2つの MCP（Server と Desktop。Desktop は手元の Mac で） |
 | Grok Bot | MCP サーバーだけ |
-| Gemini CLI | MCP サーバーとスキル |
-| Antigravity | MCP サーバーと入口のスキル（Desktop の MCP が無ければ Server の MCP だけを使う） |
-| Gemini アプリ（Web 版） | MCP サーバーだけ |
+| Antigravity | 2つの MCP（Server と Desktop。Desktop は手元の Mac で） |
 
 スキルは、質問に応じてどのツールを使い、数値をどう伝えるかを AI に教えます。スキルがなくてもツールは使えます。サーバー自身も短い使い方を AI に渡します。Server の MCP だけのクライアントでも入口のスキルは働き、Desktop の MCP が登録されていなければ Server の MCP だけを使います。
 
@@ -232,22 +226,34 @@ codex mcp login exploratory-server
 
 #### Cursor
 
-`~/.cursor/mcp.json` に次を書きます。
+リポジトリを Cursor のプラグイン（`.cursor-plugin`）として入れます。`exploratory-server` と `exploratory-desktop` の 2 つの MCP が入ります。
+
+```sh
+git clone https://github.com/exploratory-io/exploratory
+agent --plugin-dir ./exploratory
+```
+
+そのあと Server の MCP にサインインします。
+
+```sh
+agent mcp login exploratory-server
+```
+
+`exploratory-desktop` は、起動している Exploratory Desktop を使います。手で書く場合は、`~/.cursor/mcp.json` に両方を書きます。
 
 ```json
 {
   "mcpServers": {
     "exploratory-server": {
+      "type": "http",
       "url": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "<取得したリポジトリのパス>/scripts/exploratory-desktop-mcp"
     }
   }
 }
-```
-
-そのあとサインインします。
-
-```sh
-agent mcp login exploratory-server
 ```
 
 #### Grok Bot
@@ -258,14 +264,6 @@ agent mcp login exploratory-server
 
 表示されたカードからサインインします。
 
-#### Gemini CLI
-
-```sh
-gemini extensions install https://github.com/exploratory-io/exploratory
-```
-
-Gemini CLI を起動し、`/mcp auth exploratory-server` でサインインします。サインインするまで、`gemini mcp list` には Disconnected と表示されます。
-
 #### Antigravity
 
 ```sh
@@ -274,10 +272,6 @@ agy plugin install ./exploratory
 ```
 
 `agy` を起動して `/plugin` を開き、プラグイン `exploratory`（MCP サーバー `exploratory-server`）の「Sign in」を選びます。Exploratory の同意画面で許可し、ブラウザに表示された認可コードを `agy` に貼り付けます。Antigravity のアプリでは、エージェントの設定の Customizations で、サーバーの横の Authenticate からサインインします。
-
-#### Gemini アプリ（Web 版）
-
-gemini.google.com で、設定の「接続済みのアプリ」を開き、「カスタムアプリを追加」で `https://exploratory.io/mcp` を入れます。Google がこの機能を提供しているのは Web 版だけで、対象は個人の Google アカウント（仕事用・学校用のアカウントは対象外）、米国、18 歳以上、「アクティビティを保存」がオンの利用者です。
 
 ### Desktop の設定と開発版
 
@@ -320,11 +314,9 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 |---|---|---|
 | Claude Code | `claude plugin marketplace update exploratory` のあと `claude plugin update exploratory@exploratory` を実行し、Claude Code を再起動 | `claude plugin uninstall exploratory@exploratory` |
 | Codex | `codex plugin marketplace upgrade exploratory` のあと、`codex plugin remove exploratory@exploratory` と `codex plugin add exploratory@exploratory` で入れ直す | `codex plugin remove exploratory@exploratory` |
-| Cursor | 更新は不要（設定は URL だけのため） | `~/.cursor/mcp.json` から `exploratory-server` を消す |
+| Cursor | 取得したフォルダで `git pull` を実行し、もう一度 `agent --plugin-dir` で起動 | `--plugin-dir` をやめる。手で `~/.cursor/mcp.json` を書いた場合は `exploratory-server` と `exploratory-desktop` を消す |
 | Grok Bot | 更新は不要 | Grok Bot の接続の一覧から `exploratory-server` を外す |
-| Gemini CLI | `gemini extensions update exploratory` | `gemini extensions uninstall exploratory` |
 | Antigravity | 取得したフォルダで `git pull` を実行し、もう一度 `agy plugin install` | Antigravity のプラグインの設定から外す |
-| Gemini アプリ（Web 版） | 更新は不要 | gemini.google.com の「接続済みのアプリ」から外す |
 
 削除しただけでは、アクセスの許可は残ります。許可も取り消すときは、exploratory.io の「接続中のAIアプリ」からも外してください。どのクライアントでも、この方法で取り消せます。
 

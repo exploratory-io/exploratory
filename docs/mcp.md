@@ -54,7 +54,7 @@ This adds the MCP server only; the skill is not installed. To disconnect, remove
 
 ## Connect Cursor (including Grok models)
 
-The Cursor agent (`agent` / `cursor-agent`) works with any model you pick in Cursor, including Grok. This adds the MCP server only; the skill is not installed. Add this to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
+The Cursor agent (`agent` / `cursor-agent`) works with any model you pick in Cursor, including Grok. Installing the plugin (below) adds both MCP servers, `exploratory-server` and `exploratory-desktop`. To add only the Server MCP by hand, without the skill, add this to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
 
 ```json
 {
@@ -72,7 +72,7 @@ Then sign in:
 agent mcp login exploratory-server
 ```
 
-This repository is also a Cursor plugin (`.cursor-plugin/plugin.json`, `mcp.json` and the same skill). To try it from a local clone: `agent --plugin-dir <path to this repository>`.
+This repository is also a Cursor plugin (`.cursor-plugin/plugin.json` with both MCP servers defined inline, and the same skill). The Desktop MCP uses the Exploratory Desktop app that is running. To try it from a local clone: `agent --plugin-dir <path to this repository>`.
 
 ## Connect Gemini CLI
 
