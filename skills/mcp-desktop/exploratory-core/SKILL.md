@@ -60,8 +60,6 @@ MCP の対象指定と結果形式: [get_chart・get_analytics が返すデー�
 
 共通設定は [設定の適用](runtime-settings.md) で確定する。道具の詳しい書き方は [MCP の道具別ガイド](mcp-tool-guides.md) から操作する道具だけを読む。
 
-Claude Code の保存値: AI サマリ=${user_config.ai_summary}、コメント=${user_config.save_comments}、点検=${user_config.review_hook}。意味は [設定の適用](runtime-settings.md) のコマンドで解決する。
-
 ## 返答を保持して必要な内容を読む
 
 この節は Codex（functions.exec で道具を呼ぶとき）の手順。Claude Code では読まなくてよい。
