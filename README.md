@@ -11,7 +11,7 @@ Ask about the notes, dashboards, slides, charts, analytics and data you can view
 - You need an Exploratory account on exploratory.io. You sign in with it in the browser; there is no API key to set up.
 - The Server MCP can read only what you can view on exploratory.io: your own items, items shared with you, and your teams' items.
 - To use the Desktop MCP (Claude Code, Codex, Cursor and Antigravity), the latest version of Exploratory Desktop must be running. Installing the plugin registers the MCP servers; it does not start the app.
-- The Desktop MCP currently works on macOS only, whichever client you use: its launcher looks for `/Applications/Exploratory.app` (or the path in `EXPLORATORY_MCP_BUNDLE`) and starts it with `node`, so `node` must be on your PATH. The hooks (Claude Code) also run with `node`, so they need it too.
+- The Desktop MCP works on macOS and Windows, whichever client you use. Its launcher looks for the bridge in the installed app: `/Applications/Exploratory.app` on macOS, and `package.nw\mcp` under `Program Files\Exploratory` (then `%LOCALAPPDATA%\Exploratory`) on Windows. To use another location, set `EXPLORATORY_MCP_BUNDLE` to the bridge's path. The launcher starts the bridge with `node`, so `node` must be on your PATH. The hooks (Claude Code) also run with `node`, so they need it too.
 - If Exploratory Desktop is not running, Desktop tools return a not-running error. Start the app; you can then use the tools again in the same conversation.
 
 ## Install
@@ -119,7 +119,7 @@ EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
 EXPLORATORY_HOME=/path/to/development-app-data codex
 ```
 
-Use the same variables before `claude` for Claude Code. The launcher first checks `EXPLORATORY_MCP_BUNDLE`, then the bundle inside `/Applications/Exploratory.app`. `EXPLORATORY_HOME` is inherited by the bridge. The plugin does not pass a token; the bridge reads its own credentials. If no bundle is found, the launcher writes one error line to stderr and exits with code 1.
+Use the same variables before `claude` for Claude Code. The launcher first checks `EXPLORATORY_MCP_BUNDLE`, then the bundle inside the installed app (`/Applications/Exploratory.app` on macOS; `Program Files\Exploratory\package.nw\mcp`, then `%LOCALAPPDATA%\Exploratory\package.nw\mcp` on Windows). `EXPLORATORY_HOME` is inherited by the bridge. The plugin does not pass a token; the bridge reads its own credentials. If no bundle is found, the launcher writes one error line to stderr and exits with code 1.
 
 ## Try it
 
@@ -198,7 +198,7 @@ exploratory.io で閲覧できるノート・ダッシュボード・スライ�
 - exploratory.io の Exploratory アカウントが必要です。ブラウザでこのアカウントにサインインします。API キーの設定は要りません。
 - Server MCP が読めるのは、あなたが exploratory.io で閲覧できるものだけです（自分のアイテム、共有されたアイテム、所属チームのアイテム）。
 - Desktop MCP を使うには（Claude Code・Codex・Cursor・Antigravity 共通）、Exploratory Desktop の最新版が起動している必要があります。プラグインの導入は MCP の登録までを行います。
-- Desktop MCP がいま動くのは、どのクライアントでも macOS だけです。起動処理は `/Applications/Exploratory.app`（または `EXPLORATORY_MCP_BUNDLE` のパス）の中継を `node` で起動するため、`node` が PATH に必要です。フック（Claude Code）も `node` で動くため、同じく必要です。
+- Desktop MCP は、どのクライアントでも macOS と Windows で動きます。起動処理は、インストールしたアプリの中の中継を探します。macOS は `/Applications/Exploratory.app`、Windows は `Program Files\Exploratory`（次に `%LOCALAPPDATA%\Exploratory`）の `package.nw\mcp` です。別の場所を使うときは、`EXPLORATORY_MCP_BUNDLE` に中継のパスを指定します。中継は `node` で起動するため、`node` が PATH に必要です。フック（Claude Code）も `node` で動くため、同じく必要です。
 - Exploratory Desktop が起動していないときは、Desktop のツールが未起動のエラーを返します。アプリを起動すれば、同じ会話でまたツールを使えます。
 
 ### 入れ方
@@ -297,7 +297,7 @@ EXPLORATORY_MCP_BUNDLE=/path/to/exploratory-mcp.bundle.js \
 EXPLORATORY_HOME=/path/to/development-app-data claude
 ```
 
-Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDLE`、次に `/Applications/Exploratory.app` 内の中継を探します。`EXPLORATORY_HOME` はそのまま中継へ渡ります。プラグインから token は渡さず、中継が認証情報を読みます。中継が見つからなければ、標準エラーへ1行出し終了コード1で終わります。
+Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDLE`、次にインストールしたアプリの中の中継を探します（macOS は `/Applications/Exploratory.app`、Windows は `Program Files\Exploratory\package.nw\mcp`、次に `%LOCALAPPDATA%\Exploratory\package.nw\mcp`）。`EXPLORATORY_HOME` はそのまま中継へ渡ります。プラグインから token は渡さず、中継が認証情報を読みます。中継が見つからなければ、標準エラーへ1行出し終了コード1で終わります。
 
 ### 試す
 
