@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - 2026-11-05
+## 0.1.0
 
 - One `exploratory` plugin for content published on exploratory.io and local Exploratory Desktop projects.
 - Server MCP with browser OAuth sign-in and read-only search, document retrieval, chart and analytics results, data previews, queries and exports.

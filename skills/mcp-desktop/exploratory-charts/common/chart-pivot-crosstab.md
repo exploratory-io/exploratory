@@ -5,7 +5,7 @@
   「(変数の値)」 in colh and 「(複数の変数)」 for the target columns. When there are multiple targets and you want to split the tables, put
   「(複数の変数)」 in facet (the same as 「When there are many questions, put the questions in 「繰り返し」」 below)
 - Values = (行数) x 2. The 1st is the count and the 2nd is the row-direction ratio
-- A pivot is for a cross tabulation compared in 2 directions, rows and columns. Do not make a pivot with nothing in rows (`rowh`), which ends up as a 1-row table. To just compare several numeric columns or items side by side, use a bar chart with 「(複数の変数)」 on x. When the user asks for a pivot or a table, keep that form
+- A pivot is for a cross tabulation compared in 2 directions, rows and columns. Do not make a pivot with nothing in rows (`rowh`), which ends up as a 1-row table. To just compare several numeric columns or items side by side, use a Bar chart with 「(複数の変数)」 on x. When the user asks for a pivot or a table, keep that form
 
 ```
 axes: { rowh: "地域", colh: "購入意向",

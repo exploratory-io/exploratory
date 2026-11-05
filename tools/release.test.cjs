@@ -50,9 +50,10 @@ test('all 8 settings combinations use the same policy for native options and env
         assert.deepEqual(settings(environment), values);
         assert.equal(render(settings(native)), render(settings(environment)));
         const output = render(values);
-        assert.equal(output.includes('AI Summary を生成して'), ai_summary === 'true');
-        assert.equal(output.includes('comment に保存する'), save_comments === 'true');
-        assert.equal(output.includes('点検文を適用する'), review_hook === 'true');
+        assert(!/[\u3040-\u30ff\u3400-\u9fff]/u.test(output.replaceAll(root, '<PLUGIN_ROOT>')), 'Settings instructions must not impose Japanese text');
+        assert.equal(output.includes('generate an AI Summary'), ai_summary === 'true');
+        assert.equal(output.includes('save it to the comment field'), save_comments === 'true');
+        assert.equal(output.includes('Apply review instructions'), review_hook === 'true');
         combinations++;
       }
   assert.equal(combinations, 8);
@@ -72,13 +73,13 @@ test('analysis_effort is gone: no setting, no variable, no Effort text, and the 
 });
 
 test('saving settings that are off send one do-not-save line each; review off sends nothing', () => {
-  const chart = 'チャートを作るときは ' + path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<種類>.md') + ' で枠と設定を確かめる。\n';
-  const off = 'AI Summary は保存しない（利用者が明示して求めたときだけ）。\nチャートの説明コメントは保存しない（利用者が明示して求めたときだけ）。\n';
+  const chart = 'When creating a chart, check its slots and settings in ' + path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<type>.md') + '.\n';
+  const off = 'Do not save AI summaries unless the user explicitly requests it.\nDo not save chart description comments unless the user explicitly requests it.\n';
   assert.equal(render(settings({})), off + chart);
   const summaryOnly = render(settings({}, { ai_summary: 'true' }));
-  assert(summaryOnly.includes('AI Summary を生成して') && summaryOnly.endsWith(chart));
-  assert(!summaryOnly.includes('comment に保存する') && !summaryOnly.includes('点検文を適用する'));
-  assert(!summaryOnly.includes('AI Summary は保存しない') && summaryOnly.includes('説明コメントは保存しない'));
+  assert(summaryOnly.includes('generate an AI Summary') && summaryOnly.endsWith(chart));
+  assert(!summaryOnly.includes('save it to the comment field') && !summaryOnly.includes('Apply review instructions'));
+  assert(!summaryOnly.includes('Do not save AI summaries') && summaryOnly.includes('Do not save chart description comments'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-settings-'));
   try {
     const output = JSON.parse(execFileSync(process.execPath, [path.join(__dirname, 'runtime-hook.js'), 'settings'], {
@@ -163,7 +164,7 @@ test('CLI accepts English and legacy saved values with the same instructions', (
   const legacy = ['--ai-summary', 'する', '--save-comments', 'する', '--review-hook', '使う'];
   const output = run(english);
   assert.equal(output, run(legacy));
-  assert(output.includes('AI Summary を生成して'));
+  assert(output.includes('generate an AI Summary'));
   assert.throws(() => run(['--analysis-effort', 'deep']), /Unknown or missing setting/);
   assert.equal(run([]), render(settings({})));
 });
@@ -250,7 +251,7 @@ test('ongoing review reads result settings and JSON content, remembers partial u
     const percentage = JSON.parse(run({ tool_input: { marker: 'bar', axes: { y: 'score' } }, tool_response: { structuredContent: { chartId: 'format', chartType: 'bar', settings: { yAxisNumberFormatting: 'percentage', barstyle: 'group' } } } }));
     assert.equal(percentage.hookSpecificOutput.additionalContext, 'RATIO');
     const session = JSON.parse(run({ tool_name: 'mcp__exploratory-desktop__get_environment' }, { mode: 'settings' })).hookSpecificOutput.additionalContext;
-    assert(session.includes('図の作成・編集直後'));
+    assert(session.includes('after each chart or analytics creation or edit'));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -388,7 +389,7 @@ test('generated Desktop references contain content without source-repository pro
 
 test('Exploratory settings point to the chart reference by absolute plugin path, without the old selection and interpretation guides', () => {
   const output = render(settings({}));
-  assert(output.includes(path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<種類>.md')));
+  assert(output.includes(path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<type>.md')));
   for (const old of ['chart-common.md', 'chart-interpretation', 'SKILL.md']) assert(!output.includes(old), old);
   assert(path.isAbsolute(root));
 });
@@ -510,7 +511,7 @@ test('settings are silent outside Exploratory Desktop and emitted once per sessi
     assert.equal(fs.existsSync(path.join(dir, 'state')), false);
     for (const [index, tool_name] of ['mcp__exploratory-desktop__get_environment', 'mcp__plugin_exploratory_exploratory-desktop__get_environment'].entries()) {
       const data = { session_id: 'settings-' + index, tool_name };
-      assert(JSON.parse(run(data, { mode: 'settings' })).hookSpecificOutput.additionalContext.includes('AI Summary'));
+      assert(JSON.parse(run(data, { mode: 'settings' })).hookSpecificOutput.additionalContext.includes('Do not save AI summaries'));
       assert.equal(run(data, { mode: 'settings' }), '');
     }
     const hooks = JSON.parse(fs.readFileSync(path.join(root, 'hooks/claude.json'), 'utf8')).hooks;

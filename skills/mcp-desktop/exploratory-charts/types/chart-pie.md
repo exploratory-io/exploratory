@@ -162,7 +162,7 @@
   ],
   "in_exploratory": [
     "marker: pie。割合の表示 pieShowPercentages: on（割合が主眼の図なので数字が無いと読めない）。区分が 10 を超えるときは値の表示を付けない（chart.txt の既定表）",
-    "chart_type: pie / marker: pie はパイとドーナツのファミリー名で、スタイルは別に指定する。穴のないパイの指定には settings.pieHole: \"0\"、ドーナツの指定には settings.pieHole: \"55\" を文字列で渡し、未指定は \"55\"（ドーナツ）になる。設定は list_chart_settings に marker: pie と setting: pieHole を指定して照会でき、other セクションに属する。"
+    "chart_type: pie / marker: pie はパイとドーナツのファミリー名で、スタイルは別に指定する。穴のないパイの指定には settings.pieHole（画面の「穴のサイズ (%)」）: \"0\"、ドーナツの指定には \"55\" を文字列で渡し、未指定は \"55\"（ドーナツ）になる。設定は list_chart_settings に marker: pie と setting: pieHole を指定して照会でき、other セクションに属する。"
   ],
   "does_not_apply_when": [
     "区分の数がごく少なく（2〜3 程度）、内訳の形を一目で見せれば十分なとき"

@@ -75,7 +75,7 @@ Correct example: 「どの評価項目が推奨者になりやすさをどれだ
    For CART, "do not split a node with fewer than N rows" means minsplit=N, the minimum size before a split, not minbucket, the minimum size of a terminal leaf.
    Set minbucket only when the request specifies a minimum leaf size; do not derive minbucket=N or minsplit=2N from a restriction on splitting a node.
 3. Call **create_analytics**. Pass columns to slots **by name only**.
-   Give `title` a short name for what was done, in the conversation's language (e.g. 「推奨度の要因分析」). Do not prefix it with AI or use an internal method id. When several methods serve the same purpose, distinguish them with their displayed method names; mention test mode only if it helps distinguish the results.
+   Give `title` a short name for what was done, in the app display language (`ui_lang` from get_environment; e.g. 「推奨度の要因分析」 in Japanese). Do not prefix it with AI or use an internal method id. When several methods serve the same purpose, distinguish them with their displayed method names; mention test mode only if it helps distinguish the results.
    Exploratory converts column names to R notation. **When the column's type differs from the slot's columnTypes,
    first make the type match before creating.**
 

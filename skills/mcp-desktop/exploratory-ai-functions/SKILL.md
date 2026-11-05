@@ -17,6 +17,6 @@ MCP の対象指定と結果形式: [get_data_frame の読み方（加工の意�
 
 ## 目的で選ぶ節
 
-- [データ加工の共通ルール（並べ替え・絞り込み・集計・列の作成・結合・ピボット）](../exploratory-wrangling/common/wrangling-common.md)
+- [データ加工の共通ルール（並べ替え・絞り込み・集計・計算を作成・結合・ピボット）](../exploratory-wrangling/common/wrangling-common.md)
 
 共通設定は [設定の適用](../exploratory-core/runtime-settings.md) で確定する。道具の詳しい書き方は [MCP の道具別ガイド](../exploratory-core/mcp-tool-guides.md) から操作する道具だけを読む。

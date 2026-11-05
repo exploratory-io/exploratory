@@ -25,7 +25,7 @@ description: "For the Exploratory Desktop app on the user's computer (local proj
 
 MCP の対象指定と結果形式: [get_data_frame の読み方（加工の意図と標本データを両方読む）](../exploratory-core/common/core-source-reading.md)
 
-- [データ加工の共通ルール（並べ替え・絞り込み・集計・列の作成・結合・ピボット）](common/wrangling-common.md)
+- [データ加工の共通ルール（並べ替え・絞り込み・集計・計算を作成・結合・ピボット）](common/wrangling-common.md)
 
 ## 目的で選ぶ節
 

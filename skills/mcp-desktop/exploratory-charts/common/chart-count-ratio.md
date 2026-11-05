@@ -1,4 +1,4 @@
-**Express the ratio of counts with the aggregate function `count_ratio` (「割合」 on the screen), for cross tabulations (pivot) and bar charts alike.**
+**Express the ratio of counts with the aggregate function `count_ratio` (「割合」 on the screen), for cross tabulations (pivot) and Bar charts alike.**
 
 A table or bar of counts alone cannot be read. **Include the ratio in the table rather than calculating it only in the explanation.**
 
@@ -8,7 +8,7 @@ A table or bar of counts alone cannot be read. **Include the ratio in the table 
 For tables that compare per attribute or per group, a ratio that becomes 100% within that unit
 reads better (「女性のうち批判者が 8%」, not 3.7% of the whole).
 Which setting produces that differs by chart, so **decide after looking up with list_chart_settings**
-(for pivot / summarytable, table calculation and its direction; for bar charts, the ratio direction and barstyle).
+(for pivot / summarytable, table calculation and its direction; for Bar charts, the ratio direction and barstyle).
 Do not decide by rote; **match the shape of the table you built (what you placed in which slot).**
 
 How to do it: put `"行数"` in the value (y / meas) and attach `func: "count_ratio"`.

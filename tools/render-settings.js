@@ -26,17 +26,17 @@ function settings(environment = process.env, overrides = {}) {
   return result;
 }
 
-// オンの設定の文だけを出す。オフの設定は何も出さない（全部オフならチャート資料の案内 1 文だけになる）。
+// Render settings in English, including explicit instructions for disabled saves.
 function render(values) {
   const lines = [];
-  if (values.ai_summary === 'true') lines.push('チャート・アナリティクスを作成したら get_chart_summary_prompt / get_analytics_summary_prompt の実結果を読み、AI Summary を生成して save_chart_ai_summary / save_analytics_ai_summary の summary に保存する。成功した保存は繰り返さない。接続時の指示は summary-on だけを読む。');
+  if (values.ai_summary === 'true') lines.push('After creating a chart or an analytics artifact, read the actual results of get_chart_summary_prompt / get_analytics_summary_prompt, generate an AI Summary, and save it to the summary field with save_chart_ai_summary / save_analytics_ai_summary. Do not repeat successful saves. Read only the summary-on connection instructions.');
   // Explicit off instructions prevent unsolicited saves.
-  else lines.push('AI Summary は保存しない（利用者が明示して求めたときだけ）。');
-  if (values.save_comments === 'true') lines.push('作ったチャートの説明コメントを実結果に基づいて書き、update_chart の comment に保存する。AI Summary とは別の保存先として扱う。');
-  else lines.push('チャートの説明コメントは保存しない（利用者が明示して求めたときだけ）。');
-  if (values.review_hook === 'true') lines.push('最初の図・analytics の作成直前に1回、加工の作成直後は毎回、図の作成・編集直後と analytics の作成・編集直後は上限内で点検文を適用する。');
-  // 点検フックは既定でオフなので、毎回届くこの 1 文に、図を作るときに確かめる資料の場所を絶対パスで置く。
-  lines.push('チャートを作るときは ' + path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<種類>.md') + ' で枠と設定を確かめる。');
+  else lines.push('Do not save AI summaries unless the user explicitly requests it.');
+  if (values.save_comments === 'true') lines.push('Write a description of the created chart based on its actual results and save it to the comment field with update_chart. This is separate from AI Summary.');
+  else lines.push('Do not save chart description comments unless the user explicitly requests it.');
+  if (values.review_hook === 'true') lines.push('Apply review instructions once just before the first chart or analytics creation, after every wrangling step, and within the limit after each chart or analytics creation or edit.');
+  // Include the absolute chart reference path even when review hooks are disabled.
+  lines.push('When creating a chart, check its slots and settings in ' + path.join(root, 'skills/mcp-desktop/exploratory-charts/types/chart-<type>.md') + '.');
   return lines.join('\n') + '\n';
 }
 

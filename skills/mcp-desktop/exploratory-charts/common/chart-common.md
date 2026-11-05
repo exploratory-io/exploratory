@@ -36,7 +36,7 @@ Procedure:
      Attributes in columns only when the user explicitly asked, and then **it is pivot** (a summarytable colh cannot hold attribute columns). If update_chart fails by requiring meas and rowh, rebuild as pivot
    - Comparison by region or prefecture -> 地図 - 標準 (easymap), or geojson when the request names it (call list_chart_maps first)
 4. Call create_chart. Pass the chart type as marker and the assignment to slots as axes
-   Give `title` a short name for what the chart shows, in the conversation's language (e.g. 「地域別の売上推移」). Do not prefix it with AI or use an internal marker id.
+   Give `title` a short name for what the chart shows, in the app display language (`ui_lang` from get_environment; e.g. 「地域別の売上推移」 in Japanese, "Sales trend by region" in English). Do not prefix it with AI or use an internal marker id.
 5. **Look at the returned rows and slots before telling the user.**
    If rows is 0, either there is no data or the choice of slots is wrong
 6. For a single-chart request, read it back with get_chart and explain it. The following reading rules apply whenever existing results are read.
@@ -46,7 +46,7 @@ Procedure:
    - data: the result used for drawing (a CSV string with a header row)
    - dataNote: **what that data is.** The contents change by chart type, so always read it first.
      If it says 「これで全部です」, **do not run R for the same numbers.**
-     Bar and line charts contain the aggregated rows, so the totals are already out.
+     Bar and Line charts contain the aggregated rows, so the totals are already out.
      Only when it says 「全部ではない可能性がある」 or 「ビンごとの件数は入っていません」 do you recount with execute_r_script
      (histogram bins and density curve values are not contained)
   - **Read simple totals and ratios from the data that already came back.** If a pivot contains every row of counts by score, do not repeat the aggregation from the source data to explain low (1 to 2) or high (4 to 5) ratings. **Do not call execute_r_script.** This data is the whole figure, not a sample (dataNote says so)
@@ -159,7 +159,7 @@ Things to remember:
 **Display settings.** Look up exact names with list_chart_settings and settle the settings before creation.
 
 - **To color only specific bars (highlight).** Put the item column on the color slot as well (highlight acts on the values of the color slot), then pass in settings `enableHighlight: "on"` and `highlightValues: [{"value": "<the value as it appears in the data>", "color": "<a color chosen for this figure>"}]`. The other bars take `highlightDefaultColor`. Not `enableHighlight` with `highlightOnPalette`.
-- **Show a share as %, not as 0.44.** On a bar or line chart, set `yAxisNumberFormatting: "percentage"` (also for a horizontal bar, not `xAxisNumberFormatting`) and the digits with `numDecimalDigits`.
+- **Show a share as %, not as 0.44.** On a Bar or Line chart, set `yAxisNumberFormatting: "percentage"` (also for a horizontal bar, not `xAxisNumberFormatting`) and the digits with `numDecimalDigits`.
   - An aggregated ordinary numeric column (`ave`, `sum`) is multiplied by 100 by the query: keep it 0 to 1 (multiplying first doubles it).
   - Measure Values (several numeric columns put together) are not multiplied in the app released today: for 0 to 1 columns, make columns multiplied by 100 first and put those together, or pivot longer into one ordinary value column and aggregate that.
   - Value labels take the axis `%`: use `yValueOnPlot: "on"`, with no `percentage` on the label number format.

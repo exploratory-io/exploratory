@@ -20,6 +20,9 @@
 - `get_guide(topic="chart", tool="list_chart_maps")`
 - `get_guide(topic="chart", tool="get_chart_summary_prompt")`
 - `get_guide(topic="chart", tool="save_chart_ai_summary")`
+- `get_guide(topic="chart", tool="copy_chart")`
+- `get_guide(topic="chart", tool="export_chart_data")`
+- `get_guide(topic="chart", tool="install_chart_map")`
 - `get_guide(topic="chart_update", tool="update_chart")`
 - `get_guide(topic="dashboard", tool="create_dashboard")`
 - `get_guide(topic="dashboard", tool="update_dashboard")`
@@ -75,6 +78,7 @@
 - `get_guide(topic="system_settings", tool="get_dictionaries")`
 - `get_guide(topic="system_settings", tool="save_dictionary")`
 - `get_guide(topic="wrangling", tool="create_wrangling_step")`
+- `get_guide(topic="wrangling", tool="ai_wrangle")`
 - `get_guide(topic="wrangling", tool="get_wrangling_command")`
 - `get_guide(topic="wrangling", tool="get_ai_function_presets")`
 - `get_guide(topic="wrangling", tool="delete_wrangling_step")`

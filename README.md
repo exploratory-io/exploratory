@@ -169,7 +169,7 @@ Write to support@exploratory.io.
 
 ## Security
 
-Do not put tokens or passwords into prompts or files. The plugin does not pass a token; the Desktop bridge reads its own credentials. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Do not put tokens or passwords into prompts or files. The plugin does not pass a token; the Desktop bridge reads its own credentials. The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`, so your client asks you to confirm them. Copying to another project is not marked. To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Docs
 
@@ -343,7 +343,7 @@ support@exploratory.io へご連絡ください。
 
 ### セキュリティ
 
-トークンやパスワードをプロンプトやファイルに書かないでください。プラグインは token を渡しません。Desktop の中継が自分の認証情報を読みます。脆弱性の報告は [SECURITY.md](SECURITY.md) を見てください。
+トークンやパスワードをプロンプトやファイルに書かないでください。プラグインは token を渡しません。Desktop の中継が自分の認証情報を読みます。Desktop の MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けるので、クライアントが利用者に確認します。別プロジェクトへのコピーには付けません。脆弱性の報告は [SECURITY.md](SECURITY.md) を見てください。
 
 ### ドキュメント
 

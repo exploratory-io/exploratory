@@ -30,7 +30,7 @@ rObjects: {
 
 [SOURCE-09] Use an rName whose columns actually include the referenced column. R returns NULL without an error for an absent column; mean(NULL, na.rm = TRUE) yields NA, which cannot be quoted in the reply. Example: 「推奨者」 existed, but 「推奨者フラグ」 did not exist in any step.
 
-[SOURCE-10] Translate English step operation names to Japanese descriptions for the user: Filter -> 「注文日で対象期間に絞り込み」「キャンセル注文を除外」; Aggregate (Summarize) Data -> 「月単位で売上を合計」. Do not display 「Filter」「Create Calculation」「Aggregate (Summarize) Data」 or other internal names (Select Columns, Join (Add Columns)).
+[SOURCE-10] Translate English step operation names to descriptions in the user's request language (the examples are Japanese): Filter -> 「注文日で対象期間に絞り込み」「キャンセル注文を除外」; Aggregate (Summarize) Data -> 「月単位で売上を合計」. Do not display 「Filter」「Create Calculation」「Aggregate (Summarize) Data」 or other internal names (Select Columns, Join (Add Columns)).
 
 [SOURCE-11] For an existing analysis, use only the type returned by list_analytics, e.g. Prophet（時系列予測）、線形回帰、ランダムフォレスト only if actually returned. Do not invent a type such as 異常値検知 (Exploratory has no such feature). For a new analysis, list_analytics describes only current artifacts; absence there does not prohibit creation. Look up creatable types with list_analytics_templates and the exploratory-analytics skill.
 
