@@ -1,0 +1,23 @@
+{
+  "name": "exploratory",
+  "displayName": "Exploratory",
+  "version": "0.1.0",
+  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
+  "author": {
+    "name": "Exploratory, Inc.",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://github.com/exploratory-io/exploratory",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "keywords": [
+    "exploratory",
+    "data",
+    "analytics",
+    "dashboards",
+    "mcp"
+  ],
+  "category": "integrations",
+  "mcpServers": "./mcp.json",
+  "license": "MIT",
+  "logo": "./assets/icon.png"
+}

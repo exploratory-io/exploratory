@@ -1,0 +1,99 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" settings",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)create_(chart|analytics)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" initial",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)(create_wrangling_step|create_branch|create_chart|create_analytics|create_note|save_result_as_dataframe)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" plan-guard",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)create_wrangling_step$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" plan-custom-r",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "(^|__)(execute_r_script|create_chart|get_chart_image|get_chart_data|update_chart|update_analytics|update_note|update_dashboard|create_note|create_dashboard)$|^(Skill|Write|Bash)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" plan-record",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)create_wrangling_step$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" wrangling",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)(create_chart|update_chart|create_analytics|update_analytics)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" chart",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "(^|__)create_note$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" note",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js\" plan-stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

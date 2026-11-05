@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "exploratory-server": {
+      "type": "http",
+      "url": "https://exploratory.io/mcp",
+      "placement": "server"
+    }
+  }
+}

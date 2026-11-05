@@ -1,0 +1,22 @@
+{
+  "name": "exploratory",
+  "version": "0.1.0",
+  "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://github.com/exploratory-io/exploratory",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "license": "MIT",
+  "keywords": [
+    "exploratory",
+    "mcp",
+    "data",
+    "analytics",
+    "dashboards"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.codex-plugin/mcp.json"
+}

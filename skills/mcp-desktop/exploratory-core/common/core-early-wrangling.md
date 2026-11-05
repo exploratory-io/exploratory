@@ -1,0 +1,1 @@
+数値を区分にするなら式ではなく bin、値の読み替え・まとめなら recode を使う。get_wrangling_command で設定を確かめてから create_wrangling_step で作る。条件に合う行の割合は count_if_ratio を list_chart_settings で確認し、create_chart で指定する。重み付きの割合・平均は列の合計や式で代えず、list_chart_settings で値の設定「ウェイト」（ウェイト列）を確認して指定する。「ある条件の人の割合」を元の行数（全回答者）で割るときは 0/1 の平均で代えず、同じ設定一覧の「元の行数で割る」を確認して指定する。式（create_wrangling_step の mutate）は専用コマンドで作れないときに使う。

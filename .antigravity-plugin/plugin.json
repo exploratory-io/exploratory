@@ -1,0 +1,28 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "exploratory",
+  "displayName": "Exploratory",
+  "version": "0.1.0",
+  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
+  "logo": "assets/icon.png",
+  "suggestedPrompts": [
+    "List my items on Exploratory",
+    "Find the sales dashboard on Exploratory and summarize its charts",
+    "What columns does this Exploratory data item have?"
+  ],
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://github.com/exploratory-io/exploratory",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "license": "MIT",
+  "keywords": [
+    "exploratory",
+    "data",
+    "analytics",
+    "dashboards",
+    "mcp"
+  ]
+}

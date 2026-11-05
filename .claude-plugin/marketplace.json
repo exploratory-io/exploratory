@@ -1,0 +1,20 @@
+{
+  "name": "exploratory",
+  "owner": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "metadata": {
+    "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer."
+  },
+  "plugins": [
+    {
+      "name": "exploratory",
+      "source": "./",
+      "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
+      "version": "0.1.0",
+      "category": "data"
+    }
+  ]
+}

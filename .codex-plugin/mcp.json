@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "exploratory-server": {
+      "type": "http",
+      "url": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "./scripts/exploratory-desktop-mcp",
+      "cwd": ".",
+      "env_vars": [
+        "EXPLORATORY_MCP_BUNDLE",
+        "EXPLORATORY_HOME"
+      ]
+    }
+  }
+}

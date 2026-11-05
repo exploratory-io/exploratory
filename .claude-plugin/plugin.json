@@ -1,0 +1,71 @@
+{
+  "name": "exploratory",
+  "version": "0.1.0",
+  "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://github.com/exploratory-io/exploratory",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "keywords": [
+    "exploratory",
+    "mcp",
+    "data",
+    "analytics",
+    "dashboards"
+  ],
+  "privacyPolicyUrl": "https://exploratory.io/privacy",
+  "license": "MIT",
+  "icon": "./assets/icon.png",
+  "userConfig": {
+    "ai_summary": {
+      "type": "string",
+      "title": "AI サマリの出力",
+      "description": "作成したチャートとアナリティクスの AI Summary を作り保存するか",
+      "default": "false",
+      "options": [
+        "false",
+        "true"
+      ]
+    },
+    "save_comments": {
+      "type": "string",
+      "title": "コメントの保存",
+      "description": "作ったチャートの説明コメントを保存するか",
+      "default": "false",
+      "options": [
+        "false",
+        "true"
+      ]
+    },
+    "review_hook": {
+      "type": "string",
+      "title": "点検のフック",
+      "description": "false は使わない、true は最初の作成直前・加工後・図と分析の作成編集後に随時点検する",
+      "default": "false",
+      "options": [
+        "false",
+        "true"
+      ]
+    },
+    "plan_gate": {
+      "type": "string",
+      "title": "計画の関所",
+      "description": "true は、R のレポート（HTML）を保存した後、計画（<題名>_Exploratory作成計画.md）を保存するまで Exploratory での作成を止める（点検のフックとは独立）。false は何もしない",
+      "default": "true",
+      "options": [
+        "false",
+        "true"
+      ]
+    }
+  },
+  "hooks": "./hooks/claude.json",
+  "skills": [
+    "./skills/exploratory",
+    "./skills/mcp-server",
+    "./skills/mcp-desktop"
+  ],
+  "supportUrl": "mailto:support@exploratory.io"
+}

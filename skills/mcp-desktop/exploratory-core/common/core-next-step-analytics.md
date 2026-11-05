@@ -1,0 +1,1 @@
+AI Summary saving is enabled for this request. Call get_analytics_summary_prompt for actual values, write a factual AI Summary, then call save_analytics_ai_summary to save the comment. Do not repeat a successful save; report failures without guessing.

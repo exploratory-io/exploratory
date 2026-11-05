@@ -1,0 +1,2 @@
+Claude が R で作ったレポートと、それを Exploratory でどう作るかの計画を、照らしてください。R のレポートの図・分析・加工のそれぞれに、計画の作り方（どの道具で作るか）がありますか。計画にあって R のレポートに無い項目、R のレポートにあって計画に無い項目はありませんか。R のレポートの値を、計画のどの項目で確かめるかも決めてください。
+そのうえで、これから Exploratory で作る加工・図・分析の一つ一つについて、計画のどの項目に当たり、R のレポートのどの値と照らすかを決め、Exploratory の道具（create_wrangling_step のコマンド、create_chart、create_analytics のテンプレート）で作れるかを道具の一覧の名前から判定してください。Exploratory で作れるものは Exploratory で作り、作れないものだけ、ステップのカスタム R コマンドかカスタムチャート（R）で作って、理由を一言残してください。詳しい定義（get_wrangling_command、get_analytics_template、get_guide）は作る直前に必要な分だけ読んでください。

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "exploratory-server": {
+      "type": "http",
+      "url": "https://exploratory.io/mcp"
+    },
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"
+    }
+  }
+}
