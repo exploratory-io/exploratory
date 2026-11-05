@@ -3,6 +3,8 @@ name: exploratory-analysis
 description: For the Exploratory Desktop app on the user's computer (local projects). データの分析やレポート・ダッシュボードの作成を任されたとき（要因を探して、違いを見て、何が言えるかをレポートにまとめて、など）に、最初に使う。まず R で計算と図を作って HTML のレポートに保存し、それを Exploratory でどう作るかの計画を書き、計画に沿って Exploratory で作り、計画と HTML のレポートとのずれを確かめて報告する。単一の図だけを頼まれたとき、数値 1 つの質問や説明だけの依頼には使わない。
 ---
 
+exploratory-desktop が使えない・エラーのときは、~/.exploratory・token・アプリのログ・他の会話の記録を探したり読んだりせず、中継を自分で起動せず、利用者に Exploratory Desktop の起動を頼む（利用者のデータやプロジェクトを探すのは構わない）。
+
 ## 操作するプロジェクトを確かめる
 
 get_environment から始める。前の会話で使ったプロジェクトに続けるときも、質問を返す前に、今も開いているかを確かめる。

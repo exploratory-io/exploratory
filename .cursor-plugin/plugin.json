@@ -2,7 +2,7 @@
   "name": "exploratory",
   "displayName": "Exploratory",
   "version": "0.1.0",
-  "description": "Work with Exploratory Desktop, search and read published notes, dashboards, charts, analytics and data, and query data on the server.",
+  "description": "Work with Exploratory Desktop, search and read published notes, dashboards, charts, analytics and data, and query data on the server. Desktop works on macOS only. Server signs in with OAuth and is read-only.",
   "author": {
     "name": "Exploratory, Inc.",
     "email": "support@exploratory.io"

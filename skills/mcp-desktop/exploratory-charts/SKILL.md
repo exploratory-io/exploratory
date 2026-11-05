@@ -3,6 +3,8 @@ name: exploratory-charts
 description: "For the Exploratory Desktop app on the user's computer (local projects). 「月別の売上をチャートにして」「この図を散布図に変えて」のように、チャートやピボットを 1 枚作る・直す・設定する・読み解くときに使う。"
 ---
 
+exploratory-desktop が使えない・エラーのときは、~/.exploratory・token・アプリのログ・他の会話の記録を探したり読んだりせず、中継を自分で起動せず、利用者に Exploratory Desktop の起動を頼む（利用者のデータやプロジェクトを探すのは構わない）。
+
 作成・変更・結果の解釈の前に「必ず読む節」を読み、詳細は必要な種類・節を選ぶ。相対パスはこのフォルダが基準。
 
 AI Summary 書式オフの項目は現在の書式設定がオフのときに選び、オンの本文と混ぜない。

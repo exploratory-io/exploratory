@@ -4,7 +4,7 @@
 
 Claude Code・Codex・Grok Bot・Cursor・Antigravityなどの MCP クライアントを Exploratory につなぐと、exploratory.io で閲覧できるノート・ダッシュボード・スライド・チャート・アナリティクス・データを検索して読めます。データの集計もサーバー上で正確に実行できます。
 
-この MCP サーバーは読み取り専用です。アイテムの作成・編集・公開・削除はできません。Exploratory Desktop でチャートや分析を作るには、別の Exploratory Desktop MCP を使います。
+この MCP サーバーは読み取り専用です。アイテムの作成・編集・公開・削除はできません（注: `dataframe_export` は 15 分有効のダウンロードリンクを作ります）。Exploratory Desktop でチャートや分析を作るには、別の Exploratory Desktop MCP を使います。
 
 ## Claude Code につなぐ
 

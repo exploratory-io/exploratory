@@ -3,6 +3,8 @@ name: exploratory-dashboards
 description: "For the Exploratory Desktop app on the user's computer (local projects). 既存のダッシュボードの更新と、ノートやダッシュボードの公開を頼まれたときに使う。データからダッシュボードを新しく作る依頼は exploratory-analysis から始める。"
 ---
 
+exploratory-desktop が使えない・エラーのときは、~/.exploratory・token・アプリのログ・他の会話の記録を探したり読んだりせず、中継を自分で起動せず、利用者に Exploratory Desktop の起動を頼む（利用者のデータやプロジェクトを探すのは構わない）。
+
 作成・変更・結果の解釈の前に「必ず読む節」を読み、詳細は必要な種類・節を選ぶ。相対パスはこのフォルダが基準。
 
 ## 作業の要点

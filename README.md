@@ -125,7 +125,7 @@ Use the same variables before `claude` for Claude Code. The launcher first check
 
 > List my items on Exploratory.
 
-> In the "Sales" dashboard on Exploratory, which region grew the most last quarter?
+> What columns does the "Sales" data item on Exploratory have, and which 5 regions have the highest sales?
 
 > In my open Exploratory project, build a monthly bar chart from the sales data.
 
@@ -137,13 +137,13 @@ Use the same variables before `claude` for Claude Code. The launcher first check
 | Charts and analytics | `chart_get_data` returns the numbers behind a chart; `chart_get_image` returns the chart as an image; `analytics_get_result` returns coefficients, p-values and other results |
 | Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet |
 
-The Server tools listed above are read-only. Desktop tools can create and edit local projects, and they include operations that change or remove things: deleting charts, analytics, notes, dashboards, steps, branches, parameters and connections; publishing notes, dashboards and data frames and unpublishing them; and running R code with `execute_r_script`. Review what your agent proposes before it writes. See the [Server MCP reference](docs/mcp.md) for arguments, errors and limits.
+The Server tools listed above are read-only (`dataframe_export` creates a download link that is valid for 15 minutes). Desktop tools can create and edit local projects, and they include operations that change or remove things: deleting charts, analytics, notes, dashboards, steps, branches, parameters and connections; publishing notes, dashboards and data frames and unpublishing them; and running R code with `execute_r_script`. Review what your agent proposes before it writes. See the [Server MCP reference](docs/mcp.md) for arguments, errors and limits.
 
 ## Data and permissions
 
 - The Server MCP reads published items. The Desktop MCP can create and edit local project content and publish when requested; review the operations your agent proposes.
-- Every call runs as the signed-in user and never goes beyond what that user can view on exploratory.io. A publisher can turn off MCP access for an item, or keep the rows of a data item private.
-- To disconnect a client, open Account Settings on exploratory.io and remove it under Connected AI Apps.
+- Server MCP calls run as the signed-in user and never go beyond what that user can view on exploratory.io. A publisher can turn off MCP access for an item, or keep the rows of a data item private. This does not apply to the Desktop MCP, which works through the Exploratory Desktop app on your computer, as the user signed in to the app.
+- To disconnect a client from the Server MCP, open Account Settings on exploratory.io and remove it under Connected AI Apps. This does not stop the Desktop MCP; it stops working when you quit Exploratory Desktop.
 
 ## Update and uninstall
 
@@ -155,14 +155,14 @@ The Server tools listed above are read-only. Desktop tools can create and edit l
 | Grok Bot | Nothing to update | Remove `exploratory-server` from Grok Bot's connections |
 | Antigravity | Run `git pull` in the cloned folder, then `agy plugin install` again | Remove the plugin in Antigravity's plugin settings |
 
-Uninstalling does not revoke access. To revoke it, also remove the client under Connected AI Apps on exploratory.io. This works for every client.
+Uninstalling does not revoke Server MCP access. To revoke it, also remove the client under Connected AI Apps on exploratory.io. This applies to the Server MCP only; the Desktop MCP stops working when you quit Exploratory Desktop.
 
 ## Privacy
 
 - Server MCP: calls go to `https://exploratory.io/mcp` and run as the signed-in user. They read published items only, are read-only, and never go beyond what that user can view.
 - Desktop MCP: it runs on your computer and talks to your local Exploratory Desktop. It reads and edits local project content (data frames, charts, analytics, notes, dashboards) through the app.
 - What a tool returns (rows, column names, chart images, errors) becomes part of your conversation, so it is sent to the provider of the AI you use (for example Anthropic, OpenAI, Google or xAI) under that provider's terms. Do not use the plugin on data that you may not send to that provider.
-- Hooks (Claude Code only): they run locally with `node`, send nothing over the network and write state files to the plugin data folder, or to `exploratory-plugin-review` in the system temp folder when none is set. The files are not deleted automatically; delete them yourself if you do not want them kept. With `review_hook` on, a `-charts.json` file stores the arguments and results of `create_chart` and `update_chart` as they are, which can include column names and filter values; for notes it stores the note ID or title. The plan gate (`plan_gate`, on by default) stores the SHA-1 of R expressions, the paths of the report and plan files, and chart IDs, and reads `*計画*.md` and `*plan*.md` files in your working folder. To turn them off, set `review_hook` and `plan_gate` to `false` with `/plugin configure exploratory@exploratory`, or uninstall the plugin.
+- Hooks (Claude Code only): they run locally with `node`, send nothing over the network and write state files to the plugin data folder, or to `exploratory-plugin-review` in the system temp folder when none is set. The files are not deleted automatically; delete them yourself if you do not want them kept. With `review_hook` on, a `-charts.json` file stores the arguments and results of `create_chart`, `update_chart`, `create_analytics` and `update_analytics` saved as-is in the same `-charts.json` (this can include column names and filter values); for notes it stores the note ID or title. The plan gate (`plan_gate`, on by default) stores the SHA-1 of R expressions, the paths of the report and plan files, and chart IDs, and reads `*計画*.md` and `*plan*.md` files in your working folder. To turn them off, set `review_hook` and `plan_gate` to `false` with `/plugin configure exploratory@exploratory`, or uninstall the plugin.
 - The hook for `Write`, `Bash` and `Skill` calls starts on every such call, but records nothing unless the analysis skill was used first.
 - Exploratory's privacy policy: https://exploratory.io/privacy
 
@@ -172,7 +172,7 @@ Write to support@exploratory.io.
 
 ## Security
 
-Do not put tokens or passwords into prompts or files. The plugin does not pass a token; the Desktop bridge reads its own credentials. The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`, so your client asks you to confirm them. Copying to another project is not marked. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Do not put tokens or passwords into prompts or files. The plugin does not pass a token; the Desktop bridge reads its own credentials. The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`. The hint is only a hint: a client that honors it can ask you to confirm, depending on the client and your permission settings. Copying to another project is not marked. To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Docs
 
@@ -302,7 +302,7 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 
 > Exploratory にある自分のアイテムを一覧して
 
-> Exploratory の「売上」ダッシュボードで、前の四半期に一番伸びた地域はどこ？
+> Exploratory の「売上」データにはどんな列がある？ 売上が一番高い地域の上位 5 つも教えて
 
 > 開いている Exploratory のプロジェクトで、売上データから月ごとのバーのチャートを作って
 
@@ -314,13 +314,13 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 | チャート・アナリティクス | `chart_get_data` でチャートの数値、`chart_get_image` でチャートの画像、`analytics_get_result` で係数や P 値などの結果を取る |
 | データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存 |
 
-上の Server 用ツールは読み取り専用です。Desktop 用ツールは手元のプロジェクトを作成・編集できます。変更や削除を伴う操作も含みます。チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続の削除、ノート・ダッシュボード・データフレームの公開と公開の取り消し、`execute_r_script` による R の実行です。書き込みの前に、エージェントの提案を確認してください。Server の引数・エラー・制限は [MCP リファレンス](docs/mcp.ja.md)を見てください。
+上の Server 用ツールは読み取り専用です（`dataframe_export` は 15 分有効のダウンロードリンクを作ります）。Desktop 用ツールは手元のプロジェクトを作成・編集できます。変更や削除を伴う操作も含みます。チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続の削除、ノート・ダッシュボード・データフレームの公開と公開の取り消し、`execute_r_script` による R の実行です。書き込みの前に、エージェントの提案を確認してください。Server の引数・エラー・制限は [MCP リファレンス](docs/mcp.ja.md)を見てください。
 
 ### データと権限
 
 - Server MCP は公開項目を読みます。Desktop MCP は手元のプロジェクトを作成・編集し、依頼に応じて公開できます。エージェントが提案する操作を確認してください。
-- 呼び出しはすべてサインインした人として動き、その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、アイテムごとに MCP からの利用を止めたり、データの行を共有しないようにしたりできます。
-- 接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。
+- Server MCP の呼び出しはサインインした人として動き、その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、アイテムごとに MCP からの利用を止めたり、データの行を共有しないようにしたりできます。これは Desktop MCP には当てはまりません。Desktop MCP は、手元の Exploratory Desktop アプリを通して、アプリにサインインしている利用者として動く、別の仕組みです。
+- Server MCP の接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。Desktop MCP は止まりません。Exploratory Desktop を終了すると使えなくなります。
 
 ### 更新と削除
 
@@ -332,14 +332,14 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 | Grok Bot | 更新は不要 | Grok Bot の接続の一覧から `exploratory-server` を外す |
 | Antigravity | 取得したフォルダで `git pull` を実行し、もう一度 `agy plugin install` | Antigravity のプラグインの設定から外す |
 
-削除しただけでは、アクセスの許可は残ります。許可も取り消すときは、exploratory.io の「接続中のAIアプリ」からも外してください。どのクライアントでも、この方法で取り消せます。
+削除しただけでは、Server MCP のアクセスの許可は残ります。許可も取り消すときは、exploratory.io の「接続中のAIアプリ」からも外してください。これは Server MCP だけの手順です。Desktop MCP は、Exploratory Desktop を終了すると使えなくなります。
 
 ### プライバシー
 
 - Server MCP: 呼び出しは `https://exploratory.io/mcp` に送られ、サインインした人として動きます。読むのは公開項目だけで、読み取り専用です。その人が閲覧できる範囲を超えません。
 - Desktop MCP: あなたのコンピューター上で動き、手元の Exploratory Desktop と通信します。アプリを通して、手元のプロジェクトの内容（データフレーム・チャート・アナリティクス・ノート・ダッシュボード）を読み、編集します。
 - ツールの結果（行・列名・チャートの画像・エラー）は会話の一部になるので、使っている AI の提供元（例: Anthropic、OpenAI、Google、xAI）へ、その提供元の規約のもとで送られます。その提供元へ送ってはいけないデータには、このプラグインを使わないでください。
-- フック（Claude Code のみ）: `node` でローカルに動き、ネットワークには何も送りません。状態ファイルを、プラグインのデータフォルダ（未設定ならシステムの一時フォルダの `exploratory-plugin-review`）に書きます。ファイルは自動では消えないので、残したくなければ自分で消します。`review_hook` がオンのとき、`-charts.json` に `create_chart` と `update_chart` の引数と結果がそのまま保存されます（列名やフィルタの値が入ることがあります）。ノートは noteId か題名を保存します。計画の関所（`plan_gate`、既定はオン）は、R 式の SHA-1、レポートと計画ファイルのパス、チャートの ID を保存し、作業フォルダの `*計画*.md` と `*plan*.md` を読みます。止めるには、`/plugin configure exploratory@exploratory` で `review_hook` と `plan_gate` を `false` にするか、プラグインを削除します。
+- フック（Claude Code のみ）: `node` でローカルに動き、ネットワークには何も送りません。状態ファイルを、プラグインのデータフォルダ（未設定ならシステムの一時フォルダの `exploratory-plugin-review`）に書きます。ファイルは自動では消えないので、残したくなければ自分で消します。`review_hook` がオンのとき、`-charts.json` に `create_chart`・`update_chart`・`create_analytics`・`update_analytics` の引数と結果が、同じファイルにそのまま保存されます（列名やフィルタの値が入ることがあります）。ノートは noteId か題名を保存します。計画の関所（`plan_gate`、既定はオン）は、R 式の SHA-1、レポートと計画ファイルのパス、チャートの ID を保存し、作業フォルダの `*計画*.md` と `*plan*.md` を読みます。止めるには、`/plugin configure exploratory@exploratory` で `review_hook` と `plan_gate` を `false` にするか、プラグインを削除します。
 - `Write`・`Bash`・`Skill` のフックはそれらの呼び出しのたびに起動しますが、分析のスキルを使った後でなければ何も記録しません。
 - Exploratory のプライバシーポリシー: https://exploratory.io/privacy
 
@@ -349,7 +349,7 @@ support@exploratory.io へご連絡ください。
 
 ### セキュリティ
 
-トークンやパスワードをプロンプトやファイルに書かないでください。プラグインは token を渡しません。Desktop の中継が自分の認証情報を読みます。Desktop の MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けるので、クライアントが利用者に確認します。別プロジェクトへのコピーには付けません。脆弱性の報告は [SECURITY.md](SECURITY.md) を見てください。
+トークンやパスワードをプロンプトやファイルに書かないでください。プラグインは token を渡しません。Desktop の中継が自分の認証情報を読みます。Desktop の MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けています。ヒントに従うクライアントなら確認を求めることがあります。クライアントと権限の設定によります。別プロジェクトへのコピーには付けません。脆弱性の報告は [SECURITY.md](SECURITY.md) を見てください。
 
 ### ドキュメント
 

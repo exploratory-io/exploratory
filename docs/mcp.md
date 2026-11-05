@@ -4,7 +4,7 @@
 
 Connect Claude Code, Codex, Grok Bot, Cursor, Antigravity, any other MCP client to Exploratory to search and read the notes, dashboards, slides, charts, analytics and data that you can view on exploratory.io, and to run exact aggregations on data items on the server.
 
-The MCP server is read-only. It does not create, edit, publish or delete anything. For building charts and analyses in Exploratory Desktop, see the separate Exploratory Desktop MCP.
+The MCP server is read-only. It does not create, edit, publish or delete anything. (Note: `dataframe_export` creates a download link that is valid for 15 minutes.) For building charts and analyses in Exploratory Desktop, see the separate Exploratory Desktop MCP.
 
 ## Connect Claude Code
 

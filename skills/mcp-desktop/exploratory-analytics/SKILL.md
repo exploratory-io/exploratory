@@ -3,6 +3,8 @@ name: exploratory-analytics
 description: "For the Exploratory Desktop app on the user's computer (local projects). 「売上に効く要因を回帰で調べて」「顧客をクラスタに分けて」のように、回帰・検定・クラスタなど統計手法の分析を作る・直す・読み解くときに使う（集計と比較で答えられる依頼は exploratory-charts や exploratory-wrangling）。"
 ---
 
+exploratory-desktop が使えない・エラーのときは、~/.exploratory・token・アプリのログ・他の会話の記録を探したり読んだりせず、中継を自分で起動せず、利用者に Exploratory Desktop の起動を頼む（利用者のデータやプロジェクトを探すのは構わない）。
+
 作成・変更・結果の解釈の前に「必ず読む節」を読み、詳細は必要な種類・節を選ぶ。相対パスはこのフォルダが基準。
 
 AI Summary 書式オフの項目は現在の書式設定がオフのときに選び、オンの本文と混ぜない。
