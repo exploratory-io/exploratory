@@ -20,10 +20,12 @@ function candidates(env, platform) {
   if (platform === 'darwin') {
     list.push(path.posix.join('/Applications/Exploratory.app/Contents/Resources/app.nw/mcp', BUNDLE_NAME));
   } else if (platform === 'win32') {
-    // Unconfirmed: which of these two Windows install locations is correct has not been checked on a real machine.
     const w = path.win32;
-    list.push(w.join(env.ProgramFiles || 'C:\\Program Files', 'Exploratory', 'resources', 'app.nw', 'mcp', BUNDLE_NAME));
-    if (env.LOCALAPPDATA) list.push(w.join(env.LOCALAPPDATA, 'Exploratory', 'resources', 'app.nw', 'mcp', BUNDLE_NAME));
+    // Checked on the Windows release build on 2026-11-05: Exploratory.exe is in <ProgramFiles>\Exploratory and the
+    // relay is in its package.nw\mcp folder (there is no resources folder).
+    list.push(w.join(env.ProgramFiles || 'C:\\Program Files', 'Exploratory', 'package.nw', 'mcp', BUNDLE_NAME));
+    // Not checked on a real machine: a per-user install under LOCALAPPDATA with the same layout.
+    if (env.LOCALAPPDATA) list.push(w.join(env.LOCALAPPDATA, 'Exploratory', 'package.nw', 'mcp', BUNDLE_NAME));
   }
   return list;
 }

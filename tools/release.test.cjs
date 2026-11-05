@@ -1107,13 +1107,16 @@ test('Desktop launcher searches the bundle in order for each platform', () => {
   const name = 'exploratory-mcp.bundle.js';
   const mac = path.posix.join('/Applications/Exploratory.app/Contents/Resources/app.nw/mcp', name);
   assert.deepEqual(candidates({ EXPLORATORY_MCP_BUNDLE: '/x/b.js' }, 'darwin'), ['/x/b.js', mac]);
-  const program = path.win32.join('C:\\Program Files', 'Exploratory', 'resources', 'app.nw', 'mcp', name);
-  const local = path.win32.join('C:\\Users\\a\\AppData\\Local', 'Exploratory', 'resources', 'app.nw', 'mcp', name);
+  const program = path.win32.join('C:\\Program Files', 'Exploratory', 'package.nw', 'mcp', name);
+  const local = path.win32.join('C:\\Users\\a\\AppData\\Local', 'Exploratory', 'package.nw', 'mcp', name);
   const env = { ProgramFiles: 'C:\\Program Files', LOCALAPPDATA: 'C:\\Users\\a\\AppData\\Local' };
   assert.deepEqual(candidates(env, 'win32'), [program, local]);
+  assert.deepEqual(candidates({}, 'win32'), [program]);
+  assert.deepEqual(candidates({ ProgramFiles: 'D:\\Apps' }, 'win32'), [path.win32.join('D:\\Apps', 'Exploratory', 'package.nw', 'mcp', name)]);
   assert.deepEqual(candidates({}, 'linux'), []);
   const present = new Set([local, mac]);
   assert.equal(findBundle(env, 'win32', file => present.has(file)), local);
+  assert.equal(findBundle(env, 'win32', file => file === program || file === local), program);
   assert.equal(findBundle({ ...env, EXPLORATORY_MCP_BUNDLE: '/x/b.js' }, 'win32', file => file === '/x/b.js' || file === program), '/x/b.js');
   assert.equal(findBundle(env, 'win32', () => false), null);
 });
