@@ -6,7 +6,8 @@
     },
     "exploratory-desktop": {
       "type": "stdio",
-      "command": "./scripts/exploratory-desktop-mcp",
+      "command": "node",
+      "args": ["./scripts/exploratory-desktop-mcp.js"],
       "cwd": ".",
       "env_vars": [
         "EXPLORATORY_MCP_BUNDLE",

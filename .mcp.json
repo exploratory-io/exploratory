@@ -6,7 +6,8 @@
     },
     "exploratory-desktop": {
       "type": "stdio",
-      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js"]
     }
   }
 }

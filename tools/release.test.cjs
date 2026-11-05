@@ -48,9 +48,9 @@ test('Cursor registers inline Server and Desktop MCPs using the plugin install p
     type: 'http', url: 'https://exploratory.io/mcp'
   });
   assert.deepEqual(mcpServers['exploratory-desktop'], {
-    type: 'stdio', command: '${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp'
+    type: 'stdio', command: 'node', args: ['${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js']
   });
-  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp'), fs.constants.X_OK);
+  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp.js'), fs.constants.R_OK);
 });
 
 test('Antigravity registers Server and Desktop MCPs using its plugin path variable', () => {
@@ -58,9 +58,9 @@ test('Antigravity registers Server and Desktop MCPs using its plugin path variab
   assert.deepEqual(Object.keys(mcpServers).sort(), ['exploratory-desktop', 'exploratory-server']);
   assert.deepEqual(mcpServers['exploratory-server'], { serverUrl: 'https://exploratory.io/mcp' });
   assert.deepEqual(mcpServers['exploratory-desktop'], {
-    command: 'sh', args: ['${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp']
+    command: 'node', args: ['${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js']
   });
-  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp'), fs.constants.X_OK);
+  fs.accessSync(path.join(root, 'scripts/exploratory-desktop-mcp.js'), fs.constants.R_OK);
 });
 
 test('all 8 settings combinations use the same policy for native options and environment', () => {
@@ -297,7 +297,7 @@ for (const kind of ['chart', 'analytics']) for (const shape of ['content string'
   });
 }
 
-test('Codex installer prints each review option without installing or saving configuration', () => {
+if (process.platform !== 'win32') test('Codex installer prints each review option without installing or saving configuration', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-codex-review-'));
   try {
     const script = path.join(root, 'tools/install-codex.sh');
@@ -563,6 +563,15 @@ function planGateFixture() {
   const guard = (tool_name, tool_input = {}, env) => { const out = hook('plan-guard', { tool_name, tool_input }, env); return out ? JSON.parse(out).hookSpecificOutput : undefined; };
   return { dir, work, run, hook, savePlan, startR, guard };
 }
+
+test('plan gate records an R report rendered through the PowerShell tool', () => {
+  const { dir, work, hook, guard } = planGateFixture();
+  try {
+    hook('plan-record', { tool_name: 'Skill', tool_input: { skill: 'exploratory:exploratory-analysis' }, tool_response: {} });
+    hook('plan-record', { tool_name: 'PowerShell', tool_input: { command: 'Rscript -e "rmarkdown::render(\'report.Rmd\', output_file = \'report.html\')"' }, tool_response: {} });
+    assert.equal(guard('create_chart').permissionDecision, 'deny');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
 
 test('plan gate ignores unrelated HTML saves and does not apply them retroactively to Exploratory', () => {
   for (const tool_name of ['Write', 'Bash']) {
@@ -1077,4 +1086,69 @@ test('Cursor skills paths exist and cover the entry, Desktop and Server skills',
   assert(found.has('skills/exploratory'));
   assert(found.has('skills/mcp-server/exploratory-server'));
   assert(found.has('skills/mcp-desktop/exploratory-core'));
+});
+
+test('Claude Code, Codex and the hooks start the Desktop launcher with node', () => {
+  const read = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n/g, '\n'));
+  assert.deepEqual(read('.mcp.json').mcpServers['exploratory-desktop'], {
+    type: 'stdio', command: 'node', args: ['${CLAUDE_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js']
+  });
+  const codex = read('.codex-plugin/mcp.json').mcpServers['exploratory-desktop'];
+  assert.equal(codex.command, 'node');
+  assert.deepEqual(codex.args, ['./scripts/exploratory-desktop-mcp.js']);
+  assert.equal(codex.cwd, '.');
+  assert(fs.existsSync(path.join(root, 'scripts/exploratory-desktop-mcp.js')));
+  assert(!fs.existsSync(path.join(root, 'scripts/exploratory-desktop-mcp')));
+  assert(read('hooks/claude.json').hooks.PostToolUse[0].matcher.includes('PowerShell'));
+});
+
+test('Desktop launcher searches the bundle in order for each platform', () => {
+  const { candidates, findBundle } = require('../scripts/exploratory-desktop-mcp.js');
+  const name = 'exploratory-mcp.bundle.js';
+  const mac = path.posix.join('/Applications/Exploratory.app/Contents/Resources/app.nw/mcp', name);
+  assert.deepEqual(candidates({ EXPLORATORY_MCP_BUNDLE: '/x/b.js' }, 'darwin'), ['/x/b.js', mac]);
+  const program = path.win32.join('C:\\Program Files', 'Exploratory', 'resources', 'app.nw', 'mcp', name);
+  const local = path.win32.join('C:\\Users\\a\\AppData\\Local', 'Exploratory', 'resources', 'app.nw', 'mcp', name);
+  const env = { ProgramFiles: 'C:\\Program Files', LOCALAPPDATA: 'C:\\Users\\a\\AppData\\Local' };
+  assert.deepEqual(candidates(env, 'win32'), [program, local]);
+  assert.deepEqual(candidates({}, 'linux'), []);
+  const present = new Set([local, mac]);
+  assert.equal(findBundle(env, 'win32', file => present.has(file)), local);
+  assert.equal(findBundle({ ...env, EXPLORATORY_MCP_BUNDLE: '/x/b.js' }, 'win32', file => file === '/x/b.js' || file === program), '/x/b.js');
+  assert.equal(findBundle(env, 'win32', () => false), null);
+});
+
+test('Desktop launcher exits 1 with the message when no bundle exists, and passes the exit code through', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-launcher-'));
+  try {
+    const launcher = path.join(root, 'scripts/exploratory-desktop-mcp.js');
+    const run = bundle => require('node:child_process').spawnSync(process.execPath, [launcher, 'arg'], { encoding: 'utf8', env: { PATH: process.env.PATH, EXPLORATORY_MCP_BUNDLE: bundle, ProgramFiles: path.join(dir, 'no-program-files'), LOCALAPPDATA: path.join(dir, 'no-local') } });
+    const missing = run(path.join(dir, 'none.js'));
+    if (!fs.existsSync('/Applications/Exploratory.app/Contents/Resources/app.nw/mcp/exploratory-mcp.bundle.js')) {
+      assert.equal(missing.status, 1);
+      assert(missing.stderr.includes('Exploratory Desktop MCP bundle was not found. Install Exploratory or set EXPLORATORY_MCP_BUNDLE.'));
+    }
+    const bundle = path.join(dir, 'b.js');
+    fs.writeFileSync(bundle, "process.stdout.write(process.argv[2]); process.exit(7);");
+    const ok = run(bundle);
+    assert.equal(ok.status, 7);
+    assert.equal(ok.stdout, 'arg');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+if (process.platform !== 'win32') test('Desktop launcher forwards SIGTERM to the bundle and ends with the same signal', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-launcher-signal-'));
+  try {
+    const bundle = path.join(dir, 'b.js');
+    fs.writeFileSync(bundle, "process.on('SIGTERM', () => { process.stdout.write('got-term'); process.kill(process.pid, 'SIGKILL'); }); process.stdout.write('ready'); setInterval(() => {}, 1000);");
+    const child = require('node:child_process').spawn(process.execPath, [path.join(root, 'scripts/exploratory-desktop-mcp.js')], { env: { PATH: process.env.PATH, EXPLORATORY_MCP_BUNDLE: bundle } });
+    let out = '';
+    child.stdout.on('data', chunk => { out += chunk; });
+    await new Promise(resolve => { const timer = setInterval(() => { if (out.includes('ready')) { clearInterval(timer); resolve(); } }, 20); });
+    const ended = new Promise(resolve => child.on('exit', (code, signal) => resolve({ code, signal })));
+    child.kill('SIGTERM');
+    const result = await ended;
+    assert(out.includes('got-term'));
+    assert(result.signal === 'SIGTERM' || result.signal === 'SIGKILL' || result.code === 128 + os.constants.signals.SIGTERM || result.code === 128 + os.constants.signals.SIGKILL, JSON.stringify(result));
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

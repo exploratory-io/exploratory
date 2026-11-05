@@ -63,10 +63,10 @@ function main(mode, input) {
     else if (ok && !String(args.skill || '').startsWith('exploratory:') && load().exploratory) save({ ...load(), exploratory: false });
     return;
   }
-  // R のレポート（HTML）の保存を記録する。Write の .html、Bash の render / .html の出力、execute_r_script で .html を書いたもの。
+  // R のレポート（HTML）の保存を記録する。Write の .html、Bash と PowerShell の render / .html の出力、execute_r_script で .html を書いたもの。
   const command = String(args.command || '');
   const html = name === 'Write' ? /\.html?$/i.test(target) && target
-    : name === 'Bash' ? /rmarkdown::render|\brender\s*\(|(?:-o|--output|>)\s*['\x22]?[^\s'\x22]+\.html?\b/i.test(command) && ((command.match(HTML_NAME) || [])[0] || '')
+    : name === 'Bash' || name === 'PowerShell' ? /rmarkdown::render|\brender\s*\(|(?:-o|--output|>)\s*['\x22]?[^\s'\x22]+\.html?\b/i.test(command) && ((command.match(HTML_NAME) || [])[0] || '')
     : /(?:^|__)execute_r_script$/.test(name) ? /\.html?\b/i.test(JSON.stringify(args) + responseText) && ((JSON.stringify(args).match(HTML_NAME) || [])[0] || '')
     : false;
   if (html !== false) {

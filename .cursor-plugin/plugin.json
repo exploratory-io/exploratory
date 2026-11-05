@@ -24,7 +24,8 @@
     },
     "exploratory-desktop": {
       "type": "stdio",
-      "command": "${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"
+      "command": "node",
+      "args": ["${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js"]
     }
   },
   "skills": [

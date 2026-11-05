@@ -4,8 +4,8 @@
       "serverUrl": "https://exploratory.io/mcp"
     },
     "exploratory-desktop": {
-      "command": "sh",
-      "args": ["${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"]
+      "command": "node",
+      "args": ["${PLUGIN_ROOT}/scripts/exploratory-desktop-mcp.js"]
     }
   }
 }
