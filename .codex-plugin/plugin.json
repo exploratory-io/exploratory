@@ -18,5 +18,23 @@
     "dashboards"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.codex-plugin/mcp.json"
+  "mcpServers": "./.codex-plugin/mcp.json",
+  "interface": {
+    "displayName": "Exploratory",
+    "shortDescription": "Use Exploratory Desktop and exploratory.io from Codex",
+    "longDescription": "Read notes, dashboards, charts, analytics and data published on exploratory.io, and create data, charts, analytics and reports in the Exploratory Desktop app on your computer.",
+    "developerName": "Exploratory, Inc.",
+    "category": "Productivity",
+    "capabilities": [
+      "Search and read published Exploratory items",
+      "Query published data",
+      "Create charts and analytics in Exploratory Desktop"
+    ],
+    "websiteURL": "https://exploratory.io",
+    "supportURL": "mailto:support@exploratory.io",
+    "privacyPolicyURL": "https://exploratory.io/privacy",
+    "termsOfServiceURL": "https://exploratory.io/terms",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  }
 }
