@@ -6,7 +6,7 @@ This plugin lets an AI agent such as Claude Code use Exploratory. It does two th
 
 MCP (Model Context Protocol) is how an AI client such as Claude Code connects to Exploratory and uses its features. For example, the AI can read data or build a chart. An MCP server is the entry point that receives the requests from the AI. This plugin adds two MCP servers:
 
-- Server MCP (`exploratory-server`): reads published content on exploratory.io. Published content is a note, dashboard, slide, chart, analytics or data that was published there. Its main strength is data. Publish prepared data and use it like a data mart. The agent reads the semantic information of the data: what a row means, column descriptions, aggregation rules and business metric definitions. Then it asks the server to compute exact results with that information. The agent can also read the values of published charts and analytics.
+- Server MCP (`exploratory-server`): reads published content on exploratory.io. Published content is a note, dashboard, slide, chart, analytics or data that was published there. The agent reads notes, dashboards and slides, and gets the values of charts and analytics. From published data, it gets the data together with its semantic information, such as column descriptions and aggregation rules. It can also get results that the server filters and aggregates.
 - Desktop MCP (`exploratory-desktop`): works with local projects in Exploratory Desktop.
 
 Claude Code, Codex, Cursor and Antigravity get both MCP servers. Grok Bot (a chat client where you add MCP servers by message) gets the Server MCP only.
@@ -278,7 +278,7 @@ MIT
 
 MCP（Model Context Protocol）は、AI（Claude Code など）が Exploratory に接続して、その機能を使うためのつなぎ方です。たとえば、AI がデータを読んだり、チャートを作ったりできます。MCP サーバーは、AI からの依頼を受け取る窓口です。このプラグインは、2 つの MCP サーバーを追加します。
 
-- Server MCP（`exploratory-server`）: exploratory.io のパブリッシュされたコンテンツを読みます。一番の強みはデータです。加工済みのデータをパブリッシュしておけば、データマートのように使えます。AI は、データの意味の情報（1 行が何を表すか、列の説明、集計のルール、ビジネス指標の定義）を読み、それを踏まえてサーバーで正確に集計させます。パブリッシュされたチャートやアナリティクスの値も読めます。
+- Server MCP（`exploratory-server`）: exploratory.io にパブリッシュされたコンテンツを読みます。ノート・ダッシュボード・スライドを読み、チャートやアナリティクスの値を取れます。パブリッシュされたデータからは、列の説明や集計のルールなどの意味の情報と一緒に、データを取得できます。サーバーで絞り込みや集計をした結果も取れます。
 - Desktop MCP（`exploratory-desktop`）: 手元の Exploratory Desktop のプロジェクトを操作します。
 
 Claude Code・Codex・Cursor・Antigravity では、2 つの MCP サーバーを両方使えます。Grok Bot（チャットで MCP サーバーを追加するクライアント）では、Server MCP だけを使えます。
