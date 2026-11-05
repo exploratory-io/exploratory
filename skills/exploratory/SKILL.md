@@ -1,6 +1,6 @@
 ---
 name: exploratory
-description: Read this first, before other Exploratory skills or tools, when a request asks about data, a data frame, a chart, analytics, a dashboard or a note and does not say whether the target is the Desktop app or exploratory.io. The request need not mention Exploratory. Picks exploratory-desktop or exploratory-server.
+description: Read this first, before other Exploratory skills or tools, when a request asks about data, a data frame, a chart, analytics, a dashboard or a note and does not say whether the target is the Desktop app or exploratory.io. The request need not mention Exploratory. Also use it when exploratory-desktop is unavailable. Picks exploratory-desktop or exploratory-server.
 ---
 
 # Exploratory: Desktop or exploratory.io?

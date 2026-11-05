@@ -1,6 +1,6 @@
 ---
 name: exploratory-server
-description: Use for items published on exploratory.io: when the user asks about notes, dashboards, slides, charts, analytics or data published there, or wants numbers computed from an Exploratory data item. Covers which Exploratory MCP tool to call, in what order, and how to report numbers with the conditions they were computed under.
+description: "Use for items published on exploratory.io: when the user asks about notes, dashboards, slides, charts, analytics or data published there, or wants numbers computed from an Exploratory data item. Covers which Exploratory MCP tool to call, in what order, and how to report numbers with the conditions they were computed under."
 ---
 
 # Working with Exploratory Server

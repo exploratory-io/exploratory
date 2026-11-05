@@ -2,7 +2,7 @@
 
 [English](mcp.md)
 
-Claude Code・Codex・Grok Bot・Cursor・Gemini CLI・Antigravity・Gemini アプリなどの MCP クライアントを Exploratory につなぐと、exploratory.io で閲覧できるノート・ダッシュボード・スライド・チャート・アナリティクス・データを検索して読めます。データの集計もサーバー上で正確に実行できます。
+Claude Code・Codex・Grok Bot・Cursor・Antigravityなどの MCP クライアントを Exploratory につなぐと、exploratory.io で閲覧できるノート・ダッシュボード・スライド・チャート・アナリティクス・データを検索して読めます。データの集計もサーバー上で正確に実行できます。
 
 この MCP サーバーは読み取り専用です。アイテムの作成・編集・公開・削除はできません。Exploratory Desktop でチャートや分析を作るには、別の Exploratory Desktop MCP を使います。
 
@@ -74,22 +74,6 @@ agent mcp login exploratory-server
 
 このリポジトリは Cursor のプラグイン（両方の MCP をインラインで定義した `.cursor-plugin/plugin.json`・同じスキル）にもなっています。Desktop の MCP は起動している Exploratory Desktop を使います。手元に取得したものを試すには `agent --plugin-dir <このリポジトリのパス>` で起動します。
 
-## Gemini CLI につなぐ
-
-このリポジトリは Gemini CLI の拡張（`gemini-extension.json` と同じスキル）にもなっています。
-
-```sh
-gemini extensions install https://github.com/exploratory-io/exploratory
-```
-
-Gemini CLI は、このサーバーのサインインを自動では始めません。Gemini CLI を起動して `/mcp auth exploratory-server` を実行すると、ブラウザで Exploratory の同意画面が開きます。拡張を使わず MCP サーバーだけを登録するときは、次を実行します。
-
-```sh
-gemini mcp add --transport http exploratory-server https://exploratory.io/mcp
-```
-
-2026 年 6 月から、Gemini CLI は無料枠と Google AI Pro・Ultra の個人アカウントでは使えません。使えるのは Gemini Code Assist の契約か API キーの場合です。個人で使う場合は Antigravity を使います。
-
 ## Antigravity につなぐ
 
 このリポジトリは Antigravity のプラグイン（`.antigravity-plugin/plugin.json`・`mcp_config.json`・同じスキル）にもなっています。
@@ -112,10 +96,6 @@ MCP サーバーだけを登録するときは、`~/.gemini/config/mcp_config.js
 ```
 
 `agy` を起動して `/plugin` を開き、プラグイン `exploratory`（MCP サーバー `exploratory-server`）の「Sign in」を選びます。Exploratory の同意画面で許可し、ブラウザに表示された認可コードを `agy` に貼り付けます。Antigravity のアプリでは、エージェントの設定の Customizations で、サーバーの横の Authenticate からサインインします。
-
-## Gemini アプリ（Web 版）につなぐ
-
-Gemini アプリは、MCP サーバーを「カスタムアプリ」として登録します。プラグインやスキルは入りません。gemini.google.com で設定の「接続済みのアプリ」を開き、「カスタムアプリを追加」で `https://exploratory.io/mcp` を入れて、画面の案内に沿ってサインインします。Google がこの機能を提供しているのは Web 版だけで（登録したものはモバイルアプリでも使えます）、対象は個人の Google アカウント（仕事用・学校用は対象外）、米国、18 歳以上、「アクティビティを保存」がオンの利用者です。Gemini のデスクトップアプリでは登録できません。
 
 ## そのほかのクライアント
 

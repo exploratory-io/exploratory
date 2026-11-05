@@ -1,5 +1,6 @@
 {
   "name": "exploratory",
+  "displayName": "Exploratory",
   "version": "0.1.0",
   "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
   "author": {
@@ -22,8 +23,8 @@
   "userConfig": {
     "ai_summary": {
       "type": "string",
-      "title": "AI サマリの出力",
-      "description": "作成したチャートとアナリティクスの AI Summary を作り保存するか",
+      "title": "AI Summary output",
+      "description": "Whether to create and save an AI Summary for charts and analytics you create",
       "default": "false",
       "options": [
         "false",
@@ -32,8 +33,8 @@
     },
     "save_comments": {
       "type": "string",
-      "title": "コメントの保存",
-      "description": "作ったチャートの説明コメントを保存するか",
+      "title": "Save comments",
+      "description": "Whether to save an explanatory comment on charts you create",
       "default": "false",
       "options": [
         "false",
@@ -42,8 +43,8 @@
     },
     "review_hook": {
       "type": "string",
-      "title": "点検のフック",
-      "description": "false は使わない、true は最初の作成直前・加工後・図と分析の作成編集後に随時点検する",
+      "title": "Review hook",
+      "description": "false: never review. true: review before the first create, after wrangling, and after chart and analytics create or edit calls.",
       "default": "false",
       "options": [
         "false",
@@ -52,8 +53,8 @@
     },
     "plan_gate": {
       "type": "string",
-      "title": "計画の関所",
-      "description": "true は、R のレポート（HTML）を保存した後、計画（<題名>_Exploratory作成計画.md）を保存するまで Exploratory での作成を止める（点検のフックとは独立）。false は何もしない",
+      "title": "Plan gate",
+      "description": "true: after an R report (HTML) is saved, block creation in Exploratory until the plan (<title>_Exploratory作成計画.md) is saved (independent of the review hook). false: do nothing.",
       "default": "true",
       "options": [
         "false",

@@ -27,6 +27,11 @@
       "command": "${CURSOR_PLUGIN_ROOT}/scripts/exploratory-desktop-mcp"
     }
   },
+  "skills": [
+    "./skills/",
+    "./skills/mcp-server/",
+    "./skills/mcp-desktop/"
+  ],
   "license": "MIT",
   "logo": "./assets/icon.png"
 }

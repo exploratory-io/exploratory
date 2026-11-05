@@ -107,6 +107,10 @@ claude plugin install exploratory@exploratory \
 
 Hooks and the plan gate run only in Claude Code. Codex does not install these hooks or expose Claude's plugin options.
 
+The plan gate (`plan_gate`, on by default) works after the analysis skill has been used and an R report (HTML) has been saved. Until the analysis plan (`<title>_Exploratory作成計画.md`) is saved, it stops `create_wrangling_step`, `create_branch`, `create_chart`, `create_analytics`, `create_note` and `save_result_as_dataframe` calls (deny). After the note is created, it stops the end of the turn up to 3 times (block) while charts have not been checked as images, or while no fix has been made.
+
+Separately, whenever `plan_gate` is `true` (whether or not the analysis skill was used), the custom R gate checks every `create_wrangling_step` call that has an `exp_custom` step. It denies an expression that starts with `{`, `. %>%`, `<name> <-` or `<name> %>%` (any name, for example `d <- .` or `df %>%`). It also denies once an expression that product commands can do (it calls `group_by`, `summarize`, `filter`, `arrange`, `pivot_longer`, `pivot_wider`, a join, `top_n`, `distinct` or `count`); sending the same expression again lets it through. To turn the gates off, set `plan_gate` to `false` with `/plugin configure exploratory@exploratory`.
+
 For a development build, set the bridge bundle and its app data directory in the environment before launching your agent:
 
 ```sh
@@ -121,6 +125,8 @@ Use the same variables before `claude` for Claude Code. The launcher first check
 > List my items on Exploratory.
 
 > In the "Sales" dashboard on Exploratory, which region grew the most last quarter?
+
+> In my open Exploratory project, build a monthly bar chart from the sales data.
 
 ## What agents can do
 
@@ -277,6 +283,10 @@ agy plugin install ./exploratory
 
 Claude Code の設定は `ai_summary`（既定 `false`）、`save_comments`（`false`）、`review_hook`（`false`）、`plan_gate`（`true`）です。`/plugin configure exploratory@exploratory` で変更できます。コマンドの例は英語版の Desktop settings を参照してください。フックと計画の関所は Claude Code だけで動作します。Codex には Claude の利用者設定とフックを入れません。
 
+計画の関所（`plan_gate`、既定はオン）は、分析のスキルを使い、R のレポート（HTML）を保存した後に働きます。分析の計画（`<題名>_Exploratory作成計画.md`）を保存するまで、`create_wrangling_step`・`create_branch`・`create_chart`・`create_analytics`・`create_note`・`save_result_as_dataframe` の呼び出しを止めます（deny）。ノートを作った後は、作ったチャートを画像で確かめていない間や、直す操作が 0 回の間、会話の終わりを最大 3 回止めます（block）。
+
+これとは別に、`plan_gate` が `true` の間は、分析のスキルを使ったかどうかに関係なく、カスタム R の関所が `exp_custom` を含む `create_wrangling_step` の呼び出しを毎回調べます。式が `{`・`. %>%`・`名前 <-`・`名前 %>%`（名前は何でもよく、`d <- .` や `df %>%` など）で始まると止めます（deny）。製品のコマンドで作れる式（`group_by`・`summarize`・`filter`・`arrange`・`pivot_longer`・`pivot_wider`・結合・`top_n`・`distinct`・`count` を呼ぶ式）は最初の 1 回だけ止め、同じ式をもう一度送ると通ります。止めるには、`/plugin configure exploratory@exploratory` で `plan_gate` を `false` にします。
+
 開発版を使う場合は、エージェントを起動する前に環境変数を指定します。
 
 ```sh
@@ -291,6 +301,8 @@ Codex は末尾を `codex` にします。起動処理は `EXPLORATORY_MCP_BUNDL
 > Exploratory にある自分のアイテムを一覧して
 
 > Exploratory の「売上」ダッシュボードで、前の四半期に一番伸びた地域はどこ？
+
+> 開いている Exploratory のプロジェクトで、売上データから月ごとのバーのチャートを作って
 
 ### できること
 

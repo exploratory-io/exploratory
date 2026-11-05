@@ -2,7 +2,7 @@
 
 [日本語](mcp.ja.md)
 
-Connect Claude Code, Codex, Grok Bot, Cursor, Gemini CLI, Antigravity, the Gemini app or any other MCP client to Exploratory to search and read the notes, dashboards, slides, charts, analytics and data that you can view on exploratory.io, and to run exact aggregations on data items on the server.
+Connect Claude Code, Codex, Grok Bot, Cursor, Antigravity, any other MCP client to Exploratory to search and read the notes, dashboards, slides, charts, analytics and data that you can view on exploratory.io, and to run exact aggregations on data items on the server.
 
 The MCP server is read-only. It does not create, edit, publish or delete anything. For building charts and analyses in Exploratory Desktop, see the separate Exploratory Desktop MCP.
 
@@ -74,22 +74,6 @@ agent mcp login exploratory-server
 
 This repository is also a Cursor plugin (`.cursor-plugin/plugin.json` with both MCP servers defined inline, and the same skill). The Desktop MCP uses the Exploratory Desktop app that is running. To try it from a local clone: `agent --plugin-dir <path to this repository>`.
 
-## Connect Gemini CLI
-
-This repository is also a Gemini CLI extension (`gemini-extension.json` and the same skill).
-
-```sh
-gemini extensions install https://github.com/exploratory-io/exploratory
-```
-
-Gemini CLI does not start the sign-in on its own for this server. Start Gemini CLI and run `/mcp auth exploratory-server`; a browser opens for Exploratory's consent screen. To add only the MCP server without the extension:
-
-```sh
-gemini mcp add --transport http exploratory-server https://exploratory.io/mcp
-```
-
-Since June 2026, Gemini CLI no longer serves free-tier and Google AI Pro/Ultra individual accounts; it works with Gemini Code Assist and API keys. Individual users use Antigravity instead.
-
 ## Connect Antigravity
 
 This repository is also an Antigravity plugin (`.antigravity-plugin/plugin.json`, `mcp_config.json` and the same skill).
@@ -112,10 +96,6 @@ To add only the MCP server, put this in `~/.gemini/config/mcp_config.json`:
 ```
 
 Start `agy`, run `/plugin`, open the plugin `exploratory` (MCP server `exploratory-server`) and choose Sign in. Approve on Exploratory's consent page, then paste the authorization code shown in the browser back into `agy`. In the Antigravity app, use Authenticate next to the server under Agent settings > Customizations.
-
-## Connect the Gemini app (web)
-
-The Gemini app takes MCP servers as custom apps; it does not install plugins or skills. On gemini.google.com, open Settings, then Connected Apps, select Add a custom app, enter `https://exploratory.io/mcp` and follow the sign-in. Google offers this only on the web app (connected apps then also work in the mobile app), for personal Google Accounts (not work or school accounts), in the US, to users 18 or older with Keep Activity on. The Gemini desktop app cannot add custom apps.
 
 ## Connect other clients
 

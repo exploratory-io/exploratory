@@ -132,14 +132,14 @@ test('review hook turns on with review_hook alone and stays off otherwise', () =
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('published settings use English values and preserve Japanese labels', () => {
+test('published settings use English values, titles and descriptions', () => {
   for (const key of ['ai_summary', 'save_comments']) {
     assert.deepEqual(fields[key].options, ['false', 'true']);
     assert.equal(fields[key].default, 'false');
   }
   assert.deepEqual(fields.review_hook.options, ['false', 'true']);
   assert.equal(fields.review_hook.default, 'false');
-  for (const field of Object.values(fields)) assert(/[ぁ-んァ-ン一-龯]/u.test(field.title));
+  for (const field of Object.values(fields)) { assert(/^[\x20-\x7e]+$/.test(field.title), field.title); assert(!/[ぁ-んァ-ン一-龯]/u.test(field.description.replace('<title>_Exploratory作成計画.md', '')), field.title); }
 });
 
 test('legacy Japanese saved values normalize to English across all 8 combinations', () => {
@@ -1063,4 +1063,18 @@ test('custom R gate: a word inside a column name is not mistaken for a function 
     // 本物の unnest 呼び出しは、コマンドで作れない形として通す。
     assert.equal(run('group_by(a) %>% tidyr::unnest(b)'), undefined);
   } finally { fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); }
+});
+
+test('Cursor skills paths exist and cover the entry, Desktop and Server skills', () => {
+  const { skills } = JSON.parse(fs.readFileSync(path.join(root, '.cursor-plugin/plugin.json'), 'utf8'));
+  assert(Array.isArray(skills) && skills.length > 0);
+  const found = new Set();
+  for (const entry of skills) {
+    const dir = path.join(root, entry);
+    assert(fs.statSync(dir).isDirectory(), entry);
+    for (const name of fs.readdirSync(dir)) if (fs.existsSync(path.join(dir, name, 'SKILL.md'))) found.add(path.relative(root, path.join(dir, name)));
+  }
+  assert(found.has('skills/exploratory'));
+  assert(found.has('skills/mcp-server/exploratory-server'));
+  assert(found.has('skills/mcp-desktop/exploratory-core'));
 });
