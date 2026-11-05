@@ -35,7 +35,7 @@ test('client manifests and marketplace entries share the plugin name and version
       assert.equal(plugin.version, '0.1.0', file);
     }
   }
-  assert.equal(require('../.claude-plugin/plugin.json').supportUrl, 'mailto:support@exploratory.io');
+  assert.equal(require('../.claude-plugin/plugin.json').supportUrl, 'https://docs.exploratory.io/');
 });
 
 test('Cursor registers inline Server and Desktop MCPs using the plugin install path', () => {

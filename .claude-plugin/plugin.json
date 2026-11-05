@@ -68,7 +68,7 @@
     "./skills/mcp-server",
     "./skills/mcp-desktop"
   ],
-  "supportUrl": "mailto:support@exploratory.io",
+  "supportUrl": "https://docs.exploratory.io/",
   "documentationUrl": "https://github.com/exploratory-io/exploratory#readme",
   "termsOfServiceUrl": "https://exploratory.io/terms"
 }
