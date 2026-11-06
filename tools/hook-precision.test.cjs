@@ -435,3 +435,12 @@ test('numeric: Line marker casing is ignored for create and update', () => {
     assert.match(f.run('plan-stop').reason, /l=365/);
   } finally { f.close(); }
 });
+test('note: one full get_note_image counts every created chart as seen; a partial image does not', () => {
+  const f=fixture();try {
+    f.seed({plan:'plan.md',note:true,charts:['c1','c2'],fixes:1});
+    f.record('mcp__plugin_exploratory_exploratory-desktop__get_note_image',{note_id:'n1'},{scope:'full',truncated:true});
+    assert.equal(f.run('plan-stop',{})?.decision,'block');
+    f.record('mcp__plugin_exploratory_exploratory-desktop__get_note_image',{note_id:'n1'},{scope:'full',truncated:false});
+    assert.equal(f.run('plan-stop',{}),null);
+  } finally { f.close(); }
+});

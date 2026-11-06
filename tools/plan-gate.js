@@ -265,6 +265,12 @@ function main(mode, input) {
     }
     return;
   }
+  // ノートは全体画像 1 枚（get_note_image）で全チャートを見る。全体が写っていれば、作ったチャートを見た扱いにする。
+  if (/(?:^|__)get_note_image$/.test(name) && ok) {
+    const state = load(), full = resultObjects(response).some(v => v?.scope === 'full' && v.truncated === false) || (/\\?"scope\\?"\s*:\s*\\?"full\\?"/.test(responseText) && /\\?"truncated\\?"\s*:\s*false\b/.test(responseText));
+    if (state.note && full) save({ ...state, seen: [...new Set([...(state.seen || []), ...(state.charts || [])])] });
+    return;
+  }
   const add = (state, key, id) => ({ ...state, [key]: [...new Set([...(state[key] || []), id])] });
   if (/(?:^|__)get_chart_image$/.test(name) && chartId) {
     if (ok) save(add(load(), 'seen', chartId));

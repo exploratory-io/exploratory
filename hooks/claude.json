@@ -44,7 +44,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "(^|__)(execute_r_script|create_chart|get_chart_image|get_dashboard_image|get_dashboard|get_chart_data|update_chart|update_analytics|update_note|update_dashboard|create_note|create_dashboard|delete_chart)$|^(Skill|Write|Bash|PowerShell)$",
+        "matcher": "(^|__)(execute_r_script|create_chart|get_chart_image|get_dashboard_image|get_note_image|get_dashboard|get_chart_data|update_chart|update_analytics|update_note|update_dashboard|create_note|create_dashboard|delete_chart)$|^(Skill|Write|Bash|PowerShell)$",
         "hooks": [
           {
             "type": "command",
