@@ -44,7 +44,10 @@ fit that nature. When cutting from the top in order of most commonly used, do no
 When over the limit, keep those whose nature fits first and fill the rest in order of most commonly used.
 Do not add method ids by writing them in this prompt. Pull them from the index fields.
 
-1. First call **list_analytics_templates**
+Exploratory で新しいアナリティクスを作る段階では、最初に **list_analytics_templates** を呼ぶ。
+`exploratory-analysis` の 4 手順でレポートを作る場合、この段階は R の計算と PNG の保存が終わった後に始まる。
+
+1. Call **list_analytics_templates**
 2. From the returned list, include all that fit the current purpose and the shape of the data
    (do not include disabled ones. Always keep those whose targetKinds match the nature)
 3. **For value, use the analysis id the index returned as is** (use the index's label too)

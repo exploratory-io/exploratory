@@ -769,8 +769,9 @@ test('plan gate hooks are registered and runtime-hook stays small', () => {
   for (const name of ['create_wrangling_step', 'create_branch', 'create_chart', 'create_analytics', 'create_note', 'save_result_as_dataframe', 'mcp__plugin_exploratory_exploratory-desktop__create_branch']) assert(matches('PreToolUse', name, 'plan-guard'), name);
   for (const name of ['execute_r_script', 'mcp__plugin_exploratory_exploratory-desktop__execute_r_script', 'Skill', 'Write', 'Bash']) assert(matches('PostToolUse', name, 'plan-record'), name);
   assert(!matches('PreToolUse', 'Read', 'plan-guard'));
-  // 計画の書き換え禁止はしない。Write・Edit・MultiEdit は関所の対象外。create_dashboard も作成の関所には入れない。
-  for (const name of ['Write', 'Edit', 'MultiEdit', 'create_dashboard']) assert(!matches('PreToolUse', name, 'plan-guard'), name);
+  // 計画の書き換え禁止はしない。Write・Edit・MultiEdit は関所の対象外。create_dashboard は作成の関所に入れる（ダッシュボードも計画の後に作る）。
+  for (const name of ['Write', 'Edit', 'MultiEdit']) assert(!matches('PreToolUse', name, 'plan-guard'), name);
+  assert(matches('PreToolUse', 'create_dashboard', 'plan-guard'));
   for (const name of ['create_wrangling_step', 'mcp__plugin_exploratory_exploratory-desktop__create_wrangling_step']) assert(matches('PreToolUse', name, 'plan-custom-r'), name);
   // 画像確認と直した回数の記録は、ダッシュボードの作成・更新と画像の失敗応答でも動く。
   for (const name of ['create_dashboard', 'update_dashboard', 'get_chart_data', 'get_chart_image', 'update_chart', 'mcp__plugin_exploratory_exploratory-desktop__create_dashboard']) assert(matches('PostToolUse', name, 'plan-record'), name);
@@ -848,40 +849,23 @@ test('plan gate Stop: stored IDs with quotes, newlines and instructions round-tr
     const encoded = reason.match(/返り値の ID、JSON: (.*?)）。/)[1];
     assert.deepEqual(JSON.parse('[' + encoded + ']'), chartIds);
     assert(reason.includes('5 枚あります'));
-    assert(reason.includes('open_chart') && reason.includes('get_chart_image'));
+    assert(reason.includes('get_note_image'));
   } finally { fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); }
 });
 
-test('plan gate Stop: a dashboard alone does not trigger the image check (notes only)', () => {
+test('plan gate Stop: a dashboard also triggers the image check, with the full-dashboard image', () => {
   const { dir, run, record, setPlan } = stopFixture();
   try {
     record('create_chart', {}, { chartId: 'c1' });
     setPlan();
     record('create_dashboard');
-    assert.equal(run('plan-stop', {}), '');
-    record('create_note');
     const first = JSON.parse(run('plan-stop', {}));
     assert.equal(first.decision, 'block');
-    assert(first.reason.includes('c1'));
+    assert(first.reason.includes('c1') && first.reason.includes('get_dashboard_image'));
   } finally { fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); }
 });
 
-test('plan gate Stop: a Number chart whose image has no PNG counts as seen once get_chart_data succeeded', () => {
-  const { dir, run, record, setPlan } = stopFixture();
-  try {
-    record('create_chart', {}, { chartId: 'n1' });
-    record('create_chart', {}, { chartId: 'n2' });
-    record('get_chart_image', { chartId: 'n1' }, { isError: true, content: [{ type: 'text', text: 'get_chart_image returned no PNG image' }] });
-    record('get_chart_image', { chartId: 'n2' }, { isError: true, content: [{ type: 'text', text: 'get_chart_image returned no PNG image' }] });
-    record('get_chart_data', { chartId: 'n1' }, {});
-    setPlan();
-    record('create_note');
-    const first = JSON.parse(run('plan-stop', {}));
-    assert.equal(first.decision, 'block');
-    assert(first.reason.includes('n2') && !first.reason.includes('n1'));
-  } finally { fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); }
-});
-
+// 'plan gate Stop: a Number chart whose image has no PNG counts as seen once get_chart_data succeeded': behaviour changed in the report improvements (Number is classified from its data, and R work without HTML turns the gate on). See tools/hook-precision.test.cjs.
 test('plan gate Stop: with every image seen, zero fixes blocks once; any update_* call or an all-clear report passes', () => {
   const { dir, run, record, setPlan } = stopFixture();
   try {
@@ -942,34 +926,7 @@ test('exploratory-analysis links to its existing step guide', () => {
   assert(!/^\S+ の .+から作成。直接直さない/m.test(fs.readFileSync(path.join(root, 'skills/mcp-desktop/exploratory-analysis/steps-2-4.md'), 'utf8')));
 });
 
-test('plan gate: only a saved HTML report turns the gate on; execute_r_script alone does not', () => {
-  const { dir, work, hook, startR, guard } = planGateFixture();
-  try {
-    hook('plan-record', { tool_name: 'Skill', tool_input: { skill: 'exploratory-analysis' }, tool_response: {} });
-    hook('plan-record', { tool_name: 'mcp__plugin_exploratory_exploratory-desktop__execute_r_script', tool_input: { script: 'plot(1:3)' }, tool_response: {} });
-    assert.equal(guard('create_chart'), undefined);
-    // 失敗した保存は記録しない。
-    hook('plan-record', { tool_name: 'Write', tool_input: { file_path: path.join(work, 'r.html'), content: 'x' }, tool_response: { isError: true } });
-    assert.equal(guard('create_chart'), undefined);
-    // HTML を見るだけの Bash（一覧・開く・読む）では有効にならない。
-    for (const command of ['ls *.html', 'open report.html', 'cat report.html | head']) {
-      hook('plan-record', { tool_name: 'Bash', tool_input: { command }, tool_response: {} });
-      assert.equal(guard('create_chart'), undefined, command);
-    }
-    // Bash の render、R の .html 書き出しでも有効になる。
-    hook('plan-record', { tool_name: 'Bash', tool_input: { command: 'Rscript -e "rmarkdown::render(\'a.Rmd\')"' }, tool_response: {} });
-    assert.equal(guard('create_chart').permissionDecision, 'deny');
-    fs.rmSync(path.join(dir, 'state'), { recursive: true, force: true });
-    assert.equal(guard('create_chart'), undefined);
-    hook('plan-record', { tool_name: 'Skill', tool_input: { skill: 'exploratory-analysis' }, tool_response: {} });
-    hook('plan-record', { tool_name: 'mcp__plugin_exploratory_exploratory-desktop__execute_r_script', tool_input: { script: 'htmlwidgets::saveWidget(w, "out.html")' }, tool_response: {} });
-    assert.equal(guard('create_chart').permissionDecision, 'deny');
-    fs.rmSync(path.join(dir, 'state'), { recursive: true, force: true });
-    startR();
-    assert.equal(guard('create_chart').permissionDecision, 'deny');
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
-});
-
+// 'plan gate: only a saved HTML report turns the gate on; execute_r_script alone does not': behaviour changed in the report improvements (Number is classified from its data, and R work without HTML turns the gate on). See tools/hook-precision.test.cjs.
 test('plan gate: recording a new HTML report resets the previous request state; re-saving the same report does not', () => {
   const { dir, savePlan, startR, guard, hook } = planGateFixture();
   try {
