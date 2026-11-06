@@ -13,7 +13,7 @@
       "name": "exploratory",
       "source": "./",
       "description": "Read items published on exploratory.io and create data, charts, analytics, and reports in the Exploratory Desktop app on your computer.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "data"
     }
   ]

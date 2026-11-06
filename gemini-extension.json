@@ -1,6 +1,6 @@
 {
   "name": "exploratory",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
   "mcpServers": {
     "exploratory-server": {

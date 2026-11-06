@@ -22,7 +22,7 @@ test('client manifests and marketplace entries share the plugin name and version
   for (const file of ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', '.cursor-plugin/plugin.json', '.antigravity-plugin/plugin.json', 'gemini-extension.json']) {
     const manifest = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
     assert.equal(manifest.name, 'exploratory', file);
-    assert.equal(manifest.version, '0.1.0', file);
+    assert.equal(manifest.version, '0.1.1', file);
     if (manifest.author) {
       assert.equal(manifest.author.name, 'Exploratory, Inc.', file);
       assert.equal(manifest.author.email, 'support@exploratory.io', file);
@@ -32,7 +32,7 @@ test('client manifests and marketplace entries share the plugin name and version
     const marketplace = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
     for (const plugin of marketplace.plugins) {
       assert.equal(plugin.name, 'exploratory', file);
-      assert.equal(plugin.version, '0.1.0', file);
+      assert.equal(plugin.version, '0.1.1', file);
     }
   }
   assert.equal(require('../.claude-plugin/plugin.json').supportUrl, 'https://docs.exploratory.io/');

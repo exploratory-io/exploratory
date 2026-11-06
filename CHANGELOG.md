@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - 2026-11-06
+
+- Desktop analysis: R makes calculations and PNG charts (no HTML report); requests that name an analysis go straight to analytics.
+- Dashboards: a Number row, a comparison for the latest period, and one full-dashboard image to check the result. Notes are checked with one full-note image.
+- Claude Code hooks: the plan gate also guards dashboards, checks Number and Line values against R, and stops on fixable rows left unfixed.
+
 ## 0.1.0 - 2026-11-05
 
 - One `exploratory` plugin for content published on exploratory.io and local Exploratory Desktop projects.
