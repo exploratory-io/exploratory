@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-11-07
+
+- Claude Code hooks react only to the Exploratory Desktop MCP tools, not to same-named tools from other MCP servers.
+- The release version check also covers the Antigravity manifest.
+- Add assets/logo-plate.png, the logo on a white background for directory listings.
+
 ## 0.1.1 - 2026-11-06
 
 - Desktop analysis: R makes calculations and PNG charts (no HTML report); requests that name an analysis go straight to analytics.

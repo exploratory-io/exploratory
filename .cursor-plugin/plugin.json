@@ -1,7 +1,7 @@
 {
   "name": "exploratory",
   "displayName": "Exploratory",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Work with Exploratory Desktop, search and read published content (notes, dashboards, charts, analytics and data), and query data on the server. Desktop works on macOS and Windows.",
   "author": {
     "name": "Exploratory, Inc.",

@@ -20,7 +20,7 @@ function expressions(args) {
 }
 module.exports = (mode, input) => {
   try {
-    if (!/^(?:mcp__.+__)?create_wrangling_step$/.test(input.tool_name || '')) return;
+    if (!/^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_wrangling_step$/.test(input.tool_name || '')) return;
     const exprs = expressions(input.tool_input || {});
     if (!exprs.length) return;
     const deny = reason => console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } }));

@@ -22,7 +22,7 @@ test('client manifests and marketplace entries share the plugin name and version
   for (const file of ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', '.cursor-plugin/plugin.json', '.antigravity-plugin/plugin.json', 'gemini-extension.json']) {
     const manifest = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
     assert.equal(manifest.name, 'exploratory', file);
-    assert.equal(manifest.version, '0.1.1', file);
+    assert.equal(manifest.version, '0.1.2', file);
     if (manifest.author) {
       assert.equal(manifest.author.name, 'Exploratory, Inc.', file);
       assert.equal(manifest.author.email, 'support@exploratory.io', file);
@@ -32,10 +32,80 @@ test('client manifests and marketplace entries share the plugin name and version
     const marketplace = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
     for (const plugin of marketplace.plugins) {
       assert.equal(plugin.name, 'exploratory', file);
-      assert.equal(plugin.version, '0.1.1', file);
+      assert.equal(plugin.version, '0.1.2', file);
     }
   }
   assert.equal(require('../.claude-plugin/plugin.json').supportUrl, 'https://docs.exploratory.io/');
+});
+
+
+const currentVersion = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'), 'utf8')).version;
+const nextVersion = currentVersion.replace(/(\d+)$/, n => String(Number(n) + 1));
+const escapeRe = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+function versionGateFixture() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-version-gate-'));
+  const manifests = [
+    '.claude-plugin/plugin.json', '.claude-plugin/marketplace.json',
+    '.codex-plugin/plugin.json', '.cursor-plugin/plugin.json',
+    '.antigravity-plugin/plugin.json', '.agents/plugins/marketplace.json',
+    'gemini-extension.json', 'plugins/exploratory-server/.codex-plugin/plugin.json'
+  ].filter(file => fs.existsSync(path.join(root, file)));
+  const git = args => execFileSync('git', [
+    '--no-optional-locks', '-c', 'core.fsmonitor=', '-c', 'diff.external=',
+    '-c', 'core.hooksPath=/dev/null', ...args
+  ], { cwd: dir, encoding: 'utf8', stdio: 'pipe' });
+  const write = (file, value) => fs.writeFileSync(path.join(dir, file), JSON.stringify(value, null, 2) + '\n');
+  for (const file of manifests) {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  }
+  fs.mkdirSync(path.join(dir, 'tools'));
+  fs.copyFileSync(path.join(__dirname, 'check-version-bump.js'), path.join(dir, 'tools/check-version-bump.js'));
+  git(['init']);
+  git(['add', '--', ...manifests, 'tools/check-version-bump.js']);
+  git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
+    '-c', 'commit.gpgsign=false', 'commit', '-m', 'Version gate baseline']);
+  const run = () => require('node:child_process').spawnSync(process.execPath,
+    ['tools/check-version-bump.js', 'HEAD'], { cwd: dir, encoding: 'utf8' });
+  const read = file => JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+  const bump = file => write(file, JSON.parse(JSON.stringify(read(file)).replace(/"version":"[^"]+"/g, `"version":"${nextVersion}"`)));
+  return { dir, manifests, run, read, write, bump };
+}
+
+const versionGateTargets = ['.antigravity-plugin/plugin.json', 'plugins/exploratory-server/.codex-plugin/plugin.json']
+  .filter(file => fs.existsSync(path.join(root, file)));
+for (const target of versionGateTargets) {
+  test(`version gate rejects ${target}-only content changes without a version bump`, t => {
+    const fixture = versionGateFixture();
+    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+    fixture.write(target, { ...fixture.read(target), description: 'Changed release description' });
+    const result = fixture.run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /Plugin files changed since HEAD, but the version is still/);
+    assert(result.stderr.includes(target), result.stderr);
+  });
+
+  test(`version gate rejects a version mismatch in ${target}`, t => {
+    const fixture = versionGateFixture();
+    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+    for (const file of fixture.manifests) if (file !== target) fixture.bump(file);
+    const result = fixture.run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /The manifests do not agree on one version:/);
+    assert.match(result.stderr, new RegExp(escapeRe(currentVersion)));
+    assert.match(result.stderr, new RegExp(escapeRe(nextVersion)));
+  });
+}
+
+test('version gate accepts unchanged manifests and a consistent version bump', t => {
+  const fixture = versionGateFixture();
+  t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+  let result = fixture.run();
+  assert.equal(result.status, 0, result.stderr);
+  for (const file of fixture.manifests) fixture.bump(file);
+  result = fixture.run();
+  assert.equal(result.status, 0, result.stderr);
 });
 
 test('Cursor registers inline Server and Desktop MCPs using the plugin install path', () => {
@@ -217,8 +287,8 @@ function chartHookFixture() {
   fs.writeFileSync(path.join(dir, 'skills/mcp-desktop/exploratory-core/review-analytics.md'), '## general\n\n');
   for (const name of ['chart-after', 'analytics-after', 'note', 'wrangling']) fs.writeFileSync(path.join(dir, 'skills/mcp-desktop/exploratory-core/review-' + name + '.md'), '');
   const run = (data, options = {}) => execFileSync(process.execPath, [path.join(dir, 'tools/runtime-hook.js'), options.mode || 'chart'], {
-    input: JSON.stringify({ session_id: 'chart-test', tool_name: 'create_chart', tool_input: { marker: 'bar', axes: { y: { column: 'score', func: 'ave' } } },
-      tool_response: { structuredContent: { chartId: 'chart-a', marker: 'bar' } }, ...data }), encoding: 'utf8',
+    input: JSON.stringify({ session_id: 'chart-test', tool_name: 'mcp__exploratory-desktop__create_chart', tool_input: { marker: 'bar', axes: { y: { column: 'score', func: 'ave' } } },
+      tool_response: { structuredContent: { chartId: 'chart-a', marker: 'bar' } }, ...data, ...(data.tool_name && !/^(mcp__|Skill$|Write$|Bash$|PowerShell$)/.test(data.tool_name) ? { tool_name: 'mcp__exploratory-desktop__' + data.tool_name } : {}) }), encoding: 'utf8',
     env: { PATH: process.env.PATH, PLUGIN_DATA: path.join(dir, 'state'), EXPLORATORY_REVIEW_HOOK: 'true', ...options.env }
   }).trim();
   return { dir, run };
@@ -319,14 +389,14 @@ test('runtime review registration stays within 100 lines', () => {
   // The only Stop hook is the plan gate's image check before the final report.
   assert.deepEqual(hooks.Stop.flatMap(entry => entry.hooks.map(hook => hook.command)), ['node "${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js" plan-stop']);
   // update_note は、直した回数を数える plan-record だけが受ける（点検文は出さない）。
-  for (const name of ['update_note', 'mcp__plugin_exploratory_exploratory-desktop__update_note']) assert(hooks.PostToolUse.filter(entry => new RegExp(entry.matcher).test(name)).every(entry => entry.hooks.every(hook => hook.command.endsWith(' plan-record'))));
+  for (const name of ['update_note', 'mcp__plugin_exploratory_exploratory-desktop__update_note']) assert(hooks.PostToolUse.filter(entry => new RegExp(entry.matcher).test(name.startsWith('mcp__') ? name : 'mcp__exploratory-desktop__' + name)).every(entry => entry.hooks.every(hook => hook.command.endsWith(' plan-record'))));
   assert(!fs.existsSync(path.join(root, 'skills/mcp-desktop/exploratory-core/review-perspectives.md')));
   for (const name of ['create_chart', 'update_chart', 'create_analytics', 'update_analytics', 'mcp__plugin_exploratory_exploratory-desktop__create_chart', 'mcp__plugin_exploratory_exploratory-desktop__update_chart', 'mcp__plugin_exploratory_exploratory-desktop__create_analytics', 'mcp__plugin_exploratory_exploratory-desktop__update_analytics']) {
-    assert(hooks.PostToolUse.some(entry => new RegExp(entry.matcher).test(name) && entry.hooks.some(hook => hook.command.endsWith(' chart'))));
+    assert(hooks.PostToolUse.some(entry => new RegExp(entry.matcher).test(name.startsWith('mcp__') ? name : 'mcp__exploratory-desktop__' + name) && entry.hooks.some(hook => hook.command.endsWith(' chart'))));
   }
-  for (const name of ['create_chart', 'create_analytics', 'mcp__plugin_exploratory_exploratory-desktop__create_chart', 'mcp__plugin_exploratory_exploratory-desktop__create_analytics']) assert(hooks.PreToolUse.some(entry => new RegExp(entry.matcher).test(name)));
-  for (const name of ['create_wrangling_step', 'mcp__plugin_exploratory_exploratory-desktop__create_wrangling_step']) assert(!hooks.PreToolUse.some(entry => new RegExp(entry.matcher).test(name) && entry.hooks.some(hook => hook.command.endsWith(' initial'))));
-  assert(hooks.PostToolUse.some(entry => new RegExp(entry.matcher).test('create_wrangling_step') && entry.hooks.some(hook => hook.command.endsWith(' wrangling'))));
+  for (const name of ['create_chart', 'create_analytics', 'mcp__plugin_exploratory_exploratory-desktop__create_chart', 'mcp__plugin_exploratory_exploratory-desktop__create_analytics']) assert(hooks.PreToolUse.some(entry => new RegExp(entry.matcher).test(name.startsWith('mcp__') ? name : 'mcp__exploratory-desktop__' + name)));
+  for (const name of ['create_wrangling_step', 'mcp__plugin_exploratory_exploratory-desktop__create_wrangling_step']) assert(!hooks.PreToolUse.some(entry => new RegExp(entry.matcher).test(name.startsWith('mcp__') ? name : 'mcp__exploratory-desktop__' + name) && entry.hooks.some(hook => hook.command.endsWith(' initial'))));
+  assert(hooks.PostToolUse.some(entry => new RegExp(entry.matcher).test('mcp__exploratory-desktop__create_wrangling_step') && entry.hooks.some(hook => hook.command.endsWith(' wrangling'))));
 });
 
 test('initial review fires before the first creation independently of the per-artifact cap', () => {
@@ -475,7 +545,7 @@ test('note review is injected once per note in a session and only when the revie
 
 test('hooks.json registers the note hook', () => {
   const hooks = JSON.parse(fs.readFileSync(path.join(root, 'hooks/claude.json'), 'utf8')).hooks;
-  const notes = hooks.PostToolUse.filter(entry => new RegExp(entry.matcher).test('create_note') && new RegExp(entry.matcher).test('mcp__plugin_exploratory_exploratory-desktop__create_note') && entry.hooks.some(hook => hook.command.endsWith(' note')));
+  const notes = hooks.PostToolUse.filter(entry => new RegExp(entry.matcher).test('mcp__exploratory-desktop__create_note') && new RegExp(entry.matcher).test('mcp__plugin_exploratory_exploratory-desktop__create_note') && entry.hooks.some(hook => hook.command.endsWith(' note')));
   assert.equal(notes.length, 1);
   assert(notes[0].hooks.every(hook => hook.command === 'node "${CLAUDE_PLUGIN_ROOT}/tools/runtime-hook.js" note'));
 
@@ -765,7 +835,7 @@ test('plan gate: an unreadable state lets everything through (fail-open)', () =>
 
 test('plan gate hooks are registered and runtime-hook stays small', () => {
   const hooks = JSON.parse(fs.readFileSync(path.join(root, 'hooks/claude.json'), 'utf8')).hooks;
-  const matches = (event, name, mode) => hooks[event].some(entry => new RegExp(entry.matcher).test(name) && entry.hooks.some(hook => hook.command.endsWith(' ' + mode)));
+  const matches = (event, name, mode) => hooks[event].some(entry => new RegExp(entry.matcher).test(/^(Skill|Write|Bash|PowerShell)$/.test(name) || name.startsWith('mcp__') ? name : 'mcp__exploratory-desktop__' + name) && entry.hooks.some(hook => hook.command.endsWith(' ' + mode)));
   for (const name of ['create_wrangling_step', 'create_branch', 'create_chart', 'create_analytics', 'create_note', 'save_result_as_dataframe', 'mcp__plugin_exploratory_exploratory-desktop__create_branch']) assert(matches('PreToolUse', name, 'plan-guard'), name);
   for (const name of ['execute_r_script', 'mcp__plugin_exploratory_exploratory-desktop__execute_r_script', 'Skill', 'Write', 'Bash']) assert(matches('PostToolUse', name, 'plan-record'), name);
   assert(!matches('PreToolUse', 'Read', 'plan-guard'));
@@ -913,7 +983,7 @@ test('custom R gate: a bad opening form is always denied; command-able verbs are
     assert.equal(other, '');
     // 関所をオフにすると何も出ない。
     const off = execFileSync(process.execPath, [path.join(__dirname, 'runtime-hook.js'), 'plan-custom-r'], {
-      input: JSON.stringify({ session_id: 's', tool_name: 'create_wrangling_step', tool_input: { steps: [{ command: 'exp_custom', params: { expression: 'd <- .' } }] } }),
+      input: JSON.stringify({ session_id: 's', tool_name: 'mcp__exploratory-desktop__create_wrangling_step', tool_input: { steps: [{ command: 'exp_custom', params: { expression: 'd <- .' } }] } }),
       encoding: 'utf8', env: { PATH: process.env.PATH, CLAUDE_PLUGIN_DATA: dir, EXPLORATORY_PLAN_GATE: 'false' } });
     assert.equal(off, '');
   } finally { fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); }
@@ -1017,7 +1087,7 @@ test('custom R gate: a word inside a column name is not mistaken for a function 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'custom-r-names-'));
   const run = expression => {
     const out = execFileSync(process.execPath, [path.join(__dirname, 'runtime-hook.js'), 'plan-custom-r'], {
-      input: JSON.stringify({ session_id: 's', tool_name: 'create_wrangling_step', tool_input: { steps: [{ command: 'exp_custom', params: { expression } }] } }),
+      input: JSON.stringify({ session_id: 's', tool_name: 'mcp__exploratory-desktop__create_wrangling_step', tool_input: { steps: [{ command: 'exp_custom', params: { expression } }] } }),
       encoding: 'utf8', env: { PATH: process.env.PATH, CLAUDE_PLUGIN_DATA: dir, EXPLORATORY_PLAN_GATE: 'true' } });
     return out ? JSON.parse(out).hookSpecificOutput : undefined;
   };

@@ -12,7 +12,7 @@
         ]
       },
       {
-        "matcher": "(^|__)create_(chart|analytics)$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_(chart|analytics)$",
         "hooks": [
           {
             "type": "command",
@@ -22,7 +22,7 @@
         ]
       },
       {
-        "matcher": "(^|__)(create_wrangling_step|create_branch|create_chart|create_analytics|create_note|create_dashboard|save_result_as_dataframe)$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__(create_wrangling_step|create_branch|create_chart|create_analytics|create_note|create_dashboard|save_result_as_dataframe)$",
         "hooks": [
           {
             "type": "command",
@@ -32,7 +32,7 @@
         ]
       },
       {
-        "matcher": "(^|__)create_wrangling_step$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_wrangling_step$",
         "hooks": [
           {
             "type": "command",
@@ -44,7 +44,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "(^|__)(execute_r_script|create_chart|get_chart_image|get_dashboard_image|get_note_image|get_dashboard|get_chart_data|update_chart|update_analytics|update_note|update_dashboard|create_note|create_dashboard|delete_chart)$|^(Skill|Write|Bash|PowerShell)$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__(execute_r_script|create_chart|get_chart_image|get_dashboard_image|get_note_image|get_dashboard|get_chart_data|update_chart|update_analytics|update_note|update_dashboard|create_note|create_dashboard|delete_chart)$|^(Skill|Write|Bash|PowerShell)$",
         "hooks": [
           {
             "type": "command",
@@ -54,7 +54,7 @@
         ]
       },
       {
-        "matcher": "(^|__)create_wrangling_step$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_wrangling_step$",
         "hooks": [
           {
             "type": "command",
@@ -64,7 +64,7 @@
         ]
       },
       {
-        "matcher": "(^|__)(create_chart|update_chart|create_analytics|update_analytics)$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__(create_chart|update_chart|create_analytics|update_analytics)$",
         "hooks": [
           {
             "type": "command",
@@ -74,7 +74,7 @@
         ]
       },
       {
-        "matcher": "(^|__)create_note$",
+        "matcher": "^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_note$",
         "hooks": [
           {
             "type": "command",

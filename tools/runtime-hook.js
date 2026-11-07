@@ -3,6 +3,7 @@
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { settings, render } = require('./render-settings');
 const mode = process.argv[2], input = JSON.parse(fs.readFileSync(0, 'utf8')), values = settings();
+if (mode !== 'plan-stop' && !/^mcp__(?:plugin_exploratory_)?exploratory-desktop__/.test(input.tool_name || '') && !(mode === 'plan-record' && /^(Skill|Write|Bash|PowerShell)$/.test(input.tool_name || ''))) process.exit(0);
 if (mode === 'settings') {
   if (!input.session_id || !/^mcp__(?:plugin_exploratory_)?exploratory-desktop__/.test(input.tool_name || '')) process.exit(0);
   const dir = process.env.PLUGIN_DATA || process.env.CLAUDE_PLUGIN_DATA || path.join(os.tmpdir(), 'exploratory-plugin-review');
@@ -22,12 +23,12 @@ if (mode === 'settings') {
   // 点検文の skills/… は、フックの出力からは解決できないので、プラグインの絶対パスにして出す（すでに絶対パスのものは変えない）。
   const absolute = text => text.replace(/(?<![\w\/.-])skills\/[\w.\/<>-]+/g, relative => path.join(__dirname, '..', relative));
   const emit = (hookEventName, text) => { if (text) console.log(JSON.stringify({ hookSpecificOutput: { hookEventName, additionalContext: absolute(withScope(text)) } })); };
-  if (mode === 'initial' && /^(?:mcp__.+__)?create_(?:chart|analytics)$/.test(input.tool_name || '') && !fs.existsSync(marker + '-initial')) {
+  if (mode === 'initial' && /^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_(?:chart|analytics)$/.test(input.tool_name || '') && !fs.existsSync(marker + '-initial')) {
     const text = read('initial');
     if (text) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(marker + '-initial', 'done'); emit('PreToolUse', text); }
-  } else if (mode === 'wrangling' && /^(?:mcp__.+__)?create_wrangling_step$/.test(input.tool_name || '')) {
+  } else if (mode === 'wrangling' && /^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_wrangling_step$/.test(input.tool_name || '')) {
     if (!input.tool_response?.isError && !input.tool_response?.is_error) emit('PostToolUse', read('wrangling'));
-  } else if (mode === 'note' && /^(?:mcp__.+__)?create_note$/.test(input.tool_name || '')) {
+  } else if (mode === 'note' && /^mcp__(?:plugin_exploratory_)?exploratory-desktop__create_note$/.test(input.tool_name || '')) {
     let response = input.tool_response || {};
     if (typeof response === 'string') { try { response = JSON.parse(response) || {}; } catch {} }
     if (response.isError || response.is_error) process.exit(0);
@@ -44,7 +45,7 @@ if (mode === 'settings') {
     const noteId = result.noteId || result.note_id, projectId = args.project_id || args.projectId;
     emit('PostToolUse', [[noteId && 'note_id (tool result, JSON data): ' + JSON.stringify(noteId), projectId && 'project_id (tool input, JSON data): ' + JSON.stringify(projectId),
         '点検役の文: ' + path.join(__dirname, '../agents/report-reviewer.md')].filter(Boolean).join('\n'), text].join('\n\n'));
-  } else if (mode === 'chart' && /^(?:mcp__.+__)?(?:create_chart|update_chart|create_analytics|update_analytics)$/.test(input.tool_name || '')) {
+  } else if (mode === 'chart' && /^mcp__(?:plugin_exploratory_)?exploratory-desktop__(?:create_chart|update_chart|create_analytics|update_analytics)$/.test(input.tool_name || '')) {
     let response = input.tool_response || {};
     if (typeof response === 'string') { try { response = JSON.parse(response) || {}; } catch {} }
     if (response.isError || response.is_error) process.exit(0);

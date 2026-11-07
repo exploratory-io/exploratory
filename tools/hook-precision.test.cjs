@@ -15,7 +15,7 @@ function fixture() {
   const state = path.join(dir, 'review-h2-plan.json');
   const run = (mode, data = {}, extra = {}) => {
     const out = execFileSync(process.execPath, [path.join(root, 'tools/runtime-hook.js'), mode], {
-      input: JSON.stringify({ session_id: 'h2', cwd: dir, ...data }),
+      input: JSON.stringify({ session_id: 'h2', cwd: dir, ...data, ...(data.tool_name && !/^(mcp__|Skill$|Write$|Bash$|PowerShell$)/.test(data.tool_name) ? { tool_name: 'mcp__exploratory-desktop__' + data.tool_name } : {}) }),
       env: { ...process.env, PLUGIN_DATA: dir, EXPLORATORY_PLAN_GATE: 'true', CLAUDE_PLUGIN_OPTION_PLAN_GATE: 'true', CLAUDE_PLUGIN_OPTION_REVIEW_HOOK: 'false', ...extra }, encoding: 'utf8'
     }).trim();
     return out ? JSON.parse(out) : null;
