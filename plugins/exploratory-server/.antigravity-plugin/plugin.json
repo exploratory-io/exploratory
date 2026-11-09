@@ -1,0 +1,28 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "exploratory-server",
+  "displayName": "Exploratory Server",
+  "version": "0.1.4",
+  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and run exact queries on shared data on the server.",
+  "logo": "assets/icon.png",
+  "suggestedPrompts": [
+    "List my published content on Exploratory",
+    "Summarize the latest sales dashboard on Exploratory",
+    "Which 5 regions have the highest sales in my Exploratory data?"
+  ],
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://exploratory.io",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "license": "MIT",
+  "keywords": [
+    "exploratory",
+    "mcp",
+    "data",
+    "analytics",
+    "dashboards"
+  ]
+}

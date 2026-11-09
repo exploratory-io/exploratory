@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.1.4 - 2026-11-10
+
+- Add the Antigravity manifest and `mcp_config.json` to the Server plugin, so it can be installed from Antigravity with the same remote MCP and Server skill.
+
 ## Server 0.1.3 / Desktop 0.1.6 - 2026-11-09
 
 - Explain how to turn on Desktop MCP and write access in System Settings > MCP / CLI.
