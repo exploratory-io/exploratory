@@ -19,7 +19,7 @@
 
 | プラグイン | プラグイン名 | 入手先 |
 |---|---|---|
-| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.3） | 各 AI クライアントの公式のプラグイン一覧 |
+| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.4） | 各 AI クライアントの公式のプラグイン一覧 |
 | [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.6） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
 
 2 つのプラグインは、ツールもスキルも重なりません。両方を、どちらの順番でも入れられます。

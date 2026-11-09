@@ -2,7 +2,7 @@
 
 Exploratory Server connects your AI client to Exploratory (https://exploratory.io). Your AI client can search and read the content that your account can view on exploratory.io. It can also query data on the server. This content includes notes, dashboards, slides, charts, analytics and data.
 
-The plugin name is `exploratory-server` (version 0.1.3). It uses one MCP connection: `https://exploratory.io/mcp`.
+The plugin name is `exploratory-server` (version 0.1.4). It uses one MCP connection: `https://exploratory.io/mcp`.
 
 ## What you need
 

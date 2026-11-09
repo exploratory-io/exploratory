@@ -25,7 +25,7 @@ const marketplaceFiles = ['.claude-plugin/marketplace.json', '.agents/plugins/ma
 
 test('each plugin has its own consistent name and version across client manifests', () => {
   for (const [folder, name, version] of [
-    [pluginRoots[0], 'exploratory', '0.1.6'], [pluginRoots[1], 'exploratory-server', '0.1.3']
+    [pluginRoots[0], 'exploratory', '0.1.6'], [pluginRoots[1], 'exploratory-server', '0.1.4']
   ]) {
     const files = clientManifests.filter(file => fs.existsSync(path.join(repoRoot, folder, file)));
     assert(files.includes('.claude-plugin/plugin.json') && files.includes('.codex-plugin/plugin.json'));
@@ -120,6 +120,18 @@ test('Antigravity registers only the Desktop MCP using exploratory-mcp', () => {
   assert.deepEqual(config.mcpServers, {
     'exploratory-desktop': { type: 'stdio', command: 'exploratory-mcp' }
   });
+});
+
+test('Antigravity registers only the Server URL MCP and has the listing fields', () => {
+  const server = path.join(repoRoot, 'plugins/exploratory-server');
+  const config = JSON.parse(fs.readFileSync(path.join(server, 'mcp_config.json'), 'utf8'));
+  assert.deepEqual(config.mcpServers, { 'exploratory-server': { serverUrl: 'https://exploratory.io/mcp' } });
+  const manifest = JSON.parse(fs.readFileSync(path.join(server, '.antigravity-plugin/plugin.json'), 'utf8'));
+  for (const key of ['name', 'displayName', 'description', 'version', 'logo', 'author']) assert(manifest[key], key);
+  // The marketplace asks for a 120-160 character description and at most 3 suggested prompts.
+  assert(manifest.description.length >= 120 && manifest.description.length <= 160, String(manifest.description.length));
+  assert(manifest.suggestedPrompts.length <= 3);
+  assert(fs.existsSync(path.join(server, manifest.logo)), manifest.logo);
 });
 
 test('all 8 settings combinations use the same policy for native options and environment', () => {

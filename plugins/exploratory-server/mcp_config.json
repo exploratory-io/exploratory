@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "exploratory-server": {
+      "serverUrl": "https://exploratory.io/mcp"
+    }
+  }
+}
