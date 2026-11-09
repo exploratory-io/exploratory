@@ -1,0 +1,27 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "exploratory",
+  "displayName": "Exploratory Desktop",
+  "version": "0.1.6",
+  "description": "Work with Exploratory Desktop v17 or later.",
+  "logo": "assets/icon.png",
+  "suggestedPrompts": [
+    "List data frames in my open Desktop project",
+    "Create a chart from my local data"
+  ],
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://exploratory.io",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "license": "MIT",
+  "keywords": [
+    "exploratory",
+    "data",
+    "analytics",
+    "dashboards",
+    "mcp"
+  ]
+}

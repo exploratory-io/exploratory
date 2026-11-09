@@ -12,7 +12,7 @@ fi
 repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 skills_dir=${CODEX_HOME:-"$HOME/.codex"}/skills
 
-for source_dir in "$repo_dir"/skills/exploratory "$repo_dir"/skills/mcp-*/*; do
+for source_dir in "$repo_dir"/plugins/exploratory-desktop/skills/*; do
   [ -f "$source_dir/SKILL.md" ] || continue
   target_dir="$skills_dir/$(basename -- "$source_dir")"
   if [ -e "$target_dir" ] || [ -L "$target_dir" ]; then
@@ -22,7 +22,7 @@ for source_dir in "$repo_dir"/skills/exploratory "$repo_dir"/skills/mcp-*/*; do
 done
 
 mkdir -p "$skills_dir"
-for source_dir in "$repo_dir"/skills/exploratory "$repo_dir"/skills/mcp-*/*; do
+for source_dir in "$repo_dir"/plugins/exploratory-desktop/skills/*; do
   [ -f "$source_dir/SKILL.md" ] || continue
   ln -s "$source_dir" "$skills_dir/$(basename -- "$source_dir")"
 done

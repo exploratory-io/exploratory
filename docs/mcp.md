@@ -16,16 +16,11 @@ To build charts and analyses in Exploratory Desktop, use the separate Desktop MC
 
 ## Connect Claude Code
 
-Install the plugin. It registers the Server MCP. It also adds a skill that tells Claude which tool to use for which question.
+Install **Exploratory Server** (`exploratory-server`) from Claude's official marketplace when the listing is available. The Server plugin adds the URL connection and Server skill. It is separate from the Desktop plugin in Exploratory's GitHub marketplace. See [installation and release status](../README.md#choose-the-plugins-you-need).
 
-```sh
-claude plugin marketplace add exploratory-io/exploratory
-claude plugin install exploratory@exploratory
-```
+Start a new session, open `/mcp`, choose the `exploratory-server` connection and sign in through the browser.
 
-Start a new session, run `/mcp`, select `plugin:exploratory:exploratory-server` and sign in to Exploratory in the browser.
-
-To register only the Server MCP, without the plugin, run:
+To register only the Server MCP, without the plugin or skill, the existing direct-connection example is:
 
 ```sh
 claude mcp add --transport http exploratory-server https://exploratory.io/mcp
@@ -33,21 +28,19 @@ claude mcp add --transport http exploratory-server https://exploratory.io/mcp
 
 ## Connect Codex
 
-Install the plugin. It registers the Server MCP and adds the same skill.
+Install **Exploratory Server** (`exploratory-server`) from Codex's official marketplace when the listing is available. Start a new session and follow its OAuth sign-in flow. This repository's GitHub marketplace lists Desktop only; `exploratory@exploratory` does not install Server.
 
-```sh
-codex plugin marketplace add exploratory-io/exploratory
-codex plugin add exploratory@exploratory
-codex mcp login exploratory-server
-```
-
-Start a new session to use it. You can also install the plugin from `/plugins` in `codex`.
-
-To register only the Server MCP, add this to `~/.codex/config.toml`. Then run `codex mcp login exploratory-server`:
+To register only the Server MCP without its skill, the existing configuration example is:
 
 ```toml
 [mcp_servers.exploratory-server]
 url = "https://exploratory.io/mcp"
+```
+
+Add the entry to `~/.codex/config.toml`, then run:
+
+```sh
+codex mcp login exploratory-server
 ```
 
 ## Connect Grok Bot
@@ -62,7 +55,7 @@ This adds the Server MCP only. It does not install the skill. To disconnect, rem
 
 ## Connect Cursor (including Grok models)
 
-The Cursor agent (`agent` / `cursor-agent`) works with any model you pick in Cursor, including Grok. Installing the plugin (see below) adds both MCP servers: `exploratory-server` and `exploratory-desktop`.
+The Cursor agent (`agent` / `cursor-agent`) works with the model you pick in Cursor, including Grok. Until Exploratory Server is listed in the official marketplace, add the Server MCP by hand with the JSON below. The separate Desktop plugin does not add Server.
 
 To add only the Server MCP by hand, without the skill, add this to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
 
@@ -83,16 +76,11 @@ Then sign in:
 agent mcp login exploratory-server
 ```
 
-This repository is also a Cursor plugin. `.cursor-plugin/plugin.json` defines both MCP servers inline. The plugin includes the same skill. The Desktop MCP uses the Exploratory Desktop app that is running. To try the plugin from a local clone, run `agent --plugin-dir <path to this repository>`.
+The Server plugin has no Cursor manifest; add the Server MCP with the JSON above. The Desktop Cursor manifest is `plugins/exploratory-desktop/.cursor-plugin/plugin.json`. Local-folder Desktop examples are in the [README](../README.md#cursor). The repository root is no longer a combined plugin.
 
 ## Connect Antigravity
 
-This repository is also an Antigravity plugin. It has `.antigravity-plugin/plugin.json`, `mcp_config.json` and the same skill.
-
-```sh
-git clone https://github.com/exploratory-io/exploratory
-agy plugin install ./exploratory
-```
+The Server configuration is under `plugins/exploratory-server/`; the Desktop configuration is under `plugins/exploratory-desktop/`. Install Server through the official marketplace when available. For the Desktop local-folder example, see the [README](../README.md#antigravity).
 
 To add only the Server MCP, put this in `~/.gemini/config/mcp_config.json`:
 
@@ -110,7 +98,7 @@ To sign in:
 
 1. Start `agy`.
 2. Run `/plugin`.
-3. Open the plugin `exploratory` (MCP server `exploratory-server`).
+3. Open the `exploratory-server` connection (the Desktop plugin `exploratory` is separate).
 4. Choose Sign in.
 5. Approve on Exploratory's consent page.
 6. Paste the authorization code from the browser into `agy`.
@@ -274,13 +262,15 @@ If one user sends more than 120 requests in a minute, the server returns HTTP 42
 
 ## Plan gate (Claude Code)
 
+This section applies to the separate Desktop plugin at `plugins/exploratory-desktop/`. Server contains no hooks. The Desktop Codex manifest does not currently connect these hooks; Codex itself has a hook mechanism.
+
 A gate is a check that stops a tool call until a condition is met. The plan gate stops the agent from building before it has a plan, and it is on by default (`plan_gate` = `true`). To turn it off, set `plan_gate` to `false` (see the [README](../README.md#plan-gate)).
 
 The plan file name and the refusal messages are in Japanese. `作成計画` means "creation plan". `計画の関所` means "plan gate". `カスタム R の関所` means "custom R gate".
 
 Part 1: the analysis plan. This part starts after the agent uses the analysis skill and saves an R report (HTML).
 
-- The agent must save the analysis plan first. The file name is `<title>_Exploratory作成計画.md`. Until then, the gate refuses these calls: `create_wrangling_step`, `create_branch`, `create_chart`, `create_analytics`, `create_note` and `save_result_as_dataframe`. The refusal message tells the agent to save the plan.
+- The agent must save the analysis plan first. The file name is `<title>_Exploratory作成計画.md`. Until then, the gate refuses these calls: `create_wrangling_step`, `create_branch`, `create_chart`, `create_analytics`, `create_note`, `update_note`, `create_dashboard` and `save_result_as_dataframe`. The refusal message tells the agent to save the plan.
 - The plan must name an existing HTML file. Write the file name of the saved HTML in the plan.
 - The refusal message starts with `計画の関所` (plan gate) or `カスタム R の関所` (custom R gate).
 - After the agent saves the plan and creates the note, the gate can stop the end of the turn. It stops at most 3 times in total, and only if at least 1 chart exists.

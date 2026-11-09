@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
-const root = process.env.HOOK_TEST_ROOT || path.resolve(__dirname, '..');
+const root = process.env.HOOK_TEST_ROOT || path.resolve(__dirname, '../plugins/exploratory-desktop');
 const numberRows = value => ({ chart_type: 'singlevalue', rows: [[[String(value)]]], columns: [{name:'0'}] });
 function readNumber(f, id, value = 1) {
   f.record('execute_r_script', {}, {rows:[[value]]});
@@ -32,6 +32,8 @@ for (const [label,tool,args] of [['execute_r_script','mcp__plugin_exploratory_ex
       f.record(tool,args);
       assert.equal(f.run('plan-guard',{tool_name:'mcp__plugin_exploratory_exploratory-desktop__create_chart'})?.hookSpecificOutput?.permissionDecision,'deny');
       f.record('Write',{file_path:path.join(f.dir,'Exploratory作成計画.md'),content:'# 計画\nR の集計表から図を作る。'});
+      assert.match(f.run('plan-guard',{tool_name:'create_chart'})?.hookSpecificOutput?.permissionDecisionReason || '',/シナリオ/);
+      f.record('Write',{file_path:path.join(f.dir,'売上_シナリオ.md'),content:'# シナリオ'});
       assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null);
     } finally { f.close(); }
   });
@@ -40,7 +42,7 @@ test('A: create_dashboard is guarded too', () => {
   const f=fixture();try { f.seed({r:true});assert.equal(f.run('plan-guard',{tool_name:'create_dashboard'})?.hookSpecificOutput?.permissionDecision,'deny'); } finally { f.close(); }
 });
 test('A: a saved plan using path is recorded', () => {
-  const f=fixture();try { f.record('execute_r_script');f.record('Write',{path:path.join(f.dir,'plan.md'),content:'R の結果を使う'});assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null); } finally { f.close(); }
+  const f=fixture();try { f.record('execute_r_script');f.record('Write',{path:path.join(f.dir,'plan.md'),content:'R の結果を使う'});f.record('Write',{path:path.join(f.dir,'scenario.md'),content:'# s'});assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null); } finally { f.close(); }
 });
 test('B: a dashboard with an unseen chart blocks at most twice', () => {
   const f=fixture();try {
@@ -174,12 +176,11 @@ test('C: transcript fallback reads the last assistant answer without tool argume
     assert.equal(f.run('plan-stop',{transcript_path:transcript})?.decision,'block');
   } finally { f.close(); }
 });
-test('retain zero-fix stop; unknown state, ordinary Bash, prose, and disabled gate pass', () => {
+test('no zero-fix stop; unknown state, ordinary Bash, prose, and disabled gate pass', () => {
   const f=fixture();try {
     f.record('Bash',{command:'echo Rscript; cat analysis.R'});assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null);
     f.record('Bash',{command:'echo \'rmarkdown::render("report.Rmd")\''});assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null);
-    f.seed({plan:'plan.md',note:true,charts:['c'],seen:['c']});assert.equal(f.run('plan-stop')?.decision,'block');
-    assert.equal(f.run('plan-stop'),null);
+    f.seed({plan:'plan.md',note:true,charts:['c'],seen:['c']});assert.equal(f.run('plan-stop'),null);
     f.seed({plan:'plan.md',note:true,fixes:1});assert.equal(f.run('plan-stop',{last_assistant_message:'直せる項目はすべて直しました。'}),null);
     assert.equal(f.run('plan-stop',{last_assistant_message:table('直せる')},{CLAUDE_PLUGIN_OPTION_PLAN_GATE:'false'}),null);
     fs.writeFileSync(f.state,'{broken');assert.equal(f.run('plan-guard',{tool_name:'create_chart'}),null);
@@ -189,7 +190,7 @@ test('retain zero-fix stop; unknown state, ordinary Bash, prose, and disabled ga
 for (const [label, scope, truncated, error, note, blocked] of [
   ['full', 'full', false, false, false, false],
   ['partial', 'partial', true, false, false, true],
-  ['failed', 'full', false, true, false, true],
+  ['failed', 'full', false, true, false, false],
   ['note', 'full', false, false, true, true]
 ]) test('dashboard capture: ' + label, () => {
   const f = fixture(); try {
@@ -442,5 +443,34 @@ test('note: one full get_note_image counts every created chart as seen; a partia
     assert.equal(f.run('plan-stop',{})?.decision,'block');
     f.record('mcp__plugin_exploratory_exploratory-desktop__get_note_image',{note_id:'n1'},{scope:'full',truncated:false});
     assert.equal(f.run('plan-stop',{}),null);
+  } finally { f.close(); }
+});
+test('numeric check: an R value printed with 4 decimals matches the longer chart value', () => {
+  const f=fixture();try {
+    f.seed({plan:'plan.md',note:true,fixes:1});
+    f.record('create_chart',{marker:'singlevalue'},JSON.stringify({chartId:'n-1'}));
+    f.record('execute_r_script',{},{rows:[[0.3333]]});
+    f.record('get_chart_data',{chartId:'n-1'},numberRows('0.333333'));
+    assert.equal(f.run('plan-stop'),null);
+    f.record('get_chart_data',{chartId:'n-1'},numberRows('0.35'));
+    assert.equal(f.run('plan-stop')?.decision,'block');
+  } finally { f.close(); }
+});
+test('numeric check: a difference larger than the 4-decimal rounding still blocks for large values', () => {
+  const f=fixture();try {
+    f.seed({plan:'plan.md',note:true,fixes:1});
+    f.record('create_chart',{marker:'singlevalue'},JSON.stringify({chartId:'n-1'}));
+    f.record('execute_r_script',{},{rows:[[1000]]});
+    f.record('get_chart_data',{chartId:'n-1'},numberRows('1000.05'));
+    assert.equal(f.run('plan-stop')?.decision,'block');
+  } finally { f.close(); }
+});
+test('image capture: a failed note image stops image demands until a later capture succeeds', () => {
+  const f=fixture();try {
+    f.seed({plan:'plan.md',note:true,charts:['bar'],fixes:1});
+    f.record('get_note_image',{},{isError:true});
+    assert.equal(f.run('plan-stop'),null);
+    f.record('get_note_image',{},{scope:'partial',truncated:true});
+    assert.equal(f.run('plan-stop')?.decision,'block');
   } finally { f.close(); }
 });

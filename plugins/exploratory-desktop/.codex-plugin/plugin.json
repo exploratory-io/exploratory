@@ -1,0 +1,38 @@
+{
+  "name": "exploratory",
+  "version": "0.1.6",
+  "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
+  "author": {
+    "name": "Exploratory, Inc.",
+    "url": "https://exploratory.io",
+    "email": "support@exploratory.io"
+  },
+  "homepage": "https://exploratory.io",
+  "repository": "https://github.com/exploratory-io/exploratory",
+  "license": "MIT",
+  "keywords": [
+    "exploratory",
+    "mcp",
+    "data",
+    "analytics",
+    "dashboards"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Exploratory Desktop",
+    "shortDescription": "Create and analyze in Exploratory Desktop",
+    "longDescription": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
+    "developerName": "Exploratory, Inc.",
+    "category": "Productivity",
+    "capabilities": [
+      "Create charts and analytics in Exploratory Desktop"
+    ],
+    "websiteURL": "https://exploratory.io",
+    "supportURL": "https://docs.exploratory.io/",
+    "privacyPolicyURL": "https://exploratory.io/privacy",
+    "termsOfServiceURL": "https://exploratory.io/terms",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  }
+}

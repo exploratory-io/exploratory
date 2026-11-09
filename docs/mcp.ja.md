@@ -10,20 +10,15 @@ MCP クライアントを Exploratory につなぐと、exploratory.io で閲覧
 
 クライアントは、Claude Code・Codex・Grok Bot・Cursor・Antigravity などです。Grok Bot は、チャットで MCP サーバーを追加するクライアントです。
 
-この MCP サーバー（Server MCP）は読み取り専用です。コンテンツの作成・編集・公開・削除はできません。ただし `dataframe_export` は、15 分間有効なダウンロードリンクを作ります。Exploratory Desktop でチャートや分析を作るときは、別の Desktop MCP を使います。[README](../README.md#日本語)を見てください。
+この MCP サーバー（Server MCP）は読み取り専用です。コンテンツの作成・編集・公開・削除はできません。ただし `dataframe_export` は、15 分間有効なダウンロードリンクを作ります。Exploratory Desktop でチャートや分析を作るときは、別の Desktop MCP を使います。[README](../README.ja.md)を見てください。
 
 ## Claude Code につなぐ
 
-プラグインを入れます。MCP サーバーが登録され、質問に応じてどのツールを使うかを Claude に教えるスキルも入ります。
+掲載後に、Claude の公式マーケットプレイスから **Exploratory Server**（`exploratory-server`）を入れます。Server プラグインには、URL の接続と Server のスキルが入ります。Exploratory 自社 GitHub マーケットプレイスの Desktop プラグインとは別です。[導入元と公開状況](../README.ja.md#使う対象に合わせてプラグインを選ぶ)を参照してください。
 
-```sh
-claude plugin marketplace add exploratory-io/exploratory
-claude plugin install exploratory@exploratory
-```
+新しいセッションで `/mcp` を開き、`exploratory-server` の接続を選び、ブラウザでサインインします。
 
-新しいセッションで `/mcp` を開き、`plugin:exploratory:exploratory-server` を選んで、ブラウザで Exploratory にサインインします。
-
-プラグインを使わず MCP サーバーだけを登録する場合は、次を実行します。
+プラグインやスキルを使わず、Server MCP だけを登録する既存の接続例です。
 
 ```sh
 claude mcp add --transport http exploratory-server https://exploratory.io/mcp
@@ -31,21 +26,19 @@ claude mcp add --transport http exploratory-server https://exploratory.io/mcp
 
 ## Codex につなぐ
 
-プラグインを入れます。MCP サーバーが登録され、同じスキルも入ります。
+掲載後に、Codex の公式マーケットプレイスから **Exploratory Server**（`exploratory-server`）を入れます。新しいセッションで OAuth の案内に従ってサインインします。このリポジトリの自社マーケットプレイスに載るのは Desktop だけです。`exploratory@exploratory` では Server は入りません。
 
-```sh
-codex plugin marketplace add exploratory-io/exploratory
-codex plugin add exploratory@exploratory
-codex mcp login exploratory-server
-```
-
-新しいセッションから使えます。`codex` の `/plugins` から入れることもできます。
-
-MCP サーバーだけを登録する場合は、`~/.codex/config.toml` に次を書き足してから `codex mcp login exploratory-server` を実行します。
+Server MCP だけを登録する既存の設定例です。スキルは入りません。
 
 ```toml
 [mcp_servers.exploratory-server]
 url = "https://exploratory.io/mcp"
+```
+
+`~/.codex/config.toml` に追加したあと、次を実行します。
+
+```sh
+codex mcp login exploratory-server
 ```
 
 ## Grok Bot につなぐ
@@ -60,7 +53,9 @@ Grok Bot のチャットで次のように送ります。
 
 ## Cursor につなぐ（Grok などのモデルを含む）
 
-Cursor のエージェント（`agent` / `cursor-agent`）は、Grok を含め、Cursor で選べるどのモデルでも使えます。プラグインとして入れると（下記）、Server MCP（`exploratory-server`）と Desktop MCP（`exploratory-desktop`）の両方が入ります。スキルなしで Server MCP だけを手で足すときは、`~/.cursor/mcp.json`（プロジェクトだけなら `.cursor/mcp.json`）に次を書きます。
+Cursor のエージェント（`agent` / `cursor-agent`）では、Grok を含め、Cursor で選んだモデルを使います。Exploratory Server が公式マーケットプレイスに載るまでは、下の JSON で Server MCP を手で足します。別の Desktop プラグインには Server は入りません。
+
+スキルなしで Server MCP だけを手で足すときは、`~/.cursor/mcp.json`（プロジェクトだけなら `.cursor/mcp.json`）に次を書きます。
 
 ```json
 {
@@ -79,16 +74,11 @@ Cursor のエージェント（`agent` / `cursor-agent`）は、Grok を含め�
 agent mcp login exploratory-server
 ```
 
-このリポジトリは、Cursor のプラグインにもなっています。両方の MCP を定義した `.cursor-plugin/plugin.json` と、同じスキルが入っています。Desktop MCP は、起動している Exploratory Desktop を使います。手元に取得したものを試すには、`agent --plugin-dir <このリポジトリのパス>` で起動します。
+Server プラグインには Cursor 用の定義がありません。Server MCP は、上の JSON で足します。Desktop の Cursor 用の定義は `plugins/exploratory-desktop/.cursor-plugin/plugin.json` です。Desktop を手元のフォルダから試す例は [README](../README.ja.md#cursor)を参照してください。リポジトリ直下を指定して両方を入れる構成は廃止しています。
 
 ## Antigravity につなぐ
 
-このリポジトリは、Antigravity のプラグインにもなっています。`.antigravity-plugin/plugin.json`、`mcp_config.json`、同じスキルが入っています。
-
-```sh
-git clone https://github.com/exploratory-io/exploratory
-agy plugin install ./exploratory
-```
+Server の設定は `plugins/exploratory-server/`、Desktop の設定は `plugins/exploratory-desktop/` にあります。Server は掲載後に公式マーケットプレイスから入れます。Desktop を手元のフォルダから入れる例は [README](../README.ja.md#antigravity)を参照してください。
 
 MCP サーバーだけを登録するときは、`~/.gemini/config/mcp_config.json` に次を書きます。
 
@@ -106,7 +96,7 @@ MCP サーバーだけを登録するときは、`~/.gemini/config/mcp_config.js
 
 1. `agy` を起動します。
 2. `/plugin` を実行します。
-3. プラグイン `exploratory`（MCP サーバー `exploratory-server`）を開きます。
+3. `exploratory-server` の接続を開きます（Desktop プラグイン `exploratory` とは別です）。
 4. Sign in を選びます。
 5. Exploratory の同意画面で許可します。
 6. ブラウザに表示された認可コードを `agy` に貼り付けます。
@@ -270,13 +260,15 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 
 ## 計画チェック（Claude Code）
 
-チェックは、条件がそろうまでツールの呼び出しを止める仕組みです。計画チェックは、エージェントが計画なしに作り始めるのを防ぐ仕組みで、既定ではオンです（`plan_gate` = `true`）。止めるには、`plan_gate` を `false` にします（[README](../README.md#計画チェックplan_gate) を見てください）。
+この節は `plugins/exploratory-desktop/` の Desktop プラグインの説明です。Server にフックはありません。現在の Desktop の Codex 定義にはフックを接続していません。Codex 自体にはフックの仕組みがあります。
+
+チェックは、条件がそろうまでツールの呼び出しを止める仕組みです。計画チェックは、エージェントが計画なしに作り始めるのを防ぐ仕組みで、既定ではオンです（`plan_gate` = `true`）。止めるには、`plan_gate` を `false` にします（[README](../README.ja.md#計画チェックplan_gate) を見てください）。
 
 拒否メッセージの冒頭には、『計画の関所』『カスタム R の関所』と出ます。計画チェック・カスタム R チェックのことです。計画のファイル名は `<題名>_Exploratory作成計画.md` の形です。
 
 部分 1: 分析の計画。エージェントが分析のスキルを使い、R のレポート（HTML）を保存したあとに働きます。
 
-- エージェントは、最初に分析の計画を保存します。ファイル名は `<題名>_Exploratory作成計画.md` です。保存するまで、次の呼び出しを拒否します: `create_wrangling_step`・`create_branch`・`create_chart`・`create_analytics`・`create_note`・`save_result_as_dataframe`。拒否のメッセージは、計画を保存するようエージェントに伝えます。
+- エージェントは、最初に分析の計画を保存します。ファイル名は `<題名>_Exploratory作成計画.md` です。保存するまで、次の呼び出しを拒否します: `create_wrangling_step`・`create_branch`・`create_chart`・`create_analytics`・`create_note`・`update_note`・`create_dashboard`・`save_result_as_dataframe`。拒否のメッセージは、計画を保存するようエージェントに伝えます。
 - 計画には、実在する HTML のファイル名が必要です。保存した HTML のファイル名を、計画に書いてください。
 - エージェントが計画を保存し、ノートを作ったあとに、返答を終える前に止めることがあります。止めるのは合計で最大 3 回までで、チャートが 1 枚以上あるときだけです。
   - 最大 2 回: エージェントがチャートを画像で確かめていないとき

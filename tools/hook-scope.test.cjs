@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '../plugins/exploratory-desktop');
 const prefixes = ['mcp__exploratory-desktop__', 'mcp__plugin_exploratory_exploratory-desktop__'];
 const others = ['mcp__exploratory-server__', 'mcp__plugin_exploratory_exploratory-server__', 'mcp__other__', 'mcp__plugin_other_exploratory-desktop__', 'mcp__plugin_exploratory_other__', 'mcp__exploratory-desktop-other__', ''];
 const cases = [
@@ -27,7 +27,7 @@ function run(mode, tool_name, tool_input, dir) {
   }).trim();
 }
 test('hook matchers exclude other MCP servers and unqualified tool names', () => {
-  const hooks = require('../hooks/claude.json').hooks;
+  const hooks = require('../plugins/exploratory-desktop/hooks/claude.json').hooks;
   for (const prefix of others) for (const tool of ['create_chart', 'create_note', 'create_wrangling_step', 'execute_r_script', 'update_chart']) {
     for (const event of ['PreToolUse', 'PostToolUse']) assert(!hooks[event].some(entry => new RegExp(entry.matcher).test(prefix + tool)), event + ': ' + prefix + tool);
   }

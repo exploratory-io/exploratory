@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "exploratory-desktop": {
+      "type": "stdio",
+      "command": "exploratory-mcp"
+    }
+  }
+}
