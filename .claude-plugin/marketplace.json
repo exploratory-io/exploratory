@@ -13,7 +13,7 @@
       "name": "exploratory",
       "source": "./plugins/exploratory-desktop",
       "description": "Work with Exploratory Desktop v17 or later.",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "category": "data"
     }
   ]

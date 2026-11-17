@@ -10,7 +10,7 @@ MCP クライアントを Exploratory につなぐと、exploratory.io で閲覧
 
 クライアントは、Claude Code・Codex・Grok Bot・Cursor・Antigravity などです。Grok Bot は、チャットで MCP サーバーを追加するクライアントです。
 
-この MCP サーバー（Server MCP）は読み取り専用です。コンテンツの作成・編集・公開・削除はできません。ただし `dataframe_export` は、15 分間有効なダウンロードリンクを作ります。Exploratory Desktop でチャートや分析を作るときは、別の Desktop MCP を使います。[README](../README.ja.md)を見てください。
+この MCP サーバー（Server MCP）のうち、コンテンツを探す・読む・問い合わせるツールは読み取り専用です。`dataframe_export` は、15 分間有効なダウンロードリンクを作ります。ページのツール（[ページ](#ページ)を見てください）は、自分の Exploratory のページを公開・変更・削除できます。それ以外のコンテンツは変更しません。Exploratory Desktop でチャートや分析を作るときは、別の Desktop MCP を使います。[README](../README.ja.md)を見てください。
 
 ## Claude Code につなぐ
 
@@ -122,7 +122,7 @@ Streamable HTTP と OAuth に対応した MCP クライアントなら、サー�
 | サーバー URL | `https://exploratory.io/mcp` |
 | 通信方式 | Streamable HTTP（HTTP で MCP をやり取りする方式）、ステートレス（`POST` のみ。`GET` と `DELETE` は 405） |
 | 認証 | OAuth 2.1（PKCE）。クライアントは Dynamic Client Registration か Client ID Metadata Document で登録（どちらも、クライアントが自分を登録する方法） |
-| スコープ | `content:read` |
+| スコープ | `content:read`（ページのツールには `page:write` も） |
 | メタデータ | `https://exploratory.io/.well-known/oauth-protected-resource/mcp`、`https://exploratory.io/.well-known/oauth-authorization-server` |
 
 呼び出しには毎回 `Authorization: Bearer <アクセストークン>` が必要です。ブラウザのログイン状態（Cookie）では認証されません。有効なトークンがない呼び出しには HTTP 401 が返り、`WWW-Authenticate` ヘッダーが保護リソースのメタデータを指します。クライアントはこれを見てサインインを始めます。
@@ -139,7 +139,7 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 
 | ツール | 必須の引数 | 用途 |
 |---|---|---|
-| `search` | なし | 閲覧できるコンテンツを検索・一覧します。`query` が空なら新しい順に一覧します。`scope` は `all`・`mine`・`shared`・`team`（`team` のときは、所属チームの名前も `team` で渡します）。`semantic: true` で意味による検索。データの結果には列も含まれます |
+| `search` | なし | 閲覧できるコンテンツを検索・一覧します。`query` が空なら新しい順に一覧します。`scope` は `all`・`mine`・`shared`・`team`（`team` のときは、所属チームの名前も `team` で渡します）。`type` は `all` や `page`（Exploratory のページ）など。`semantic: true` で意味による検索。`detail: "light"` で、id・タイトル・URL・種類だけを一覧します。データの結果には列も含まれます |
 | `fetch` | `id` | コンテンツ 1 件を Markdown で読みます。ノートには本文、各チャートの先頭の行、各アナリティクスの説明が入ります。長いノートは `query`・`section`・`cursor` で読みます |
 
 ### チャートとアナリティクス
@@ -149,6 +149,7 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 | `chart_get_data` | `id`（ノート・ダッシュボード・スライドの中なら `chart` も） | チャートのデータ。1 回 100 行まで。集計方法・フィルタ・パラメータの値つき |
 | `chart_get_image` | `id`（ノート・ダッシュボード・スライドの中なら `chart` も） | 公開時に保存されたチャートの PNG。`may_be_stale` で古い可能性を確認します |
 | `analytics_get_result` | `id`（ノート・ダッシュボード・スライドの中なら `analytics` も） | アナリティクスのモデル定義・結果の表・主要な統計量・設定 |
+| `chart_query` | `id` または `queries`（ノート・ダッシュボード・スライドの中なら `chart` も） | チャートのデータを、サーバー上で絞り込み・グループ化・集計します。`mode` は `rows` か `aggregate`（DuckDB の SELECT 1 文なら `sql`）。件数・合計・順位は、`chart_get_data` を何ページも読むかわりに使います。`warnings` を確かめます |
 
 `chart_get_data` の注意:
 
@@ -163,6 +164,9 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 | `dataframe_preview` | `id` | 行を 1 回 100 行まで返します。公開時に保存したサンプルの場合があるので `is_sample` を確認します |
 | `query_dataset` | `dataset_id` と `mode`（または `queries`、結合なら `datasets`） | サーバー上で絞り込み・グループ化・集計します。規則は表の下に書きます。結果の `warnings` を確かめます |
 | `dataframe_export` | `dataset_id` と `mode` | 同じ問い合わせの結果を CSV か Parquet で保存します |
+| `dataframe_get_wrangling` | `id` | パブリッシュされたデータがどう作られたか。加工のステップの概要を返し、続けて 1 つのステップ（`steps`）や、ある列を作ったステップ（`column`）を詳しく返します。R のコードは `include_scripts` を付けたときだけ返します |
+| `dataset_find_values` | `dataset_id` と `terms` | 1 つのデータの中で、指定した値（地域や商品など）がどの列にあるか、フィルタに使う保存値は何かを探します。`query_dataset` の前に呼びます |
+| `desktop_mcp_setup_guide` | なし | AI クライアント（`client`: `claude_code`・`codex`・`cursor`・`antigravity`）を Exploratory Desktop につなぐ手順とリンクを返します。情報を返すだけです |
 
 `dataframe_export` の注意:
 
@@ -178,6 +182,19 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 - 結合で使うデータの `alias` は、小文字で 16 文字までです。
 - 結合できるデータは 2〜5 件です。
 - 独立した問い合わせは、1 回に 5 件まで入れられます。
+
+### ページ
+
+Exploratory のページは、指定したデータを exploratory SDK でその場で問い合わせる、1 つで完結した HTML ファイルです。作ったばかりのページは非公開で、共有できるのは本人だけです。これらのツールは、サーバーでページが有効になっている場合に使えます。`page:write` の権限が必要です。
+
+| ツール | 必須の引数 | 用途 |
+|---|---|---|
+| `get_page_guide` | なし | ページの書き方（手順、SDK、読み込んでよいライブラリ、規則、例）。`page_publish` や `page_update` の前に呼びます。`client` で AI クライアントの種類を渡します |
+| `page_publish` | `title`、`html`、`datasets`（データの id を 1〜20 件） | 新しい非公開のページを公開し、URL を返します。`description` は省略できます |
+| `page_update` | `page_id` | 自分のページを変更します。変えるものだけを渡します（`html`、`datasets`、`title`、`description`）。URL は変わらず、前の HTML はバージョンとして残ります |
+| `page_list` | なし | ページを一覧します。`scope` は `mine` か `shared`。`dataset_id` で、1 つのデータを使うページに絞れます |
+| `page_get` | `page_id` | ページ 1 件を HTML つきで読みます。所有者は `version` で古いバージョンも読めます |
+| `page_delete` | `page_id` | 自分のページを、すべてのバージョンごと削除します。元に戻せないので、先に確認します |
 
 ## エージェントがデータの質問に答える手順
 
@@ -254,7 +271,7 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 
 ## Server MCP でできないこと
 
-- コンテンツの作成・編集・公開・削除
+- 自分の Exploratory のページ以外のコンテンツの作成・編集・公開・削除
 - 公開時と違うパラメータの値でのチャートやアナリティクスの再計算
 - Exploratory Server に公開されていないもの（Exploratory Desktop の中だけにあるプロジェクトなど）の読み取り。これらには Desktop MCP を使います。
 

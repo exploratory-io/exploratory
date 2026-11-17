@@ -1,12 +1,12 @@
 # Exploratory Desktop
 
-Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.6).
+Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.7).
 
 ## Requirements and release status
 
 Requires the MCP-enabled Exploratory Desktop v17 or later, signed in and running, with `exploratory-mcp` on the AI client's PATH. Exploratory Desktop v17 or later installs `exploratory-mcp` on the PATH when it starts. The MCP configuration runs `exploratory-mcp` with no arguments; it uses the app's local relay. Installing the plugin does not start the app.
 
-Before using Desktop MCP, open Exploratory Desktop **System Settings > MCP / CLI** (システム設定 > MCP / CLI) and turn on the **MCP** switch. To create or change charts, notes and other content, also check **Allow create, edit and delete** (作成、変更、削除を許可する). Both are off by default.
+Before using Desktop MCP, open Exploratory Desktop **System Settings > MCP / CLI** (システム設定 > MCP / CLI) and turn on **Enable MCP** (MCP を有効にする). To create or change charts, notes and other content, also check **Allow create, edit and delete** (作成、変更、削除を許可する). Both are off by default.
 
 ## Install from Exploratory's GitHub marketplace
 

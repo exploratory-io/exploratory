@@ -5,7 +5,7 @@ description: "Use for items published on exploratory.io: when the user asks abou
 
 # Working with Exploratory Server
 
-The `exploratory-server` MCP server gives read-only access to content the signed-in user can view on Exploratory. It cannot create, edit or publish anything.
+The `exploratory-server` MCP server gives read-only access to content the signed-in user can view on Exploratory. It cannot create, edit or publish content. The one exception is Exploratory Pages (`page_publish`, `page_update`, `page_delete`), where the server has them: call `get_page_guide` first.
 
 ## Find, then read
 
@@ -27,6 +27,11 @@ For a long note, pass `query` to `fetch` with several words at once, read one he
 | A few example rows | `dataframe_preview` |
 | Counts, sums, averages, top-N, rows matching a condition, joins of 2-5 data items | `query_dataset` |
 | A result too large to return inline | `dataframe_export` (CSV or Parquet, link valid 15 minutes, only for the same user) |
+| Counts, sums, rankings from a chart inside a note, dashboard or slide | `chart_query` |
+| Which column holds a value the user named (a region, a product) | `dataset_find_values`, before `query_dataset` |
+| How a data item was built | `dataframe_get_wrangling` |
+| Publish or change an HTML page that queries data live | `get_page_guide`, then `page_publish` or `page_update`. `page_list` and `page_get` find and read Pages; `page_delete` removes one |
+| The user wants to work with local projects in Exploratory Desktop | `desktop_mcp_setup_guide` (returns the connection steps) |
 
 To answer a question about data: (1) `search` to find the data item; (2) `dataframe_get_schema`, read the approved semantics (meaning of a row, column roles, default aggregation, units, value labels, aggregation rules), and map the user's words to columns yourself, asking the user if several fit; to see which values a column holds, read its `top_values` from `dataframe_get_schema`, then `dataframe_preview` or a `query_dataset` grouped by it if you need more; (3) `query_dataset`. When an approved business metric in `semantics.metrics` fits, build the calculation from its definition instead of inventing one. Mention it when a definition is marked `needs_review`.
 

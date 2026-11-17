@@ -10,7 +10,7 @@ Published content is a note, dashboard, slide, chart, analytics or data that som
 
 The clients are Claude Code, Codex, Grok Bot, Cursor, Antigravity and any other MCP client. Grok Bot is a chat client where you add MCP servers by message.
 
-The Server MCP is read-only. It does not create, edit, publish or delete anything. The one exception is `dataframe_export`. It creates a download link that is valid for 15 minutes.
+The Server MCP tools that find, read and query content are read-only. `dataframe_export` creates a download link that is valid for 15 minutes. The Page tools (see [Pages](#pages)) can publish, change and delete your own Exploratory Pages. They do not change any other content.
 
 To build charts and analyses in Exploratory Desktop, use the separate Desktop MCP. See the [README](../README.md).
 
@@ -124,7 +124,7 @@ If the agent calls `search` with `scope: "mine"` and shows your content with the
 | Server URL | `https://exploratory.io/mcp` |
 | Transport | Streamable HTTP (a way to send MCP over HTTP), stateless (`POST` only; `GET` and `DELETE` return 405) |
 | Authorization | OAuth 2.1 with PKCE. Clients register by Dynamic Client Registration or a Client ID Metadata Document (both let a client register itself) |
-| Scope | `content:read` |
+| Scope | `content:read`, and `page:write` for the Page tools |
 | Metadata | `https://exploratory.io/.well-known/oauth-protected-resource/mcp` and `https://exploratory.io/.well-known/oauth-authorization-server` |
 
 Every call needs `Authorization: Bearer <access token>`. A browser session cookie does not authenticate MCP calls. A call without a valid token returns HTTP 401. The response has a `WWW-Authenticate` header that points to the protected-resource metadata. Clients use this header to start the sign-in.
@@ -141,7 +141,7 @@ Ids come from `search` or `fetch`. Names of charts and analytics inside a note, 
 
 | Tool | Required arguments | Purpose |
 |---|---|---|
-| `search` | none | Search or list content you can view. Empty `query` lists newest first. `scope`: `all`, `mine`, `shared`, `team` (with `team`, also pass `team`: the name of a team you belong to). `semantic: true` matches by meaning. Data results include their columns |
+| `search` | none | Search or list content you can view. Empty `query` lists newest first. `scope`: `all`, `mine`, `shared`, `team` (with `team`, also pass `team`: the name of a team you belong to). `type`: `all` or `page` (Exploratory Pages), among others. `semantic: true` matches by meaning. `detail: "light"` lists only ids, titles, URLs and types. Data results include their columns |
 | `fetch` | `id` | Read one piece of content as Markdown. Notes include text, the first rows of each chart and each analytics explanation. Long notes: `query`, `section`, `cursor` |
 
 ### Charts and analytics
@@ -151,6 +151,7 @@ Ids come from `search` or `fetch`. Names of charts and analytics inside a note, 
 | `chart_get_data` | `id` (+ `chart` in a note, dashboard or slide) | Chart data, up to 100 rows per call, with aggregation, filters and parameter values |
 | `chart_get_image` | `id` (+ `chart` in a note, dashboard or slide) | The chart as a PNG saved at publish time. Check `may_be_stale` |
 | `analytics_get_result` | `id` (+ `analytics` in a note, dashboard or slide) | Model definition, result tables, headline statistics and settings of an analytics |
+| `chart_query` | `id` or `queries` (+ `chart` in a note, dashboard or slide) | Filter, group and aggregate the data of a chart on the server. `mode`: `rows` or `aggregate` (or `sql` for one DuckDB SELECT). Use it instead of paging through `chart_get_data` for counts, sums and rankings. Check `warnings` |
 
 Notes on `chart_get_data`:
 
@@ -165,6 +166,9 @@ Notes on `chart_get_data`:
 | `dataframe_preview` | `id` | Rows, up to 100 per call. May be the sample saved at publish time: check `is_sample` |
 | `query_dataset` | `dataset_id` and `mode` (or `queries`, or `datasets` for a join) | Filter, group and aggregate on the server. The rules are below the table. Check `warnings` in the result |
 | `dataframe_export` | `dataset_id` and `mode` | The same query saved as CSV or Parquet |
+| `dataframe_get_wrangling` | `id` | How a published data item was built: an outline of its wrangling steps, then one step (`steps`) or the steps that made one column (`column`) in detail. R code only with `include_scripts` |
+| `dataset_find_values` | `dataset_id` and `terms` | Find which columns of one data item hold the values you name (a region, a product), and the stored value to filter on. Call it before `query_dataset` |
+| `desktop_mcp_setup_guide` | none | Steps and links to connect an AI client (`client`: `claude_code`, `codex`, `cursor` or `antigravity`) to Exploratory Desktop. It only returns information |
 
 Notes on `dataframe_export`:
 
@@ -180,6 +184,19 @@ The rules for `query_dataset`:
 - A dataset `alias` in a join is lowercase and has up to 16 characters.
 - A join uses 2 to 5 data sets.
 - A call can hold up to 5 independent queries.
+
+### Pages
+
+An Exploratory Page is one self-contained HTML file that queries the data you name, live, with the exploratory SDK. A new Page is private; only you can share it. These tools are available where Pages is turned on for the server, and they need the `page:write` permission.
+
+| Tool | Required arguments | Purpose |
+|---|---|---|
+| `get_page_guide` | none | How to write a Page: the steps, the SDK, the libraries a Page may load, the rules and an example. Call it before `page_publish` or `page_update`. `client` names your AI client |
+| `page_publish` | `title`, `html`, `datasets` (1 to 20 dataset ids) | Publish a new private Page and return its URL. `description` is optional |
+| `page_update` | `page_id` | Change your own Page. Pass only what changes (`html`, `datasets`, `title`, `description`). The URL stays the same, and the previous HTML is kept as a version |
+| `page_list` | none | List Pages. `scope`: `mine` or `shared`. `dataset_id` limits the list to Pages that use one dataset |
+| `page_get` | `page_id` | Read one Page with its HTML. The owner can read an older version with `version` |
+| `page_delete` | `page_id` | Delete your own Page and all its versions. It cannot be undone, so confirm first |
 
 ## Steps the agent follows to answer a question about data
 
@@ -256,7 +273,7 @@ If one user sends more than 120 requests in a minute, the server returns HTTP 42
 
 ## What the Server MCP does not do
 
-- Create, edit, publish or delete content.
+- Create, edit, publish or delete content other than your own Exploratory Pages.
 - Recompute a chart or analytics for parameter values other than the published ones.
 - Read content that is not published to Exploratory Server, such as projects that exist only in Exploratory Desktop. Use the Desktop MCP for those.
 

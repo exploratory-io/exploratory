@@ -6,7 +6,7 @@ Email support@exploratory.io with "Security" in the subject. Include what you fo
 
 ## What this plugin does
 
-- The Server MCP (`https://exploratory.io/mcp`) is read-only. It runs as the signed-in user.
+- The Server MCP (`https://exploratory.io/mcp`) reads published content as the signed-in user. Its only write operations are the Page tools (`page_publish`, `page_update`, `page_delete`), which change your own Pages and need the `page:write` permission.
 - The Desktop MCP runs on your computer. Its relay talks to your local Exploratory Desktop.
 - The Desktop MCP can change and delete local content. It can publish when you ask. Review what your agent proposes before it writes.
 - Exploratory Desktop sends one usage record for each Desktop MCP tool call. It sends the record to the exploratory.io server you are signed in to.

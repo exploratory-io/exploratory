@@ -2,7 +2,7 @@
 
 Exploratory Server connects your AI client to Exploratory (https://exploratory.io). Your AI client can search and read the content that your account can view on exploratory.io. It can also query data on the server. This content includes notes, dashboards, slides, charts, analytics and data.
 
-The plugin name is `exploratory-server` (version 0.1.4). It uses one MCP connection: `https://exploratory.io/mcp`.
+The plugin name is `exploratory-server` (version 0.1.5). It uses one MCP connection: `https://exploratory.io/mcp`.
 
 ## What you need
 
@@ -33,7 +33,7 @@ To remove the access, open Account Settings on exploratory.io. Then remove the c
 
 ## What it can do
 
-The plugin is read-only. It can do these tasks:
+The plugin can do these tasks. Everything except Pages is read-only:
 
 - Search the content that your account can view.
 - Read notes, dashboards and slides.
@@ -42,12 +42,14 @@ The plugin is read-only. It can do these tasks:
 - Show the columns and rows of a data frame.
 - Query a data frame on the server, for example to count, sum or filter rows.
 - Export a data frame as a CSV or Parquet file.
+- Filter and aggregate the data of a chart in a note, dashboard or slide, and see how a data item was built.
+- Publish, update, list, read and delete your own Exploratory Pages: HTML files that query your data live. Available where Pages is turned on for the server.
 
 The plugin always works as the signed-in user. It cannot show content that this user cannot view. A publisher can turn off MCP access for a piece of published content. A publisher can also keep the rows of data private.
 
 ## What it cannot do
 
-- It cannot create, edit, publish or delete content.
+- It cannot create, edit, publish or delete content other than your own Exploratory Pages.
 - It cannot read or change projects on your computer. Use the Exploratory Desktop plugin for that work.
 
 ## Data handling

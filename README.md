@@ -19,8 +19,8 @@ Find your case in the table, then follow that guide.
 
 | Plugin | Plugin name | Where it comes from |
 |---|---|---|
-| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server` (0.1.4) | Your AI client's official plugin directory |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.6) | This repository's marketplace (`exploratory-io/exploratory`) |
+| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server` (0.1.5) | Your AI client's official plugin directory |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.7) | This repository's marketplace (`exploratory-io/exploratory`) |
 
 The two plugins do not share tools or skills. You can install both, in any order.
 
@@ -70,11 +70,11 @@ You need these:
 
 ### Step 1. Turn on MCP in Exploratory Desktop
 
-Open **System Settings > MCP / CLI** and turn on the **MCP** switch. To create or change charts, notes and other content, also check **Allow create, edit and delete**. Both are off by default.
+Open **System Settings > MCP / CLI** and turn on **Enable MCP**. To create or change charts, notes and other content, also check **Allow create, edit and delete**. Both are off by default.
 
 ### Step 2. Install the Exploratory Desktop plugin
 
-This plugin is not in the official directories. Add this repository as a marketplace, then install the plugin. You can type the commands, or ask your AI client to run them.
+This plugin is not in the official directories. Add this repository as a marketplace, then install the plugin. You can type the commands, or ask your AI client to run them. You can also install it from **System Settings > MCP / CLI** in Exploratory Desktop (**Install the Exploratory Desktop plugin**).
 
 #### Claude Code
 
@@ -125,7 +125,7 @@ Start a new session. In Claude Code, open `/mcp` and check that `exploratory-des
 
 > In my open Exploratory project, build a monthly bar chart from the sales data.
 
-If a call says that MCP is turned off, go back to Step 1.
+The first time, Exploratory Desktop shows a request to approve the AI app. Approve it in the app. If a call says that MCP is turned off, go back to Step 1.
 
 ## Guide 3: Server and Desktop
 
@@ -144,21 +144,25 @@ The earlier `exploratory` plugin included both Server and Desktop. When you upda
 | Category | Tools |
 |---|---|
 | Find and read | `search` lists and searches published content; `fetch` reads a note, dashboard or slide as Markdown |
-| Charts and analytics | `chart_get_data` returns the numbers behind a chart; `chart_get_image` returns the chart as an image; `analytics_get_result` returns coefficients, p-values and other results |
-| Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet |
+| Charts and analytics | `chart_get_data` returns the numbers behind a chart; `chart_get_image` returns the chart as an image; `analytics_get_result` returns coefficients, p-values and other results; `chart_query` filters and aggregates the data of a chart in a note, dashboard or slide on the server |
+| Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet; `dataframe_get_wrangling` shows how a data item was built, step by step; `dataset_find_values` finds which column holds a value you name |
+| Pages | `get_page_guide` tells how to write a Page; `page_publish` publishes one HTML file that queries your data live, as a private Page; `page_update`, `page_list`, `page_get` and `page_delete` change, list, read and delete Pages. Available where Pages is turned on for the server |
+| Set up Desktop | `desktop_mcp_setup_guide` returns the steps to connect an AI client to Exploratory Desktop |
 
-The Server MCP tools in the table are read-only. Only `dataframe_export` makes something: a download link that is valid for 15 minutes.
+The Server MCP tools for finding, reading and querying are read-only. `dataframe_export` makes a download link that is valid for 15 minutes. The Page tools `page_publish`, `page_update` and `page_delete` create, change and delete your own Pages. They need the `page:write` permission, which you approve when you connect. A connection made before Pages existed has to be reconnected.
 
 The Desktop MCP tools create and edit local projects. They work with these items:
 
-- Data frames, wrangling steps, branches, parameters and connections
+- Projects (open, save, import, history) and data frames, wrangling steps, branches, parameters and connections
+- The local data catalog, R packages, palettes, dictionaries, and AI function and note prompt templates
 - Charts and analytics
 - Notes and dashboards
 
 Some Desktop MCP tools change or remove things:
 
-- Delete charts, analytics, notes, dashboards, steps, branches, parameters and connections.
-- Publish and unpublish notes, dashboards and data frames.
+- Delete charts, analytics, notes, dashboards, steps, branches, parameters, connections, catalog items, R packages, palettes and templates.
+- Publish and unpublish notes, dashboards, data frames and projects.
+- Change the Exploratory system settings with `update_system_settings`.
 - Run R code with `execute_r_script`.
 
 Review what your agent proposes before it writes. The [Exploratory MCP reference](docs/mcp.md) lists the arguments, errors and limits of the Server MCP tools. Your AI client shows the Desktop MCP tools in its tool list.
@@ -203,7 +207,7 @@ For the refused calls and the rules, see [Plan gate (Claude Code)](docs/mcp.md#p
 
 ## Data and permissions
 
-- The Server MCP reads published content. The Desktop MCP can create and edit local project content. It can publish when you ask. Review the operations your agent proposes.
+- The Server MCP reads published content, and can publish and manage your own Pages. The Desktop MCP can create and edit local project content. It can publish when you ask. Review the operations your agent proposes.
 - Server MCP calls run as the signed-in user. They never go beyond what that user can view on exploratory.io. A publisher can turn off MCP access for each piece of published content. A publisher can also keep the rows of data private.
 - These controls do not apply to the Desktop MCP. The Desktop MCP works through the Exploratory Desktop app on your computer, as the user signed in to the app.
 - To disconnect a client from the Server MCP, open Account Settings on exploratory.io and remove it under Connected AI Apps. This does not stop the Desktop MCP. The Desktop MCP stops when you quit Exploratory Desktop.
@@ -233,7 +237,7 @@ Uninstalling does not revoke Server MCP access. To revoke it, also remove the cl
 
 ## Privacy
 
-- Server MCP: calls go to `https://exploratory.io/mcp`. They read published content only and are read-only. For permissions, see [Data and permissions](#data-and-permissions).
+- Server MCP: calls go to `https://exploratory.io/mcp`. They read published content and, where Pages is on, publish and manage your Pages. For permissions, see [Data and permissions](#data-and-permissions).
 - Desktop MCP: it runs on your computer. Its relay talks to your local Exploratory Desktop. It reads and edits local project content (data frames, charts, analytics, notes, dashboards) through the app.
 - Desktop MCP usage records: Exploratory Desktop sends one usage record for each Desktop MCP tool call. It sends the record to the exploratory.io server you are signed in to. We use the records to improve the tools.
   - A record holds the tool name and its arguments. The arguments can include formulas and values you entered.
@@ -275,7 +279,7 @@ Terms: https://exploratory.io/terms
 
 Do not put tokens or passwords into prompts or files. The plugin does not pass a token. The relay reads its own credentials.
 
-The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_note`, `publish_dashboard`, `publish_data_frame`) with `destructiveHint`. This is only a hint. A client that honors it can ask you to confirm. This depends on the client and your permission settings. Copying to another project is not marked.
+The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_*`: `publish_note`, `publish_dashboard`, `publish_data_frame`, `publish_project`) with `destructiveHint`. This is only a hint. A client that honors it can ask you to confirm. This depends on the client and your permission settings. Copying to another project is not marked.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
