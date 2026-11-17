@@ -47,8 +47,7 @@
    pass **the `stepId` of the chosen `rObjects.steps[]`, not the R name**. Among the steps that have the target column,
    choose the last one. If the final step also has the target column, state that final step's
    `stepId` explicitly. If the target column no longer exists later because of aggregation, select, pivot, and so on, choose the `stepId`
-   of the pre-aggregation step that last has that column. You must not leave it to the 「last step」 or
-   pass `rObjects.lastStep.rName`.
+   of the pre-aggregation step that last has that column. You must not leave it to the 「last step」.
    Do not enumerate the options by hand; for multiple selection the value is an array, and for single selection the value is a scalar or an empty string.
    **name is R's internal name, and must be only alphanumerics and underscores starting with a letter.** Do not put
    Japanese column names or user-facing names in name; put them in displayName, for example `name: "category_filter"`,

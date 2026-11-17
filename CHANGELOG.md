@@ -1,5 +1,15 @@
 # Changelog
 
+## Desktop 0.1.7 - 2026-11-17
+
+- List the guides of the newer wrangling tools (`manage_data_frame`, `publish_project`, `edit_wrangling_steps`, `copy_wrangling_steps`, `preview_wrangling_steps`, `apply_wrangling_preview`, `list_ai_proposals`, `update_ai_proposal`, `locate_published_source`) in `mcp-tool-guides.md`, and use the current switch name (Enable MCP) in the README.
+- Align the Desktop skill text with the current tool behavior: `get_data_frame` no longer returns R names, `create_wrangling_step` makes one step per call, `interpretationGuide` comes only from `get_analytics_summary_prompt`, and the chart-setting lookups use `list_chart_settings`.
+
+## Server 0.1.5 - 2026-11-17
+
+- Update the Server documentation and skill to the current tools: add `chart_query`, `dataframe_get_wrangling`, `desktop_mcp_setup_guide` and the Page tools (`get_page_guide`, `page_publish`, `page_update`, `page_list`, `page_get`, `page_delete`), and state that the Page tools write (scope `page:write`) instead of calling the Server read-only.
+- Update the root README: new Desktop tool groups, `publish_project`, pairing approval on first use, and the Enable MCP switch name.
+
 ## Server 0.1.4 - 2026-11-10
 
 - Add the Antigravity manifest and `mcp_config.json` to the Server plugin, so it can be installed from Antigravity with the same remote MCP and Server skill.

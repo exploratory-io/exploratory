@@ -43,6 +43,6 @@
 ## in_exploratory
 
 [
-  "date-axis func: year/rtoyear/monname/weekday/quarter 等（各軸の func の choices は chart-settings.json を参照）",
+  "date-axis func: year/rtoyear/monname/weekday/quarter 等（各軸の func の choices は list_chart_settings で引く）",
   "topN+other: {軸}NumGroupsToPreserve / {軸}EnableOtherGroup（例: facetNumGroupsToPreserve, facetEnableOtherGroup）"
 ]

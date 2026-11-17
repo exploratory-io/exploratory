@@ -271,7 +271,7 @@
     "複数系列の作り方が Y 軸の複数列（マーカー切替が使える）か、色による分割（使えない）か"
   ],
   "in_exploratory": [
-    "系列ごとのマーカー種別を切り替える設定名は、今回の索引（chart-settings.json）からは特定できていない（settings に marker を含むキーは地図用の mapMarkerType のみ）"
+    "系列ごとのマーカー種別を切り替える設定名は、list_chart_settings では特定できていない（settings に marker を含むキーは地図用の mapMarkerType のみ）"
   ],
   "does_not_apply_when": [
     "1 系列だけの図、または色で分割した複数系列で混在が不要なとき"
@@ -286,9 +286,9 @@
     "基準線（リファレンスライン）を追加したい依頼（「平均線を引いて」「合計の基準線」等）"
   ],
   "usable": "depends",
-  "summary": "Y 軸の基準線は 8 種類、X 軸は 3 種類しか索引に無い。ノートが挙げる「合計値・最頻値・最初/最後の値・対角線」に対応する値が見当たらないので、渡す前に choices を確認する",
+  "summary": "基準線の種類の選択肢は図・軸・列の型ごとに変わるので、渡す前に list_chart_settings（setting: yReflineType / xReflineType など）で choices を確認する",
   "in_exploratory": [
-    "common.yReflineType.choices（8 種: ave/median/constant/rollmean/min/max/sd/lag_period、described: false）。settings.bar.xReflineType.choices は none/constant/ave の 3 種類のみ"
+    "yReflineType / xReflineType の choices は図・軸・列の型ごとに変わる（list_chart_settings で引く）"
   ]
 }
 

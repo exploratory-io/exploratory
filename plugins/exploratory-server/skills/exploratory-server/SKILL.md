@@ -5,16 +5,16 @@ description: "Use for items published on exploratory.io: when the user asks abou
 
 # Working with Exploratory Server
 
-The `exploratory-server` MCP server gives read-only access to content the signed-in user can view on Exploratory. It cannot create, edit or publish anything.
+The `exploratory-server` MCP server gives read-only access to content the signed-in user can view on Exploratory. It cannot create, edit or publish content. The one exception is Exploratory Pages (`page_publish`, `page_update`, `page_delete`), where the server has them: call `get_page_guide` first.
 
 ## Find, then read
 
 1. Call `search` first. An empty `query` lists items newest first; `scope: "mine"` lists the user's own items, `scope: "team"` with `team` lists one team's items.
 2. If keyword search finds nothing, retry with `semantic: true`.
-3. Call `fetch` with the id of the most relevant item. Notes, dashboards and slides come back as Markdown; `metadata.blocks` names the charts and analytics inside them.
+3. Call `fetch` with the id of the most relevant item. Notes, dashboards and slides come back as Markdown. The names of the charts and analytics inside them are in the text, on the lines `chart: `name`` and `analytics: `name``; a long note (over 20,000 characters) also lists them in `metadata.blocks`.
 4. Cite the item `url` from `search` or `fetch` whenever you use its content.
 
-For a long note, pass `query` to `fetch` with several words at once, read one heading with `section` (ids from `metadata.toc`), or continue with `cursor` from `metadata.range.next_cursor`.
+For a long note, pass `query` to `fetch` with several words at once, read one heading with `section` (ids from `metadata.toc`; a short note has a toc only with `include_toc: true`), or continue with `cursor` from `metadata.range.next_cursor`. `query` returns only the matching paragraphs, so the `analytics:` lines are missing: when you need a chart or analytics name, `fetch` without `query`.
 
 ## Pick the tool for the question
 
@@ -22,11 +22,16 @@ For a long note, pass `query` to `fetch` with several words at once, read one he
 |---|---|
 | Exact numbers behind a chart | `chart_get_data` (item id, plus the chart name from `metadata.charts` when the chart is in a note, dashboard or slide) |
 | What a chart looks like (trend, shape) | `chart_get_image`. Take numbers from `chart_get_data`, not from the image |
-| Coefficients, p-values, model fit | `analytics_get_result` (the analytics name from `metadata.blocks`, not its title) |
+| Coefficients, p-values, model fit | `analytics_get_result` (the analytics name from the `analytics: `name`` line in the text, not its title) |
 | Columns, meaning of a row, approved metrics | `dataframe_get_schema` (`detail: "light"` for names and types only) |
 | A few example rows | `dataframe_preview` |
 | Counts, sums, averages, top-N, rows matching a condition, joins of 2-5 data items | `query_dataset` |
 | A result too large to return inline | `dataframe_export` (CSV or Parquet, link valid 15 minutes, only for the same user) |
+| Counts, sums, rankings from a chart inside a note, dashboard or slide | `chart_query` |
+| Which column holds a value the user named (a region, a product) | Take a few values of the likely columns with `query_dataset` and check |
+| How a data item was built | `dataframe_get_wrangling` |
+| Publish or change an HTML page that queries data live | `get_page_guide`, then `page_publish` or `page_update`. `page_list` and `page_get` find and read Pages; `page_delete` removes one |
+| The user wants to work with local projects in Exploratory Desktop | `desktop_mcp_setup_guide` (returns the connection steps) |
 
 To answer a question about data: (1) `search` to find the data item; (2) `dataframe_get_schema`, read the approved semantics (meaning of a row, column roles, default aggregation, units, value labels, aggregation rules), and map the user's words to columns yourself, asking the user if several fit; to see which values a column holds, read its `top_values` from `dataframe_get_schema`, then `dataframe_preview` or a `query_dataset` grouped by it if you need more; (3) `query_dataset`. When an approved business metric in `semantics.metrics` fits, build the calculation from its definition instead of inventing one. Mention it when a definition is marked `needs_review`.
 

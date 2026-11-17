@@ -19,7 +19,7 @@ Two MCP servers cover Exploratory. Choose by where the target lives, not by the 
 
 ## Similar tools, different worlds
 
-Server `chart_get_data` takes a published item id. Desktop `get_chart` / `get_chart_data` take a project and data frame. Never reuse an id from one server on the other. If one server fails, do not fill the answer from the other's same-named data, and do not present an old published version as the latest.
+Server `chart_get_data` takes a published item id. Desktop `get_chart` / `get_chart_data` take a Desktop `chartId` (from `list_charts` or `create_chart`) and an optional project. Never reuse an id from one server on the other. If one server fails, do not fill the answer from the other's same-named data, and do not present an old published version as the latest.
 
 ## Routing order
 

@@ -2,7 +2,7 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "exploratory-server",
   "displayName": "Exploratory Server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and run exact queries on shared data on the server.",
   "logo": "assets/icon.png",
   "suggestedPrompts": [

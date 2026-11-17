@@ -161,7 +161,7 @@
     "生データを集計済みの粒度のまま信頼区間を計算すると、サンプルサイズが実際の観測数より少なく見積もられ、区間の幅が不当に広くなる"
   ],
   "in_exploratory": [
-    "marker: errbar（生データ）/ errbar-agg（集計済データ）。どちらも chart-settings.json の markers に実在",
+    "marker: errbar（生データ）/ errbar-agg（集計済データ）。どちらも list_chart_settings の marker に指定できる",
     "Y 軸にロジカル型（TRUE/FALSE）の列を割り当てると、割合の対象（分母）は既定で X 軸のグループになる"
   ],
   "does_not_apply_when": [
@@ -177,9 +177,9 @@
     "基準線（リファレンスライン）を追加したい依頼"
   ],
   "usable": "depends",
-  "summary": "chart-bar.yaml の同名 usage_pattern と同じ（Y 8 種・X 3 種しか索引に無い）。errbar は features.isReferenceLineSupported=true",
+  "summary": "基準線の種類の選択肢は図・軸・列の型ごとに変わるので、渡す前に list_chart_settings（setting: yReflineType / xReflineType など）で choices を確認する。errbar は features.isReferenceLineSupported=true",
   "in_exploratory": [
-    "common.yReflineType.choices（8 種、described: false）"
+    "yReflineType / xReflineType の choices は図・軸・列の型ごとに変わる（list_chart_settings で引く）"
   ]
 }
 

@@ -13,7 +13,7 @@ exploratory-desktop が使えない・エラーのときは、~/.exploratory・t
 
 ## 加工の要点
 
-列名は取得結果から写し、コマンドと params は get_wrangling_command で確認する。Exploratory でできる加工は製品のコマンドで作り、できないものだけ exp_custom（ステップのカスタム R コマンド）で作る。同じ操作・設定・値集合の列は一つのステップにまとめる。既知の連続操作は steps で順序を指定し、途中の結果を見て決める操作は逐次実行する。
+列名は取得結果から写し、コマンドと params は get_wrangling_command で確認する。Exploratory でできる加工は製品のコマンドで作り、できないものだけ exp_custom（ステップのカスタム R コマンド）で作る。同じ操作・設定・値集合の列は一つのステップにまとめる。既知の連続操作は順序を決めて 1 ステップずつ作り、途中の結果を見て決める操作は結果を読んでから次を作る。
 
 2 値の列（0/1、Yes/No、TRUE/FALSE、はい/いいえ など）は、get_wrangling_command(command="mutate") で設定を確認し、mutate の expression に str_logical(列) または値と TRUE/FALSE の対応を明示した論理式を指定して、論理値（logical）に変える（NA はそのまま保つ）。「あり/なし」などの文字列ラベルへの置換はせず、表示に日本語のラベルが要るときはチャートの表示名で付ける。
 

@@ -25,7 +25,7 @@ const marketplaceFiles = ['.claude-plugin/marketplace.json', '.agents/plugins/ma
 
 test('each plugin has its own consistent name and version across client manifests', () => {
   for (const [folder, name, version] of [
-    [pluginRoots[0], 'exploratory', '0.1.6'], [pluginRoots[1], 'exploratory-server', '0.1.4']
+    [pluginRoots[0], 'exploratory', '0.1.7'], [pluginRoots[1], 'exploratory-server', '0.1.5']
   ]) {
     const files = clientManifests.filter(file => fs.existsSync(path.join(repoRoot, folder, file)));
     assert(files.includes('.claude-plugin/plugin.json') && files.includes('.codex-plugin/plugin.json'));
@@ -41,7 +41,7 @@ test('each plugin has its own consistent name and version across client manifest
   }
   for (const file of marketplaceFiles) {
     const marketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, file), 'utf8'));
-    assert.equal(marketplace.plugins[0].version, '0.1.6', file);
+    assert.equal(marketplace.plugins[0].version, '0.1.7', file);
   }
   assert.equal(fields.ai_summary.default, 'false');
 });

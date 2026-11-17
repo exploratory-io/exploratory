@@ -101,3 +101,12 @@
 - `get_guide(topic="wrangling", tool="get_lineage")`
 - `get_guide(topic="wrangling", tool="search_artifacts")`
 - `get_guide(topic="wrangling", tool="list_created_artifacts")`
+- `get_guide(topic="wrangling", tool="manage_data_frame")`
+- `get_guide(topic="wrangling", tool="publish_project")`
+- `get_guide(topic="wrangling", tool="edit_wrangling_steps")`
+- `get_guide(topic="wrangling", tool="copy_wrangling_steps")`
+- `get_guide(topic="wrangling", tool="preview_wrangling_steps")`
+- `get_guide(topic="wrangling", tool="apply_wrangling_preview")`
+- `get_guide(topic="wrangling", tool="list_ai_proposals")`
+- `get_guide(topic="wrangling", tool="update_ai_proposal")`
+- `get_guide(topic="wrangling", tool="locate_published_source")`

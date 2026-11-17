@@ -19,8 +19,8 @@
 
 | プラグイン | プラグイン名 | 入手先 |
 |---|---|---|
-| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.4） | 各 AI クライアントの公式のプラグイン一覧 |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.6） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
+| [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.5） | 各 AI クライアントの公式のプラグイン一覧 |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.7） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
 
 2 つのプラグインは、ツールもスキルも重なりません。両方を、どちらの順番でも入れられます。
 
@@ -70,11 +70,11 @@ Cursor、Grok Bot などは、[MCP リファレンス](docs/mcp.ja.md)を見て�
 
 ### 手順 1. Exploratory Desktop で MCP をオンにする
 
-**システム設定 > MCP / CLI** を開き、**MCP** のスイッチをオンにします。チャートやノートなどを作成・変更する場合は、**「作成、変更、削除を許可する」**にもチェックを入れます。どちらも初期状態ではオフです。
+**システム設定 > MCP / CLI** を開き、**MCP を有効にする**をオンにします。チャートやノートなどを作成・変更する場合は、**「作成、変更、削除を許可する」**にもチェックを入れます。どちらも初期状態ではオフです。
 
 ### 手順 2. Exploratory Desktop プラグインを入れる
 
-このプラグインは、公式の一覧にはありません。このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドを打つか、AI クライアントにコマンドの実行を頼んでください。
+このプラグインは、公式の一覧にはありません。このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドを打つか、AI クライアントにコマンドの実行を頼んでください。Exploratory Desktop の**システム設定 > MCP / CLI**にある **Exploratory Desktop プラグインのインストール**の「インストール」ボタンからも入れられます。
 
 #### Claude Code
 
@@ -125,7 +125,7 @@ agy plugin install ./exploratory/plugins/exploratory-desktop
 
 > 開いている Exploratory のプロジェクトで、売上データから月ごとのバーのチャートを作って
 
-MCP がオフだと言われたら、手順 1 に戻ってください。
+初回は、Exploratory Desktop に AI アプリを許可するかどうかの確認が表示されます。アプリで許可してください。MCP がオフだと言われたら、手順 1 に戻ってください。
 
 ## ガイド 3: Server と Desktop を両方使う
 
@@ -144,21 +144,25 @@ MCP がオフだと言われたら、手順 1 に戻ってください。
 | 分類 | ツール |
 |---|---|
 | 探す・読む | `search` でパブリッシュされたコンテンツを一覧・検索し、`fetch` でノート・ダッシュボード・スライドを Markdown で読む |
-| チャート・アナリティクス | `chart_get_data` でチャートの数値、`chart_get_image` でチャートの画像、`analytics_get_result` で係数や P 値などの結果を取る |
-| データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存 |
+| チャート・アナリティクス | `chart_get_data` でチャートの数値、`chart_get_image` でチャートの画像、`analytics_get_result` で係数や P 値などの結果を取り、`chart_query` でノート・ダッシュボード・スライドの中のチャートのデータをサーバー上で絞り込み・集計する |
+| データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存し、`dataframe_get_wrangling` でデータがどう作られたかをステップごとに見ます |
+| ページ | `get_page_guide` でページの書き方、`page_publish` でデータをその場で問い合わせる 1 つの HTML ファイルを非公開のページとして公開、`page_update`・`page_list`・`page_get`・`page_delete` でページの変更・一覧・読み取り・削除 を行う。サーバーでページが有効になっている場合に使える |
+| Desktop の設定 | `desktop_mcp_setup_guide` で、AI クライアントを Exploratory Desktop につなぐ手順を返す |
 
-表の Server MCP のツールは読み取り専用ですが、`dataframe_export` だけは、15 分間有効なダウンロードリンクを作ります。
+Server MCP のうち、探す・読む・問い合わせるツールは読み取り専用です。`dataframe_export` は、15 分間有効なダウンロードリンクを作ります。ページのツール `page_publish`・`page_update`・`page_delete` は、自分のページを作成・変更・削除します。接続のときに承認する `page:write` の権限が必要です。ページが使えるようになる前につないだ接続は、つなぎ直す必要があります。
 
 Desktop MCP のツールは、手元のプロジェクトを作成・編集します。対象は次のとおりです。
 
-- データフレーム・加工のステップ・ブランチ・パラメータ・接続
+- プロジェクト（開く・保存・インポート・履歴）、データフレーム・加工のステップ・ブランチ・パラメータ・接続
+- ローカルのデータカタログ、R パッケージ、パレット、辞書、AI 関数とノートのプロンプトのテンプレート
 - チャートとアナリティクス
 - ノートとダッシュボード
 
 Desktop MCP のツールには、変更や削除を伴うものがあります。
 
-- チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続の削除
-- ノート・ダッシュボード・データフレームの公開と、公開の取り消し
+- チャート・アナリティクス・ノート・ダッシュボード・ステップ・ブランチ・パラメータ・接続・カタログのアイテム・R パッケージ・パレット・テンプレートの削除
+- ノート・ダッシュボード・データフレーム・プロジェクトの公開と、公開の取り消し
+- `update_system_settings` による Exploratory のシステム設定の変更
 - `execute_r_script` による R の実行
 
 書き込みの前に、エージェントの提案を確認してください。[Exploratory MCP リファレンス](docs/mcp.ja.md)には、Server MCP のツールについて、引数・エラー・制限を載せています。Desktop MCP のツールは、AI クライアントが表示するツール一覧で確認できます。
@@ -203,10 +207,11 @@ Desktop パッケージでは、Claude Code の定義からフックと `plan_ga
 
 ## データと権限
 
-- Server MCP は、パブリッシュされたコンテンツを読みます。Desktop MCP は、手元のプロジェクトの内容を作成・編集し、依頼に応じて公開できます。エージェントが提案する操作を確認してください。
+- Server MCP は、パブリッシュされたコンテンツを読み、自分のページを公開・管理できます。Desktop MCP は、手元のプロジェクトの内容を作成・編集し、依頼に応じて公開できます。エージェントが提案する操作を確認してください。
 - Server MCP の呼び出しは、サインインした人として動きます。その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、パブリッシュされたコンテンツごとに MCP からのアクセスを止められます。データの行を非公開にすることもできます。
 - Desktop MCP には、この制御は当てはまりません。Desktop MCP は、手元の Exploratory Desktop を通して、アプリにサインインしている利用者として動きます。
 - Server MCP の接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。この操作では Desktop MCP は止まりません。Desktop MCP は、Exploratory Desktop を終了すると止まります。
+- **システム設定 > MCP / CLI** で、**AI ツールに渡すデータの範囲**（名前・列・データ型のみ／チャートやピボットテーブルの集計結果まで／サンプル行（最大 100 行）まで／すべての行）を選べます。既定は「すべての行」です。**承認済みのアプリ**から、承認したアプリを取り消せます。取り消したアプリは、次の接続でもう一度承認を求めます。
 
 ## 更新と削除
 
@@ -233,7 +238,7 @@ Desktop パッケージでは、Claude Code の定義からフックと `plan_ga
 
 ## プライバシー
 
-- Server MCP: 呼び出しは `https://exploratory.io/mcp` に送られます。読むのはパブリッシュされたコンテンツだけで、読み取り専用です。権限は[データと権限](#データと権限)を見てください。
+- Server MCP: 呼び出しは `https://exploratory.io/mcp` に送られます。読むのはパブリッシュされたコンテンツです。ページが有効な場合は、自分のページの公開・管理もできます。権限は[データと権限](#データと権限)を見てください。
 - Desktop MCP: あなたのコンピューター上で動きます。中継が手元の Exploratory Desktop と通信し、アプリを通して、手元のプロジェクトの内容（データフレーム・チャート・アナリティクス・ノート・ダッシュボード）を読み、編集します。
 - Desktop MCP の利用記録: Exploratory Desktop は、Desktop MCP のツールを 1 回呼び出すたびに、利用記録を 1 件、サインインしている exploratory.io のサーバーへ送ります。この記録は、ツールの改善に使います。
   - 記録には、ツールの名前と引数が入ります。引数には、利用者が入力した式や値が入ることがあります。
@@ -275,7 +280,9 @@ https://exploratory.io/ の右下のチャットか、support@exploratory.io へ
 
 トークンやパスワードを、プロンプトやファイルに書かないでください。プラグインはトークンを渡しません。中継が自分で認証情報を読みます。
 
-Desktop MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_note`・`publish_dashboard`・`publish_data_frame`）に `destructiveHint` を付けています。これは目印にすぎません。目印に従うクライアントは、実行前に確認を求めることがあります。確認の有無は、クライアントと権限の設定で変わります。別のプロジェクトへコピーする操作には付けていません。
+Desktop MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_*`: `publish_note`・`publish_dashboard`・`publish_data_frame`・`publish_project`）に `destructiveHint` を付けています。これは目印にすぎません。目印に従うクライアントは、実行前に確認を求めることがあります。確認の有無は、クライアントと権限の設定で変わります。別のプロジェクトへコピーする操作には付けていません。
+
+Exploratory Desktop 自身も、リスクの高い呼び出しを実行する前に確認します。**システム設定 > MCP / CLI** の 2 つのスイッチ「削除・パブリッシュ・設定の変更を確認なしで実行する」「コード実行・AI処理を確認なしで実行する」で省けます。
 
 脆弱性を見つけたときは、[SECURITY.md](SECURITY.md)（英語のみ）に従って報告してください。
 
