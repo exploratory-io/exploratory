@@ -151,7 +151,7 @@ Ids come from `search` or `fetch`. Names of charts and analytics inside a note, 
 | `chart_get_data` | `id` (+ `chart` in a note, dashboard or slide) | Chart data, up to 100 rows per call, with aggregation, filters and parameter values |
 | `chart_get_image` | `id` (+ `chart` in a note, dashboard or slide) | The chart as a PNG saved at publish time. Check `may_be_stale` |
 | `analytics_get_result` | `id` (+ `analytics` in a note, dashboard or slide) | Model definition, result tables, headline statistics and settings of an analytics |
-| `chart_query` | `id` or `queries` (+ `chart` in a note, dashboard or slide) | Filter, group and aggregate the data of a chart on the server. `mode`: `rows` or `aggregate` (or `sql` for one DuckDB SELECT). Use it instead of paging through `chart_get_data` for counts, sums and rankings. Check `warnings` |
+| `chart_query` | `id`, `chart` and `mode` (or `queries`). `id` is the id of the note, dashboard or slide that holds the chart | Filter, group and aggregate the data of a chart on the server. `mode`: `rows` or `aggregate`. Use it instead of paging through `chart_get_data` for counts, sums and rankings. Check `warnings` |
 
 Notes on `chart_get_data`:
 

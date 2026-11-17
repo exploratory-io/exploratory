@@ -271,7 +271,7 @@
     "複数系列の作り方が Y 軸の複数列（マーカー切替が使える）か、色による分割（使えない）か"
   ],
   "in_exploratory": [
-    "系列ごとのマーカー種別を切り替える設定名は、今回の索引（chart-settings.json）からは特定できていない（settings に marker を含むキーは地図用の mapMarkerType のみ）"
+    "系列ごとのマーカー種別を切り替える設定名は、list_chart_settings では特定できていない（settings に marker を含むキーは地図用の mapMarkerType のみ）"
   ],
   "does_not_apply_when": [
     "1 系列だけの図、または色で分割した複数系列で混在が不要なとき"

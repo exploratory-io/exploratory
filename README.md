@@ -211,6 +211,7 @@ For the refused calls and the rules, see [Plan gate (Claude Code)](docs/mcp.md#p
 - Server MCP calls run as the signed-in user. They never go beyond what that user can view on exploratory.io. A publisher can turn off MCP access for each piece of published content. A publisher can also keep the rows of data private.
 - These controls do not apply to the Desktop MCP. The Desktop MCP works through the Exploratory Desktop app on your computer, as the user signed in to the app.
 - To disconnect a client from the Server MCP, open Account Settings on exploratory.io and remove it under Connected AI Apps. This does not stop the Desktop MCP. The Desktop MCP stops when you quit Exploratory Desktop.
+- In **System Settings > MCP / CLI**, you can choose **Data to share with the AI tool** (Names, columns and data types only; Up to aggregated results (charts, pivot tables); Up to sample rows (max 100 rows); All rows). The default is All rows. Under **Approved apps**, you can remove an app you approved; it asks for approval again the next time it connects.
 
 ## Update and uninstall
 
@@ -280,6 +281,8 @@ Terms: https://exploratory.io/terms
 Do not put tokens or passwords into prompts or files. The plugin does not pass a token. The relay reads its own credentials.
 
 The Desktop MCP marks delete operations (`delete_*`, `unpublish`) and publish operations (`publish_*`: `publish_note`, `publish_dashboard`, `publish_data_frame`, `publish_project`) with `destructiveHint`. This is only a hint. A client that honors it can ask you to confirm. This depends on the client and your permission settings. Copying to another project is not marked.
+
+Exploratory Desktop also asks you to confirm before it runs a high-risk call. You can skip this in **System Settings > MCP / CLI** with the two switches **Run changes, deletions and publishing without asking** and **Run code and AI processing without asking**.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 

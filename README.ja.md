@@ -74,7 +74,7 @@ Cursor、Grok Bot などは、[MCP リファレンス](docs/mcp.ja.md)を見て�
 
 ### 手順 2. Exploratory Desktop プラグインを入れる
 
-このプラグインは、公式の一覧にはありません。このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドを打つか、AI クライアントにコマンドの実行を頼んでください。Exploratory Desktop の**システム設定 > MCP / CLI**にある **Exploratory Desktop のプラグインを入れる**（Install the Exploratory Desktop plugin）からも入れられます。
+このプラグインは、公式の一覧にはありません。このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドを打つか、AI クライアントにコマンドの実行を頼んでください。Exploratory Desktop の**システム設定 > MCP / CLI**にある **Exploratory Desktop プラグインのインストール**の「インストール」ボタンからも入れられます。
 
 #### Claude Code
 
@@ -211,6 +211,7 @@ Desktop パッケージでは、Claude Code の定義からフックと `plan_ga
 - Server MCP の呼び出しは、サインインした人として動きます。その人が exploratory.io で閲覧できる範囲を超えません。公開した人は、パブリッシュされたコンテンツごとに MCP からのアクセスを止められます。データの行を非公開にすることもできます。
 - Desktop MCP には、この制御は当てはまりません。Desktop MCP は、手元の Exploratory Desktop を通して、アプリにサインインしている利用者として動きます。
 - Server MCP の接続を解除するときは、exploratory.io のアカウント設定の「接続中のAIアプリ」から外します。この操作では Desktop MCP は止まりません。Desktop MCP は、Exploratory Desktop を終了すると止まります。
+- **システム設定 > MCP / CLI** で、**AI ツールに渡すデータの範囲**（名前・列・データ型のみ／チャートやピボットテーブルの集計結果まで／サンプル行（最大 100 行）まで／すべての行）を選べます。既定は「すべての行」です。**承認済みのアプリ**から、承認したアプリを取り消せます。取り消したアプリは、次の接続でもう一度承認を求めます。
 
 ## 更新と削除
 
@@ -280,6 +281,8 @@ https://exploratory.io/ の右下のチャットか、support@exploratory.io へ
 トークンやパスワードを、プロンプトやファイルに書かないでください。プラグインはトークンを渡しません。中継が自分で認証情報を読みます。
 
 Desktop MCP は、削除する操作（`delete_*`、`unpublish`）と公開する操作（`publish_*`: `publish_note`・`publish_dashboard`・`publish_data_frame`・`publish_project`）に `destructiveHint` を付けています。これは目印にすぎません。目印に従うクライアントは、実行前に確認を求めることがあります。確認の有無は、クライアントと権限の設定で変わります。別のプロジェクトへコピーする操作には付けていません。
+
+Exploratory Desktop 自身も、リスクの高い呼び出しを実行する前に確認します。**システム設定 > MCP / CLI** の 2 つのスイッチ「削除・パブリッシュ・設定の変更を確認なしで実行する」「コード実行・AI処理を確認なしで実行する」で省けます。
 
 脆弱性を見つけたときは、[SECURITY.md](SECURITY.md)（英語のみ）に従って報告してください。
 

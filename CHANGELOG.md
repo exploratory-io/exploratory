@@ -3,6 +3,7 @@
 ## Desktop 0.1.7 - 2026-11-17
 
 - List the guides of the newer wrangling tools (`manage_data_frame`, `publish_project`, `edit_wrangling_steps`, `copy_wrangling_steps`, `preview_wrangling_steps`, `apply_wrangling_preview`, `list_ai_proposals`, `update_ai_proposal`, `locate_published_source`) in `mcp-tool-guides.md`, and use the current switch name (Enable MCP) in the README.
+- Align the Desktop skill text with the current tool behavior: `get_data_frame` no longer returns R names, `create_wrangling_step` makes one step per call, `interpretationGuide` comes only from `get_analytics_summary_prompt`, and the chart-setting lookups use `list_chart_settings`.
 
 ## Server 0.1.5 - 2026-11-17
 

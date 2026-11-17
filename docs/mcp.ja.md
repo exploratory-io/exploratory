@@ -149,7 +149,7 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 | `chart_get_data` | `id`（ノート・ダッシュボード・スライドの中なら `chart` も） | チャートのデータ。1 回 100 行まで。集計方法・フィルタ・パラメータの値つき |
 | `chart_get_image` | `id`（ノート・ダッシュボード・スライドの中なら `chart` も） | 公開時に保存されたチャートの PNG。`may_be_stale` で古い可能性を確認します |
 | `analytics_get_result` | `id`（ノート・ダッシュボード・スライドの中なら `analytics` も） | アナリティクスのモデル定義・結果の表・主要な統計量・設定 |
-| `chart_query` | `id` または `queries`（ノート・ダッシュボード・スライドの中なら `chart` も） | チャートのデータを、サーバー上で絞り込み・グループ化・集計します。`mode` は `rows` か `aggregate`（DuckDB の SELECT 1 文なら `sql`）。件数・合計・順位は、`chart_get_data` を何ページも読むかわりに使います。`warnings` を確かめます |
+| `chart_query` | `id`、`chart`、`mode`（または `queries`）。`id` は、チャートを含むノート・ダッシュボード・スライドの id | チャートのデータを、サーバー上で絞り込み・グループ化・集計します。`mode` は `rows` か `aggregate`。件数・合計・順位は、`chart_get_data` を何ページも読むかわりに使います。`warnings` を確かめます |
 
 `chart_get_data` の注意:
 
