@@ -11,10 +11,10 @@ The `exploratory-server` MCP server gives read-only access to content the signed
 
 1. Call `search` first. An empty `query` lists items newest first; `scope: "mine"` lists the user's own items, `scope: "team"` with `team` lists one team's items.
 2. If keyword search finds nothing, retry with `semantic: true`.
-3. Call `fetch` with the id of the most relevant item. Notes, dashboards and slides come back as Markdown; `metadata.blocks` names the charts and analytics inside them.
+3. Call `fetch` with the id of the most relevant item. Notes, dashboards and slides come back as Markdown. The names of the charts and analytics inside them are in the text, on the lines `chart: `name`` and `analytics: `name``; a long note (over 20,000 characters) also lists them in `metadata.blocks`.
 4. Cite the item `url` from `search` or `fetch` whenever you use its content.
 
-For a long note, pass `query` to `fetch` with several words at once, read one heading with `section` (ids from `metadata.toc`), or continue with `cursor` from `metadata.range.next_cursor`.
+For a long note, pass `query` to `fetch` with several words at once, read one heading with `section` (ids from `metadata.toc`; a short note has a toc only with `include_toc: true`), or continue with `cursor` from `metadata.range.next_cursor`. `query` returns only the matching paragraphs, so the `analytics:` lines are missing: when you need a chart or analytics name, `fetch` without `query`.
 
 ## Pick the tool for the question
 
@@ -22,7 +22,7 @@ For a long note, pass `query` to `fetch` with several words at once, read one he
 |---|---|
 | Exact numbers behind a chart | `chart_get_data` (item id, plus the chart name from `metadata.charts` when the chart is in a note, dashboard or slide) |
 | What a chart looks like (trend, shape) | `chart_get_image`. Take numbers from `chart_get_data`, not from the image |
-| Coefficients, p-values, model fit | `analytics_get_result` (the analytics name from `metadata.blocks`, not its title) |
+| Coefficients, p-values, model fit | `analytics_get_result` (the analytics name from the `analytics: `name`` line in the text, not its title) |
 | Columns, meaning of a row, approved metrics | `dataframe_get_schema` (`detail: "light"` for names and types only) |
 | A few example rows | `dataframe_preview` |
 | Counts, sums, averages, top-N, rows matching a condition, joins of 2-5 data items | `query_dataset` |

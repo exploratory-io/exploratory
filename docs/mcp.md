@@ -135,7 +135,7 @@ The server sees what you can see in the browser. A publisher can turn off MCP ac
 
 ## Tools
 
-Ids come from `search` or `fetch`. Names of charts and analytics inside a note, dashboard or slide come from `fetch`'s `metadata.blocks` / `metadata.charts`.
+Ids come from `search` or `fetch`. Names of charts and analytics inside a note, dashboard or slide come from the `chart: `name`` / `analytics: `name`` lines in `fetch`'s text (a long note over 20,000 characters also has `metadata.blocks`) and from `metadata.charts`. `query` returns only matching paragraphs, so read without `query` when you need the names.
 
 ### Find and read
 
