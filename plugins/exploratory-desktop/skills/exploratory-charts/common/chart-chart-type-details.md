@@ -12,7 +12,7 @@ Always confirm setting names with `list_chart_settings` before writing.
 For charts not in the table above (maps, radar, figures drawn with R, and so on), leave them at their defaults.
 
 **Look up aggregation (`func`) with `list_chart_settings` too** (`section: "func"`).
-For each slot and column type, the usable aggregations and the default come back. If you omit it, the default goes in silently.
+For each slot and column type, the usable aggregations and the default come back. If you omit it, the default is filled in; when the filled-in default is `sum`, a warning says so (other types' defaults give no warning).
 
 | Column type | Default | Commonly used |
 |---|---|---|
@@ -22,7 +22,7 @@ For each slot and column type, the usable aggregations and the default come back
 | Date | `countd` (`datemax` for pivot and summary table) | `datemin` / `datemax` |
 | `"行数"` | `count` | `count_ratio` (ratio relative to the whole) |
 
-**The average is `ave`** (`mean` / `avg` do not exist in the product, and if passed they silently fall back to the default).
+**The average is `ave`** (on a y / meas slot, `mean` / `avg` / `average` are saved as `ave`; elsewhere write `ave`). A function the slot does not support is normally rejected with the list of usable ones (only a few legacy cases, such as map/color/aschar, bubble/y/none and errbar-agg/y/ave, fall back to the UI default with a warning).
 **`ave` cannot be used on a logical column.** For a 0/1 number it is `ave`; for TRUE/FALSE it is `truepct`.
 
 For bar, reference lines are available on the X and Y axes.

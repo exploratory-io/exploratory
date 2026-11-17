@@ -32,7 +32,7 @@ Analytics の出力は get_chart で読まない。同じ analyticsId に返っ�
 | 回帰を解釈する | 解釈前 | types/analytics-regression-multicollinearity.md | 多重共線性の判断 |
 | クラスタ同士を結合する | 結合前 | types/analytics-cluster-crosstab.md | クロス集計の見方 |
 | 既存分析を変更する | 変更前 | types/analytics-edit-analysis.md | 変更の方法 |
-| 型別に解釈する（結果の interpretationGuide で未取得） | 解釈前 | 下の「目的で選ぶ節」の型 ID の表で引いた資料 | 型別の解釈 |
+| 型別に解釈する（get_analytics_summary_prompt の interpretationGuide で未取得） | 解釈前 | 下の「目的で選ぶ節」の型 ID の表で引いた資料 | 型別の解釈 |
 
 元の AI Summary 画面用の HTML や topic/cluster キーを、チャットやノートの書式として適用しない。
 

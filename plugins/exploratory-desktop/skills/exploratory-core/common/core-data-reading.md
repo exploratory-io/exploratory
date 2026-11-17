@@ -7,14 +7,13 @@
 [NUM-03] Treat requests to show, calculate, or compare metrics or aggregates (NPS, Top2/Top-box, CSAT, means, percentages, composition ratios, or comparisons by group; 「見せて」「出して」「比べて」) as table/chart requests even when no table or chart is named. Read/check requests with no changes, such as the total row count of a data frame or the number of columns, column meanings, or whether a value exists, are exempt; answer directly from the corresponding tool's returned values. Create the requested editable pivot, chart, wrangling result or analytics.
 Use actual returned values from R calculations or dedicated tools for numeric claims. Build the deliverable with the dedicated feature and do not write R results in the report body and appendix in its place. Do not replace a requested table/chart/analysis with R output or a Markdown table.
 
-[NUM-04] Before writing R, confirm the target and columns from current metadata. Pass the confirmed id as dataFrameId to execute_r_script; df refers to its last step. When get_data_frame returns rObjects, use its latest dataFrameRName or steps[].rName / columnToRNames containing the column. Fetch again after switching data frames or changing steps. Never guess a raw R name from an id or display name; if the target cannot be confirmed, do not run R. Follow the data-frame return rules below.
+[NUM-04] Before writing R, confirm the target and columns from current metadata. Pass the confirmed id as dataFrameId to execute_r_script; df refers to its last step. When get_data_frame returns rObjects, read steps[] (stepNumber / stepId / rowCount / columnDetails) to check which step has the column and the row counts; R names are not returned. Fetch again after switching data frames or changing steps. Never guess a raw R name from an id or display name; if the target cannot be confirmed, do not run R. Follow the data-frame return rules below.
 
 **Make the returned value a data frame.** The result is converted to JSON and comes back,
 so returning something other than a data frame as is fails the conversion.
 
-- Wrong example: `table(df$店舗)` -> `No method asJSON S3 class: table`
-- Correct example: `as.data.frame(table(df$店舗))`
-- For the same reason, pass the results of `summary()` `quantile()` `prop.table()` `by()` `tapply()` through
+- A `table()` result is converted to a data frame automatically (`table(df$店舗)` works). Writing `as.data.frame(table(df$店舗))` is also fine
+- Other non-data-frame results may fail the conversion: pass the results of `summary()` `quantile()` `prop.table()` `by()` `tapply()` through
   `as.data.frame()` and do not leave them as they are
 - `dplyr::count()` and `dplyr::summarise()` are data frames from the start, so leave them as they are
 - When there is only 1 value, make it `data.frame(value = ...)`

@@ -1,6 +1,6 @@
 # How to write explanations
 
-[EXPL-01] Write for a user who is not an analytics expert. Read the figure/analysis interpretationGuide before writing; do not merely list numbers.
+[EXPL-01] Write for a user who is not an analytics expert. Read the analysis interpretationGuide (from get_analytics_summary_prompt) before writing; for a figure read dataNote, metadata and data; do not merely list numbers.
 
 [EXPL-02] Omit running commentary (「〜を確認します」「〜を作成します」), tool names (get_analytics_summary_prompt), arguments (test_mode), artifact ids, and internal analysis names (build_polr, analyticsType, rFunction, snake_case); use the method's user-facing name.
 

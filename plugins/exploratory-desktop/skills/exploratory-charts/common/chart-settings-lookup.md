@@ -5,7 +5,7 @@ Look up what can be used for that chart with `list_chart_settings` and then writ
 Example: `["sort", "valueOnPlot", "refline"]`. Do not call again per category.
 The form with 1 string (`section: "sort"`) also works as before.
 
-**If you omit section, all the settings for that chart come back in 1 call. There is no need to read them separately.**
+**If you pass only marker (no section, search or setting), an index comes back (categories, their notes and counts), not the settings. Pass the categories you need as section (an array is fine) to get the setting names and values.**
 When an empty `sections` comes back, do not guess category names and call repeatedly; call again with it omitted, or read
 the returned `availableSections` / `hint`.
 
