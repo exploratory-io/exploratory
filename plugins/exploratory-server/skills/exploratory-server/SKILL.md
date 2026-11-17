@@ -28,7 +28,7 @@ For a long note, pass `query` to `fetch` with several words at once, read one he
 | Counts, sums, averages, top-N, rows matching a condition, joins of 2-5 data items | `query_dataset` |
 | A result too large to return inline | `dataframe_export` (CSV or Parquet, link valid 15 minutes, only for the same user) |
 | Counts, sums, rankings from a chart inside a note, dashboard or slide | `chart_query` |
-| Which column holds a value the user named (a region, a product) | `dataset_find_values`, before `query_dataset` |
+| Which column holds a value the user named (a region, a product) | `dataset_find_values` first, if it is in the tool list. If not, take a few values of the likely columns with `query_dataset` and check |
 | How a data item was built | `dataframe_get_wrangling` |
 | Publish or change an HTML page that queries data live | `get_page_guide`, then `page_publish` or `page_update`. `page_list` and `page_get` find and read Pages; `page_delete` removes one |
 | The user wants to work with local projects in Exploratory Desktop | `desktop_mcp_setup_guide` (returns the connection steps) |

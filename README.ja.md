@@ -145,7 +145,7 @@ agy plugin install ./exploratory/plugins/exploratory-desktop
 |---|---|
 | 探す・読む | `search` でパブリッシュされたコンテンツを一覧・検索し、`fetch` でノート・ダッシュボード・スライドを Markdown で読む |
 | チャート・アナリティクス | `chart_get_data` でチャートの数値、`chart_get_image` でチャートの画像、`analytics_get_result` で係数や P 値などの結果を取り、`chart_query` でノート・ダッシュボード・スライドの中のチャートのデータをサーバー上で絞り込み・集計する |
-| データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存し、`dataframe_get_wrangling` でデータがどう作られたかをステップごとに見て、`dataset_find_values` で指定した値がどの列にあるかを探す |
+| データ | `dataframe_get_schema` で列の説明と承認された意味、`dataframe_preview` で行、`query_dataset` でサーバー上の絞り込みと集計、`dataframe_export` で結果を CSV か Parquet に保存し、`dataframe_get_wrangling` でデータがどう作られたかをステップごとに見て、`dataset_find_values`（サーバーによっては無い）で指定した値がどの列にあるかを探す |
 | ページ | `get_page_guide` でページの書き方、`page_publish` でデータをその場で問い合わせる 1 つの HTML ファイルを非公開のページとして公開、`page_update`・`page_list`・`page_get`・`page_delete` でページの変更・一覧・読み取り・削除 を行う。サーバーでページが有効になっている場合に使える |
 | Desktop の設定 | `desktop_mcp_setup_guide` で、AI クライアントを Exploratory Desktop につなぐ手順を返す |
 
