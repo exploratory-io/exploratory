@@ -164,10 +164,9 @@ Notes on `chart_get_data`:
 |---|---|---|
 | `dataframe_get_schema` | `id` | Columns, types, statistics, freshness, and the semantics the owner approved (meaning of a row, aggregation rules, business metrics). `detail`: `full` (default) or `light` (names and types only) |
 | `dataframe_preview` | `id` | Rows, up to 100 per call. May be the sample saved at publish time: check `is_sample` |
-| `query_dataset` | `dataset_id` and `mode` (or `queries`, or `datasets` for a join) | Filter, group and aggregate on the server. The rules are below the table. Check `warnings` in the result |
+| `query_dataset` | `dataset_id` and `mode` (or `queries`, or `datasets` for a join) | Filter, group and aggregate on the server. The rules are below the table. |
 | `dataframe_export` | `dataset_id` and `mode` | The same query saved as CSV or Parquet |
 | `dataframe_get_wrangling` | `id` | How a published data item was built: an outline of its wrangling steps, then one step (`steps`) or the steps that made one column (`column`) in detail. R code only with `include_scripts` |
-| `dataset_find_values` | `dataset_id` and `terms` | Find which columns of one data item hold the values you name (a region, a product), and the stored value to filter on. Call it before `query_dataset`. Some servers do not offer this tool; then take a few values of the likely columns with `query_dataset` |
 | `desktop_mcp_setup_guide` | none | Steps and links to connect an AI client (`client`: `claude_code`, `codex`, `cursor` or `antigravity`) to Exploratory Desktop. It only returns information |
 
 Notes on `dataframe_export`:

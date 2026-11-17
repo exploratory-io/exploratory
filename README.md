@@ -145,7 +145,7 @@ The earlier `exploratory` plugin included both Server and Desktop. When you upda
 |---|---|
 | Find and read | `search` lists and searches published content; `fetch` reads a note, dashboard or slide as Markdown |
 | Charts and analytics | `chart_get_data` returns the numbers behind a chart; `chart_get_image` returns the chart as an image; `analytics_get_result` returns coefficients, p-values and other results; `chart_query` filters and aggregates the data of a chart in a note, dashboard or slide on the server |
-| Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet; `dataframe_get_wrangling` shows how a data item was built, step by step; `dataset_find_values` (where the server offers it) finds which column holds a value you name |
+| Data | `dataframe_get_schema` describes the columns and their approved meaning; `dataframe_preview` shows rows; `query_dataset` filters and aggregates on the server; `dataframe_export` saves a result as CSV or Parquet; `dataframe_get_wrangling` shows how a data item was built, step by step |
 | Pages | `get_page_guide` tells how to write a Page; `page_publish` publishes one HTML file that queries your data live, as a private Page; `page_update`, `page_list`, `page_get` and `page_delete` change, list, read and delete Pages. Available where Pages is turned on for the server |
 | Set up Desktop | `desktop_mcp_setup_guide` returns the steps to connect an AI client to Exploratory Desktop |
 

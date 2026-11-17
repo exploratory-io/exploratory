@@ -162,10 +162,9 @@ id は `search` か `fetch` の結果から取ります。ノート・ダッシ�
 |---|---|---|
 | `dataframe_get_schema` | `id` | 列・型・統計量・更新状況と、所有者が承認したセマンティクス（1 行の意味、集計のルール、ビジネス指標）。`detail` は `full`（既定）か `light`（列名と型だけ） |
 | `dataframe_preview` | `id` | 行を 1 回 100 行まで返します。公開時に保存したサンプルの場合があるので `is_sample` を確認します |
-| `query_dataset` | `dataset_id` と `mode`（または `queries`、結合なら `datasets`） | サーバー上で絞り込み・グループ化・集計します。規則は表の下に書きます。結果の `warnings` を確かめます |
+| `query_dataset` | `dataset_id` と `mode`（または `queries`、結合なら `datasets`） | サーバー上で絞り込み・グループ化・集計します。規則は表の下に書きます。 |
 | `dataframe_export` | `dataset_id` と `mode` | 同じ問い合わせの結果を CSV か Parquet で保存します |
 | `dataframe_get_wrangling` | `id` | パブリッシュされたデータがどう作られたか。加工のステップの概要を返し、続けて 1 つのステップ（`steps`）や、ある列を作ったステップ（`column`）を詳しく返します。R のコードは `include_scripts` を付けたときだけ返します |
-| `dataset_find_values` | `dataset_id` と `terms` | 1 つのデータの中で、指定した値（地域や商品など）がどの列にあるか、フィルタに使う保存値は何かを探します。`query_dataset` の前に呼びます。サーバーによってはこのツールがありません。その場合は、該当しそうな列の値を `query_dataset` で数件取って確かめます |
 | `desktop_mcp_setup_guide` | なし | AI クライアント（`client`: `claude_code`・`codex`・`cursor`・`antigravity`）を Exploratory Desktop につなぐ手順とリンクを返します。情報を返すだけです |
 
 `dataframe_export` の注意:

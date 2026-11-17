@@ -6,7 +6,7 @@
 
 ## Server 0.1.5 - 2026-11-17
 
-- Update the Server documentation and skill to the current tools: add `chart_query`, `dataframe_get_wrangling`, `dataset_find_values`, `desktop_mcp_setup_guide` and the Page tools (`get_page_guide`, `page_publish`, `page_update`, `page_list`, `page_get`, `page_delete`), and state that the Page tools write (scope `page:write`) instead of calling the Server read-only.
+- Update the Server documentation and skill to the current tools: add `chart_query`, `dataframe_get_wrangling`, `desktop_mcp_setup_guide` and the Page tools (`get_page_guide`, `page_publish`, `page_update`, `page_list`, `page_get`, `page_delete`), and state that the Page tools write (scope `page:write`) instead of calling the Server read-only.
 - Update the root README: new Desktop tool groups, `publish_project`, pairing approval on first use, and the Enable MCP switch name.
 
 ## Server 0.1.4 - 2026-11-10
