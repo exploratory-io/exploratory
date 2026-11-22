@@ -9,6 +9,7 @@ For analyses (significance tests, correlations, regression, drivers, prediction,
 
 Do data wrangling with create_wrangling_step. What gets created is an ordinary Exploratory step, and
 the user can open and edit it in the step diagram.
+When creating a step through MCP, write issue.label and issue.summary in display_language (the app's UI language); translate English examples instead of copying them. In Japanese, use concise labels such as 「欠損値の削除」「欠損値の置き換え」「値を欠損値に置き換え」.
 When you do not know the names or values of the settings to pass in a command's params, first look them up with get_wrangling_command.
 A name not listed there has no effect even if you pass it.
 
