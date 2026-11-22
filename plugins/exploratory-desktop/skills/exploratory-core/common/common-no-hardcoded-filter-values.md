@@ -36,5 +36,5 @@
 ## in_exploratory
 
 [
-  "{軸}NumGroupsToPreserve / {軸}EnableOtherGroup / {軸}PostFilterType / {軸}PostFilterNumResults（各軸の設定名は list_chart_settings で引く）"
+  "{軸}NumGroupsToPreserve / {軸}EnableOtherGroup / {軸}PostFilterType / {軸}PostFilterNumResults（各軸の chart-settings.json を参照）"
 ]

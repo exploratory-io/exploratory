@@ -19,7 +19,7 @@ Two MCP servers cover Exploratory. Choose by where the target lives, not by the 
 
 ## Similar tools, different worlds
 
-Server `chart_get_data` takes a published item id. Desktop `get_chart` / `get_chart_data` take a Desktop `chartId` (from `list_charts` or `create_chart`) and an optional project. Never reuse an id from one server on the other. If one server fails, do not fill the answer from the other's same-named data, and do not present an old published version as the latest.
+Server `chart_get_data` takes a published item id. Desktop `get_chart` / `get_chart_data` take a project and data frame. Never reuse an id from one server on the other. If one server fails, do not fill the answer from the other's same-named data, and do not present an old published version as the latest.
 
 ## Routing order
 
@@ -38,7 +38,7 @@ Steps 0 and 1 stop the routing when they apply. Step 2 is a list of cases; apply
    - Two or more local data frames match: list them and ask which.
    - Only similar local data: show no aggregated values (totals, sums, averages); row counts may be mentioned. Check what each holds with the local tools only (`get_data_frame`: row count and what one row represents), then name each and explain how it differs (what it holds), and ask whether to use it or search exploratory.io. Check and explain every similar data frame. If there are 6 or more, check and explain only the 5 closest, give only the count of the rest (example: "ほかに似たデータが N 個あります。"), and still ask the question. If the user asks for more (example: "ほかも見せて"), check and explain the rest too. Do not search the server before asking.
    - Nothing local: search the server. One match: answer from it. Two or more: list and ask which. Only similar data: show no aggregated values (totals, sums, averages); row counts may be mentioned. Check what each holds with the server tool (`dataframe_get_schema`: row count and what one row represents), then show the names and how they differ, and ask whether to use one or treat it as not found. Check and explain every similar data item. If there are 6 or more, check and explain only the 5 closest, give only the count of the rest (example: "ほかに似たデータが N 個あります。"), and still ask the question. If the user asks for more (example: "ほかも見せて"), check and explain the rest too. None: say it was not found and ask for another name or place.
-   - The app is running but no project is open: ask whether to use the server or Desktop. If Desktop, list the projects that may fit and ask which.
+   - No project is open: creation requests follow the Desktop confirmation and project-choice rules of the Desktop instructions; read-only requests use exploratory-server.
 
 ## Rules
 

@@ -2,7 +2,7 @@
 'use strict';
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { settings, render } = require('./render-settings');
-const mode = process.argv[2], input = JSON.parse(fs.readFileSync(0, 'utf8')), values = settings();
+const mode = process.argv[2], input = JSON.parse(fs.readFileSync(0, 'utf8')), values = settings(process.env, {}, { fallback: true });
 if (mode !== 'plan-stop' && !/^mcp__(?:plugin_exploratory_)?exploratory-desktop__/.test(input.tool_name || '') && !(mode === 'plan-record' && /^(Skill|Write|Bash|PowerShell)$/.test(input.tool_name || ''))) process.exit(0);
 if (mode === 'settings') {
   if (!input.session_id || !/^mcp__(?:plugin_exploratory_)?exploratory-desktop__/.test(input.tool_name || '')) process.exit(0);

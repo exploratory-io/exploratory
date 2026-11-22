@@ -11,6 +11,8 @@ exploratory-desktop が使えない・エラーのときは、~/.exploratory・t
 
 始める前に、対象のダッシュボードを一覧で確かめる。公開は、利用者が対象と公開を明示して指示したときだけ行う。
 
+ダッシュボードで、Number チャート（主要な数値）は、ページの最初の行に置き、その行に numberRow: true を付ける。ほかのチャートと同じ行に置かない。columns を使うページでは numberRow を付けない（columns の前の行がナンバー行になる）。
+
 ## 必ず読む節
 
 MCP の対象指定と結果形式: [get_chart・get_analytics が返すデータの形](../exploratory-core/common/core-chart-reading.md)、[get_data_frame の読み方（加工の意図と標本データを両方読む）](../exploratory-core/common/core-source-reading.md)

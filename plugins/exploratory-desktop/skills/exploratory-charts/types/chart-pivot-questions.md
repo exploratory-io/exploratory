@@ -6,6 +6,7 @@ axes: { rowh: "性別",
   colh: { "column": "(複数の変数)", "columns": ["サービスの使いやすさ", "サービスの品質",
     "デザイン", ...], "keyName": "評価項目" },
   meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count_ratio" }] }
+settings: { "meas1WindowFuncDirection": "table_across" }
 ```
 
 **Long form is needed only when you want to put 「複数の変数」 in 2 places**
@@ -35,10 +36,8 @@ When there are 2 attribute columns and flat was chosen, also add `"pivotRowMode"
 axes: { rowh: ["地域", "年代"],
   colh: "(変数の値)",
   facet: { "column": "(複数の変数)", "columns": ["設問1", ... "設問16"], "keyName": "設問" },
-  meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count" }] }
+  meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count_ratio" }] }
 settings: {
-  "meas1WindowFuncGroup": "total",
-  "meas1WindowFunc": "ptotal",
   "meas1WindowFuncDirection": "table_across"
 }
 ```
@@ -49,10 +48,8 @@ It is the same when there is 1 attribute (just make it `rowh: "年代"`).
 axes: { rowh: "年代",
   colh: "(変数の値)",
   facet: { "column": "(複数の変数)", "columns": ["10 columns of rating items"], "keyName": "評価項目" },
-  meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count" }] }
+  meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count_ratio" }] }
 settings: {
-  "meas1WindowFuncGroup": "total",
-  "meas1WindowFunc": "ptotal",
   "meas1WindowFuncDirection": "table_across"
 }
 ```

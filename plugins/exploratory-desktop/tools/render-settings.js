@@ -13,14 +13,18 @@ const aliases = {
   plan_gate: { 使う: 'true', 使わない: 'false' }
 };
 
-function settings(environment = process.env, overrides = {}) {
+// fallback: a bad environment value becomes the default so a hook keeps running; an explicit override still fails.
+function settings(environment = process.env, overrides = {}, { fallback = false } = {}) {
   const result = {};
   for (const [key, field] of Object.entries(fields)) {
     let value = overrides[key] ?? environment['CLAUDE_PLUGIN_OPTION_' + key.toUpperCase()]
       ?? environment[variables[key]] ?? field.default;
     if (value === '') value = field.default;
     if (Object.hasOwn(aliases[key], value)) value = aliases[key][value];
-    if (!field.options.includes(value)) throw new Error('Invalid Exploratory setting: ' + key);
+    if (!field.options.includes(value)) {
+      if (!fallback || Object.hasOwn(overrides, key)) throw new Error('Invalid Exploratory setting: ' + key);
+      value = field.default;
+    }
     result[key] = value;
   }
   return result;
@@ -29,9 +33,11 @@ function settings(environment = process.env, overrides = {}) {
 // Render settings in English, including explicit instructions for disabled saves.
 function render(values) {
   const lines = [];
-  if (values.ai_summary === 'true') lines.push('After creating a chart or an analytics artifact, read the actual results of get_chart_summary_prompt / get_analytics_summary_prompt, generate an AI Summary, and save it to the summary field with save_chart_ai_summary / save_analytics_ai_summary. Do not repeat successful saves. Read only the summary-on connection instructions.');
+  if (values.ai_summary === 'true') lines.push('After creating a chart or an analytics artifact, read the actual results of get_chart_summary_prompt / get_analytics_summary_prompt, generate an AI Summary, and save it to the summary field with save_chart_ai_summary / save_analytics_ai_summary. Do not repeat successful saves.');
   // Explicit off instructions prevent unsolicited saves.
   else lines.push('Do not save AI summaries unless the user explicitly requests it.');
+  // Same sentence for on and off: only the file that matches the setting is read, once, first.
+  lines.push('Read once, first, only ' + path.join(root, 'skills/exploratory-core/common/core-connection-summary-' + (values.ai_summary === 'true' ? 'on' : 'off') + '.md') + ' (the connection instructions for this AI Summary setting).');
   if (values.save_comments === 'true') lines.push('Write a description of the created chart based on its actual results and save it to the comment field with update_chart. This is separate from AI Summary.');
   else lines.push('Do not save chart description comments unless the user explicitly requests it.');
   if (values.review_hook === 'true') lines.push('Apply review instructions once just before the first chart or analytics creation, after every wrangling step, and within the limit after each chart or analytics creation or edit.');
@@ -49,5 +55,5 @@ if (require.main === module) {
     if (!Object.hasOwn(fields, key) || args[i + 1] === undefined) throw new Error('Unknown or missing setting: ' + args[i]);
     overrides[key] = args[i + 1];
   }
-  process.stdout.write(render(settings(process.env, overrides)));
+  process.stdout.write(render(settings(process.env, overrides, { fallback: true })));
 }

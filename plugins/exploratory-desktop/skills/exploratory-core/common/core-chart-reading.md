@@ -3,7 +3,7 @@ The shape of the data that get_chart and get_analytics return.
 
 - data: a **CSV string with a header row**. The first row is the actual column names and values follow from the second row.
   An array of row objects does not come back. Read it as CSV as it is
-- dataFormat: csv. Exception: an analytics output of the original rows (tableRole data) comes back as dataFormat text (columns, types and up to 3 sample rows, no raw rows); dataNote says so. Do not count rows from it; use execute_r_script
+- dataFormat: always csv
 - metadata: the chart definition with labels attached. It contains the title, type, X axis, Y axis, color, aggregate function, and so on
 - dataNote: **an explanation of what that data is. It is always attached, whether or not data is present.**
   It says how many rows there are, what a row means in that figure, and whether it is everything or a sample

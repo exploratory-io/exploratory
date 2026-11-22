@@ -25,7 +25,7 @@ const marketplaceFiles = ['.claude-plugin/marketplace.json', '.agents/plugins/ma
 
 test('each plugin has its own consistent name and version across client manifests', () => {
   for (const [folder, name, version] of [
-    [pluginRoots[0], 'exploratory', '0.1.7'], [pluginRoots[1], 'exploratory-server', '0.1.5']
+    [pluginRoots[0], 'exploratory', '0.1.8'], [pluginRoots[1], 'exploratory-server', '0.1.5']
   ]) {
     const files = clientManifests.filter(file => fs.existsSync(path.join(repoRoot, folder, file)));
     assert(files.includes('.claude-plugin/plugin.json') && files.includes('.codex-plugin/plugin.json'));
@@ -41,8 +41,12 @@ test('each plugin has its own consistent name and version across client manifest
   }
   for (const file of marketplaceFiles) {
     const marketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, file), 'utf8'));
-    assert.equal(marketplace.plugins[0].version, '0.1.7', file);
+    assert.equal(marketplace.plugins[0].version, '0.1.8', file);
   }
+  // The README version tables are not read by any client, so nothing else keeps them in step.
+  assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('(version 0.1.8)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').includes('`exploratory` (0.1.8)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.ja.md'), 'utf8').includes('`exploratory`（0.1.8）'));
   assert.equal(fields.ai_summary.default, 'false');
 });
 
@@ -156,6 +160,13 @@ test('all 8 settings combinations use the same policy for native options and env
   assert.deepEqual(settings({}), { ai_summary: 'false', save_comments: 'false', review_hook: 'false', plan_gate: 'true' });
   assert.equal(settings({ EXPLORATORY_REVIEW_HOOK: 'true' }).review_hook, 'true');
   assert.throws(() => settings({ EXPLORATORY_AI_SUMMARY: 'unknown' }), /Invalid/);
+  assert.equal(settings({ EXPLORATORY_AI_SUMMARY: 'unknown', EXPLORATORY_REVIEW_HOOK: 'true' }, {}, { fallback: true }).ai_summary, 'false');
+  assert.equal(settings({ EXPLORATORY_AI_SUMMARY: 'unknown', EXPLORATORY_REVIEW_HOOK: 'true' }, {}, { fallback: true }).review_hook, 'true');
+  assert.throws(() => settings({}, { ai_summary: 'unknown' }, { fallback: true }), /Invalid/);
+  const hook = path.join(root, 'tools/runtime-hook.js');
+  const hookInput = JSON.stringify({ session_id: 'invalid-setting-' + process.pid, tool_name: 'mcp__exploratory-desktop__get_environment' });
+  const hookOutput = execFileSync(process.execPath, [hook, 'settings'], { input: hookInput, env: { ...process.env, CLAUDE_PLUGIN_OPTION_AI_SUMMARY: 'bogus', PLUGIN_DATA: fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-invalid-')) } }).toString();
+  assert(hookOutput.includes('core-connection-summary-off.md'));
 });
 
 test('analysis_effort is gone: no setting, no variable, no Effort text, and the old variable is ignored', () => {
@@ -170,11 +181,13 @@ test('analysis_effort is gone: no setting, no variable, no Effort text, and the 
 
 test('saving settings that are off send one do-not-save line each; review off sends nothing', () => {
   const chart = 'When creating a chart, check its slots and settings in ' + path.join(root, 'skills/exploratory-charts/types/chart-<type>.md') + '.\n';
-  const off = 'Do not save AI summaries unless the user explicitly requests it.\nDo not save chart description comments unless the user explicitly requests it.\n';
+  const conn = mode => 'Read once, first, only ' + path.join(root, 'skills/exploratory-core/common/core-connection-summary-' + mode + '.md') + ' (the connection instructions for this AI Summary setting).\n';
+  const off = 'Do not save AI summaries unless the user explicitly requests it.\n' + conn('off') + 'Do not save chart description comments unless the user explicitly requests it.\n';
   assert.equal(render(settings({})), off + chart);
   const summaryOnly = render(settings({}, { ai_summary: 'true' }));
   assert(summaryOnly.includes('generate an AI Summary') && summaryOnly.endsWith(chart));
   assert(!summaryOnly.includes('save it to the comment field') && !summaryOnly.includes('Apply review instructions'));
+  assert(summaryOnly.includes(conn('on')) && !summaryOnly.includes(conn('off')) && render(settings({})).includes(conn('off')));
   assert(!summaryOnly.includes('Do not save AI summaries') && summaryOnly.includes('Do not save chart description comments'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-settings-'));
   try {

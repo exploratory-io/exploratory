@@ -20,7 +20,7 @@ Find your case in the table, then follow that guide.
 | Plugin | Plugin name | Where it comes from |
 |---|---|---|
 | [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server` (0.1.5) | Your AI client's official plugin directory |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.7) | This repository's marketplace (`exploratory-io/exploratory`) |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.8) | This repository's marketplace (`exploratory-io/exploratory`) |
 
 The two plugins do not share tools or skills. You can install both, in any order.
 

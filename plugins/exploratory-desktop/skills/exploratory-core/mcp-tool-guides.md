@@ -108,5 +108,5 @@
 - `get_guide(topic="wrangling", tool="preview_wrangling_steps")`
 - `get_guide(topic="wrangling", tool="apply_wrangling_preview")`
 - `get_guide(topic="wrangling", tool="list_ai_proposals")`
-- `get_guide(topic="wrangling", tool="update_ai_proposal")`
 - `get_guide(topic="wrangling", tool="locate_published_source")`
+- `get_guide(topic="wrangling", tool="update_ai_proposal")`
