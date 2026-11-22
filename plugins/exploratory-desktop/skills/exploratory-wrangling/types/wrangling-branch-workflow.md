@@ -4,7 +4,7 @@ Procedure:
    is done before creating the branch
 2. Create the branch with `create_branch`. `name` is what you point to by this name when joining, so
    make it a name that shows what it contains (example: MAU). If you omit `fromStep`, the branch is created
-   from the currently selected step (the last step if none is selected); pass `fromStep` when you need a specific step
+   from the step you created immediately before
 3. **Right after creating it, that branch is the target of wrangling.** If you call create_wrangling_step next, it is
    stacked on the branch
 4. When the wrangling of the branch is finished, **return to the original data frame** with `select_data_frame`.
@@ -28,11 +28,11 @@ Correct example (computing DAU and MAU from an access log and joining them):
 3. create_branch  name: "MAU"
 4. mutate  as: "アクセス月", expression: floor_date(`アクセス日時`, unit = "month")
 5. group_by  columns: ["アクセス月"]
-6. summarize  summaries: [{ column: "ユーザーID", func: "n_distinct", as: "MAU" }]
+6. summarize  aggregate: [{ column: "ユーザーID", func: "n_distinct", as: "MAU" }]
 7. select_data_frame  dataFrame: "アクセスログ"        (return to the main line)
 8. mutate  as: "アクセス日", expression: as.Date(`アクセス日時`)
 9. group_by  columns: ["アクセス日"]
-10. summarize  summaries: [{ column: "ユーザーID", func: "n_distinct", as: "DAU" }]
+10. summarize  aggregate: [{ column: "ユーザーID", func: "n_distinct", as: "DAU" }]
 11. mutate  as: "アクセス月", expression: floor_date(`アクセス日`, unit = "month")
 12. join   with: "MAU", type: "Left Join", on: [{ left: "アクセス月", right: "アクセス月" }]
 13. mutate  as: "利用日の割合", expression: `DAU` / `MAU`

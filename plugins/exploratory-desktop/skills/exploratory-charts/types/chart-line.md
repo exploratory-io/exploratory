@@ -236,9 +236,9 @@
     "基準線（リファレンスライン）を追加したい依頼"
   ],
   "usable": "depends",
-  "summary": "基準線の種類の選択肢は図・軸・列の型ごとに変わるので、渡す前に list_chart_settings（setting: yReflineType / xReflineType など）で choices を確認する",
+  "summary": "chart-bar.yaml の同名 usage_pattern と同じ（Y 8 種・X 3 種しか索引に無い）",
   "in_exploratory": [
-    "yReflineType / xReflineType の choices は図・軸・列の型ごとに変わる（list_chart_settings で引く）"
+    "common.yReflineType.choices（8 種、described: false）"
   ]
 }
 

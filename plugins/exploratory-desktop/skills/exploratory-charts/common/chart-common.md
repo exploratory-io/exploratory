@@ -40,7 +40,7 @@ Procedure:
 5. **Look at the returned rows and slots before telling the user.**
    If rows is 0, either there is no data or the choice of slots is wrong
 6. For a single-chart request, read it back with get_chart and explain it. The following reading rules apply whenever existing results are read.
-   Read metadata, dataNote and data (and the chart type's file in this skill) before writing; if you write without reading them you are guessing.
+   The way to read it (interpretationGuide) is returned only here, so if you write without reading it you are guessing.
    What comes back:
    - metadata: what is being looked at by what
    - data: the result used for drawing (a CSV string with a header row)
@@ -50,8 +50,9 @@ Procedure:
      Only when it says 「全部ではない可能性がある」 or 「ビンごとの件数は入っていません」 do you recount with execute_r_script
      (histogram bins and density curve values are not contained)
   - **Read simple totals and ratios from the data that already came back.** If a pivot contains every row of counts by score, do not repeat the aggregation from the source data to explain low (1 to 2) or high (4 to 5) ratings. **Do not call execute_r_script.** This data is the whole figure, not a sample (dataNote says so)
-   - get_chart does not return an interpretationGuide. Interpret from dataNote, metadata and data, and the chart type's file in this skill
-     (get_analytics_summary_prompt is for analyses, not a substitute for charts)
+   - interpretationGuide: **how to read that figure.** Interpret according to it.
+     It is not attached to figures that have no reading guide prepared (figures drawn with R, scatter matrix, parallel categories).
+     In that case look only at data and metadata and read it yourself
    Do not just line up numbers. **Quote concrete values and write what can be said.**
    For figures where data does not come back (maps, figures drawn with R), write only what can be said from metadata
 
@@ -162,5 +163,5 @@ Things to remember:
   - An aggregated ordinary numeric column (`ave`, `sum`) is multiplied by 100 by the query: keep it 0 to 1 (multiplying first doubles it).
   - Measure Values (several numeric columns put together) are not multiplied in the app released today: for 0 to 1 columns, make columns multiplied by 100 first and put those together, or pivot longer into one ordinary value column and aggregate that.
   - Value labels take the axis `%`: use `yValueOnPlot: "on"`, with no `percentage` on the label number format.
-  - A pivot / summary table takes `numberFormatting: "percentage"` on each `axes.meas` column (for 0 to 1 columns; do not multiply by 100 first). The app also adds it automatically to an average (`ave`) of a 0/1 column; do not rely on that for any other average column.
+  - A pivot has no % format: keep the digits equal with `numDecimalDigits` and put 「（%）」 in the heading, or make a column multiplied by 100 first.
 - **Axis and label settings.** Many or long item names: `orientation: "horizontal"` with `sortOrder: "desc"` and `sortTarget: "y"`. Name axes and legend in the reader's words (`xAxisTitle`, `yAxisTitle`, `legendTitle` with `showLegendTitle: "on"`), not 「項目」「行数」「変数」. Short item names and legend entries: `displayName` on each "複数の変数" `columns` element and each multi-`y` element, e.g. {"column": "売上_関東", "displayName": "関東"} (unique; shared meaning goes in `keyName` or the axis title). No chart title unless the user asks: `settings.title` where supported, dashboard panel name for maps (`easymap`, `map`, `geojson`). A Number chart (`singlevalue`) is the exception: set `settings.svCaptionText` to a caption naming the measure. The top-level `title` names the chart in the list. Right after creating, check with get_chart_image that legend, items and axes are not column names or 「平均値」「はい・いいえ」 (e.g. 「解約あり・なし」, 「人数」). This check covers only the display; fix wrong labels with update_chart settings. Where the tool takes a `comment`, put the one-line reading there.

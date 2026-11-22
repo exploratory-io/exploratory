@@ -3,17 +3,17 @@
 - [Interpretation equivalent to the AI Summary (written in the chat)](#interpretation-equivalent-to-the-ai-summary-written-in-the-chat)
 
 
-**Do not read the output of an analytics with get_chart.** It is not a chart id, so it does not work.
+**Do not read the output of an analytics with get_chart.** It will be rejected.
 
 When you create an analysis, multiple outputs (VIF, coefficients, ROC curve, and so on) are produced inside it. These are
 a different thing from the charts in the Chart tab, and cannot be referenced from `get_chart`
-(for example, `get_chart(chartId: "multicollinearity")` finds no such chart). `analyticsId` / `outputType` go to
-`get_analytics`; `get_chart` takes only a real `chartId`.
+(for example, `get_chart(chartId: "multicollinearity")` is rejected with
+`SOURCE_NOT_ALLOWED: 参照が許可されていません`).
 
 - To read an output of an analysis -> pass `analyticsId` and `outputType` to **`get_analytics`**.
   For `outputType`, use as is only a value of `availableOutputTypes` that `list_created_artifacts` /
   `list_analytics` / `get_analytics` returned for **that very analyticsId**. Do not use a value you saw for another analysis
-  or a type name you made up. create_analytics returns availableOutputTypes; use list_analytics (or list_created_artifacts) when reading them again later, before you embed or fetch an output
+  or a type name you made up. create_analytics does not return availableOutputTypes: read them with list_analytics (or list_created_artifacts) after creating, before you embed or fetch an output
 - To read a chart in the Chart tab -> pass to `get_chart` a `chartId` that `list_charts` returned
 - When interpreting saved analytics outputs, first call `get_analytics_summary_prompt`
   (read the section 「Interpretation equivalent to the AI Summary (written in the chat)」)
@@ -27,7 +27,7 @@ Correct example: read with `get_analytics(analyticsId, outputType: "multicolline
 - outputs: for each output, the metadata, data (a CSV string with a header row), and dataNote.
   How to read it is the same as for charts (read the data-reading rules in common/core-chart-reading.md of the exploratory-core skill)
 For get_analytics, always pass outputType or outputTypes from the availableOutputTypes of **that very analyticsId**.
-When both are omitted, the tool returns the outputs selected in the left panel, or the template's default output (1 item) when none is selected; it rejects the call only when there is no default output either (then outputType is required) or when more than 4 outputs would be read without naming them.
+When both are omitted, the current tool reads selected outputs only, and rejects an empty selection or more than 4 selected outputs.
 Do not call get_analytics repeatedly without outputType or outputTypes.
 When reading the outputs of the same analysis, specify only the kinds of output you need. When you need several, read them in 1 call together in outputTypes.
 
@@ -77,8 +77,6 @@ as they are.
 - For metrics such as ratios, coefficients, and odds ratios, use **3 significant digits** (`0.384`, `0.83`, `2.07`)
 - When the P value is smaller than 0.001, write **`P < 0.001`**. Do not use exponent notation
 - Use digit separators for counts (`1,000 件`)
-
-**Error codes over MCP:** the top-level code is remapped (`*_NOT_FOUND` -> `NOT_FOUND`; codes starting with `INVALID_` / `UNKNOWN_` / `WRONG_` / `MISSING_` or ending in `_INVALID` -> `INVALID_PARAMETER`; R busy -> `RESOURCE_BUSY`; everything else, such as ANALYTICS_SUMMARY_PROMPT_UNSUPPORTED / UNAVAILABLE, -> `EXECUTION_FAILED`). The tool's own code is in `details.tool_error_code`; branch on that for the codes below.
 
 **Only for ANALYTICS_SUMMARY_PROMPT_UNSUPPORTED**, make it the fallback of picking up numbers with
 get_analytics. Use the table below as a reference. For analysis types not in the table,

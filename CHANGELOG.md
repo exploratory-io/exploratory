@@ -1,5 +1,14 @@
 # Changelog
 
+## Desktop 0.1.8 - 2026-11-23
+
+- Put the `operation_id` wait and `rerun_artifact` in the core essentials; read several charts' names with `get_chart` instead of images; keep `numberRow` off pages that use `columns` and add the Number row rule to the dashboard common file; name the pivot direction by both UI labels.
+- The settings hook points to the connection instructions file for the current AI Summary setting whether it is on or off, and an invalid setting value falls back to its default instead of stopping the hook.
+- Tell the AI that Exploratory Desktop saves automatically, to put Number charts in a `numberRow` row, to look at a single chart once with `get_chart_image`, to keep existing human-made artifacts unless asked, and to keep ordinal order and disclose weights; align the entry skill's "no project is open" routing step with the Desktop instructions.
+- Express a pivot's count ratio as `count_ratio` plus only `meas{N}WindowFuncDirection` (`table_across` per row, `table_down` per column), not a `ptotal` table calculation.
+- For a pivot's count ratio over the whole table, pass `meas{N}WindowFuncDirection: "table_down_across"`; make the hierarchy and flat cross-tab examples count plus `count_ratio` with a direction, and name the per-row direction by the Japanese UI label 「行 (左から右)」.
+- Send chart- and crosstab-only requests (including one chart per attribute, and a short chat summary of how the figures made differ) to the charts skill instead of the analysis skill's scenario, plan and R comparison, which is for a report or dashboard or the analysis itself; list `case_when` among the commands that take a column list.
+
 ## Desktop 0.1.7 - 2026-11-17
 
 - List the guides of the newer wrangling tools (`manage_data_frame`, `publish_project`, `edit_wrangling_steps`, `copy_wrangling_steps`, `preview_wrangling_steps`, `apply_wrangling_preview`, `list_ai_proposals`, `update_ai_proposal`, `locate_published_source`) in `mcp-tool-guides.md`, and use the current switch name (Enable MCP) in the README.

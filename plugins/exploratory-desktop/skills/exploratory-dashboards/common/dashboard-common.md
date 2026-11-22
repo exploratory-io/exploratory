@@ -27,6 +27,8 @@
 
    **Page names.** Do not leave a page named 「Page 1」; give each page a name that tells its content.
 
+   **Number row.** Put Number charts (key values) in the first row of a page and give that row `numberRow: true`; do not put other charts in that row. On a page that uses `columns`, do not give `numberRow` (the row before the columns is the Number row).
+
    **Connections.** **save_connection only opens the desktop's connection settings dialog, and
    values such as host, port, database, user name, and password cannot be passed to these tools at all
    (they are ignored if passed).** Even if the call succeeds, nothing has been created or updated at that point
@@ -47,7 +49,8 @@
    pass **the `stepId` of the chosen `rObjects.steps[]`, not the R name**. Among the steps that have the target column,
    choose the last one. If the final step also has the target column, state that final step's
    `stepId` explicitly. If the target column no longer exists later because of aggregation, select, pivot, and so on, choose the `stepId`
-   of the pre-aggregation step that last has that column. You must not leave it to the 「last step」.
+   of the pre-aggregation step that last has that column. You must not leave it to the 「last step」 or
+   pass `rObjects.lastStep.rName`.
    Do not enumerate the options by hand; for multiple selection the value is an array, and for single selection the value is a scalar or an empty string.
    **name is R's internal name, and must be only alphanumerics and underscores starting with a letter.** Do not put
    Japanese column names or user-facing names in name; put them in displayName, for example `name: "category_filter"`,

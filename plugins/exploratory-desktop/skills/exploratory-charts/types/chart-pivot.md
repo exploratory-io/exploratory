@@ -182,9 +182,9 @@
     "ピボットの区分の中での構成比を出したい依頼"
   ],
   "usable": true,
-  "summary": "区分の中の構成比は meas の WindowFunc で出す。表計算の向き（table_across/pane_across/pane_down 等）で分母の範囲が変わる",
+  "summary": "区分の中の構成比（件数）は count_ratio と meas の WindowFuncDirection で出す。向き（table_across/pane_across/pane_down 等）で分母の範囲が変わる",
   "in_exploratory": [
-    "区分の中の構成比: meas{N}WindowFuncGroup: total、meas{N}WindowFunc: ptotal、向きは meas{N}WindowFuncDirection（行ごと table_across / 列ごと table_down）",
+    "区分の中の構成比（件数）: 値に {column: 行数, func: count_ratio} を置き、向きだけ meas{N}WindowFuncDirection で渡す（行ごと table_across / 列ごと table_down）。meas{N}WindowFunc・meas{N}WindowFuncGroup は渡さない（count_ratio が rtotal を書き込む。list_chart_settings: 画面では選べない予約値）",
     "実機で確かめた向き（行に 2 段、列に 2 段の属性を置いたとき）: table_across は行のグループの全列で 100%、pane_across は列の親グループの中で 100%、pane_down は行の親グループの中（行の子グループをまたいだ合計）で 100%"
   ]
 }

@@ -33,10 +33,10 @@ The user can choose several. If 2 or more are chosen,
 **Offer candidates only from list_analytics_templates.** Do not use the
 method names written in this prompt as a closed list. Even when methods are added to the product, the index comes first.
 
-Look at the nature of the target variable with the last step's `columnDetails` (`type`, `uniqueCount`) in `rObjects` of get_data_frame (use top-level `columnTypes` / `columnUniqueCounts` when they are returned).
+Look at the nature of the target variable with `columnTypes` and `columnUniqueCounts` of get_data_frame.
 **Do not decide 「continuous because it is a number」.** A rating, score, or
 ranking with only a few distinct values is an ordinal scale. 2 levels is binary. A nominal variable with more levels than that is multi-class.
-The unique count stops at 50: above that it is the string "50+" (not a number). A number whose count of distinct values reaches that cap is a strong clue for continuous. Do not decide on that alone;
+columnUniqueCounts stops counting at 51 (51 means 「51 以上」). A number whose count of distinct values reaches that cap is a strong clue for continuous. Do not decide on that alone;
 judge together with the column name, the column description, and what the user wants to know.
 
 For candidates, list those whose **targetKinds / predictionType / description of the target variable's slot** returned by the index

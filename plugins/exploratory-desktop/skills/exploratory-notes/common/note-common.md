@@ -42,7 +42,7 @@ Embed charts and analytics (including pivots) created in this conversation with 
 Create and embed every figure the dedicated tools can make. What Exploratory cannot make with the dedicated tools is made with a step's custom R command or a custom chart (R); do not write R values or sentences in the note in place of a figure.
 
 **You may use the id of an artifact you already read or created in the same conversation. Only when you do not know it, fetch the list or the individual item.**
-When embedding an id from `list_created_artifacts` or an analysis result, copy the kind of that artifact (chart / analytics) into the notation. For an id that gave `SOURCE_NOT_ALLOWED` (over MCP, the top-level code is remapped and this code is in `details.tool_error_code`), do not retry with the same id;
+When embedding an id from `list_created_artifacts` or an analysis result, copy the kind of that artifact (chart / analytics) into the notation. For an id that gave `SOURCE_NOT_ALLOWED`, do not retry with the same id;
 if it is not in the list, remove it from the note and create or update with only the figures you could reference.
 
 To emphasize values, set the color and highlight settings of the chart (look up the names, including `enableHighlight`, `highlightValues`, `highlightDefaultColor`, with list_chart_settings). `highlightValues` is an array of `{value, color}` objects (an array of strings is refused). Put the column of the highlighted values on both x and the color slot (`axes.color`); when x is the "複数の変数", put `.multi.measures.column` on `axes.color` and write the original column name in `value`. Look up the legend settings with list_chart_settings and do not pass a value that is not listed.

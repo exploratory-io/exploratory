@@ -2,7 +2,7 @@
 
 When reading the results of linear regression, logistic regression, and generalized linear models (the various GLMs), also read the multicollinearity (VIF) output with get_analytics.
 
-If VIF reaches the criterion in that analysis's interpretationGuide (from get_analytics_summary_prompt) (10 if none is written), or reaches 5 and makes coefficient interpretation unstable,
+If VIF reaches the criterion in that analysis's interpretationGuide (10 if none is written), or reaches 5 and makes coefficient interpretation unstable,
 resolve it before interpreting the model or moving to the next stage.
 
 Compare strongly related predictors and keep the one that best answers the user's question;
