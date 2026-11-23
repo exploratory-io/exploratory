@@ -12,9 +12,12 @@ if (mode === 'settings') {
     fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(file, 'done');
     console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: render(values) } }));
   }
+} else if (mode === 'image') {
+  require('./image-gate')(values, input);
 } else if (mode.startsWith('plan-')) {
-  // 計画の関所は plan_gate=true のときだけ動く。オフなら何もしない。
-  if (values.plan_gate === 'true') require(mode === 'plan-custom-r' ? './custom-r-gate' : './plan-gate')(mode, input);
+  // review_hook: カスタム R の形（plan-custom-r）と作成後の全体画像の点検（plan-stop）。plan-record もこの設定だけで動く。
+  const on = values.review_hook === 'true';
+  if (on) require(mode === 'plan-custom-r' ? './custom-r-gate' : './plan-gate')(mode, input);
 } else if (values.review_hook === 'true' && input.session_id) {
   const dir = process.env.PLUGIN_DATA || process.env.CLAUDE_PLUGIN_DATA || path.join(os.tmpdir(), 'exploratory-plugin-review');
   const marker = path.join(dir, 'review-' + String(input.session_id).replace(/[^A-Za-z0-9_.-]/g, '_'));

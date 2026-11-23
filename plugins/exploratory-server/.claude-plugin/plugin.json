@@ -1,7 +1,7 @@
 {
   "name": "exploratory-server",
-  "version": "0.1.5",
-  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
+  "version": "0.1.6",
+  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server. It can also create, update and delete Pages (HTML pages); new Pages are always private.",
   "author": {
     "name": "Exploratory, Inc.",
     "url": "https://exploratory.io",
@@ -10,6 +10,9 @@
   "homepage": "https://exploratory.io",
   "privacyPolicyUrl": "https://exploratory.io/privacy",
   "documentationUrl": "https://github.com/exploratory-io/exploratory/blob/main/docs/mcp.md",
+  "supportUrl": "https://exploratory.io/",
+  "termsOfServiceUrl": "https://exploratory.io/terms",
+  "icon": "./assets/icon.png",
   "repository": "https://github.com/exploratory-io/exploratory",
   "license": "MIT",
   "keywords": [

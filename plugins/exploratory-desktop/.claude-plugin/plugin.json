@@ -1,7 +1,7 @@
 {
   "name": "exploratory",
   "displayName": "Exploratory Desktop",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
   "author": {
     "name": "Exploratory, Inc.",
@@ -44,18 +44,8 @@
     "review_hook": {
       "type": "string",
       "title": "Review hook",
-      "description": "false: never review. true: ask the agent to review its work. The review runs before the first chart or analytics create, after wrangling, after a note is created, and after chart and analytics create or edit calls (once per chart or analytics, up to 8 charts and analytics together per session).",
+      "description": "false: never review. true: review after creating: check custom R steps (exp_custom) that start in the wrong form or that product commands can do, ask the agent to review its work (before the first chart or analytics create, after wrangling, after a note is created, after chart and analytics create or edit calls, up to 8 per session), and ask once to look at the whole note or each dashboard page image before the final report.",
       "default": "false",
-      "options": [
-        "false",
-        "true"
-      ]
-    },
-    "plan_gate": {
-      "type": "string",
-      "title": "Plan gate",
-      "description": "true: after an R report (HTML) is saved, refuse create calls until the agent saves a plan file (<title>_Exploratory作成計画.md). Also refuse custom R steps (exp_custom) that start in the wrong form. The custom R check refuses once an expression that a product command can do. false: do nothing.",
-      "default": "true",
       "options": [
         "false",
         "true"

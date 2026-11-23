@@ -5,12 +5,11 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const fields = require('../.claude-plugin/plugin.json').userConfig;
 const variables = { ai_summary: 'EXPLORATORY_AI_SUMMARY', save_comments: 'EXPLORATORY_SAVE_COMMENTS',
-  review_hook: 'EXPLORATORY_REVIEW_HOOK', plan_gate: 'EXPLORATORY_PLAN_GATE' };
+  review_hook: 'EXPLORATORY_REVIEW_HOOK' };
 const aliases = {
   ai_summary: { する: 'true', しない: 'false' },
   save_comments: { する: 'true', しない: 'false' },
-  review_hook: { 使う: 'true', 使わない: 'false' },
-  plan_gate: { 使う: 'true', 使わない: 'false' }
+  review_hook: { 使う: 'true', 使わない: 'false' }
 };
 
 // fallback: a bad environment value becomes the default so a hook keeps running; an explicit override still fails.
@@ -36,13 +35,12 @@ function render(values) {
   if (values.ai_summary === 'true') lines.push('After creating a chart or an analytics artifact, read the actual results of get_chart_summary_prompt / get_analytics_summary_prompt, generate an AI Summary, and save it to the summary field with save_chart_ai_summary / save_analytics_ai_summary. Do not repeat successful saves.');
   // Explicit off instructions prevent unsolicited saves.
   else lines.push('Do not save AI summaries unless the user explicitly requests it.');
-  // Same sentence for on and off: only the file that matches the setting is read, once, first.
-  lines.push('Read once, first, only ' + path.join(root, 'skills/exploratory-core/common/core-connection-summary-' + (values.ai_summary === 'true' ? 'on' : 'off') + '.md') + ' (the connection instructions for this AI Summary setting).');
+  // The connection instructions are not re-sent: the MCP server already gives them at connection time (the file repeated ~87% of them).
   if (values.save_comments === 'true') lines.push('Write a description of the created chart based on its actual results and save it to the comment field with update_chart. This is separate from AI Summary.');
   else lines.push('Do not save chart description comments unless the user explicitly requests it.');
   if (values.review_hook === 'true') lines.push('Apply review instructions once just before the first chart or analytics creation, after every wrangling step, and within the limit after each chart or analytics creation or edit.');
   // Include the absolute chart reference path even when review hooks are disabled.
-  lines.push('When creating a chart, check its slots and settings in ' + path.join(root, 'skills/exploratory-charts/types/chart-<type>.md') + '.');
+  lines.push('If create_chart fails, check its slots and settings in ' + path.join(root, 'skills/exploratory-charts/types/chart-<type>.md') + '.');
   return lines.join('\n') + '\n';
 }
 

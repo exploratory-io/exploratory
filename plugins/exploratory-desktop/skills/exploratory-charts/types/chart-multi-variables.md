@@ -35,13 +35,8 @@ create_chart(marker: "pivot",
 - To line up the questions as rows and columns within 1 table, place 「(複数の変数)」 in rowh / colh
 
 **When the folded source columns are numbers with few distinct values, such as a 1-to-5 rating scale,
-attach `func: "aschar"` to 「(変数の値)」.** This applies only when the request does not specify treatment such as "numeric", "value", or "integer"; otherwise use `none` or an integer func matching the request. If you omit it, it is split into continuous ranges as a number
-(the same reason and the same fix as 「putting a numeric column with few distinct values on color」.
-See the table of aggregations above).
-
-```
-colh: { "column": "(変数の値)", "func": "aschar" }
-```
+leave 「(変数の値)」 as a number; do not add `func: "aschar"`.** In pivot rows and columns and on the x axis each value (1, 2, ... 5) is its own group.
+On color, use `func: "asdisc"` (the screen's default for it, shown as DISC) so that each value gets its own color instead of numeric ranges.
 
 **A 0/1 numeric wide form (multiple-answer selection columns lined up horizontally) is completed on the chart side.**
 The section 「Putting multiple questions into 1 chart」 above is for the horizontal form of stage ratings such as Likert.

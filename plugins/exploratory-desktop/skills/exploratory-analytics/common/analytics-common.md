@@ -45,7 +45,6 @@ When over the limit, keep those whose nature fits first and fill the rest in ord
 Do not add method ids by writing them in this prompt. Pull them from the index fields.
 
 Exploratory で新しいアナリティクスを作る段階では、最初に **list_analytics_templates** を呼ぶ。
-`exploratory-analysis` の 4 手順でレポートを作る場合、この段階は R の計算と PNG の保存が終わった後に始まる。
 
 1. Call **list_analytics_templates**
 2. From the returned list, include all that fit the current purpose and the shape of the data
@@ -101,11 +100,10 @@ Correct example: 「どの評価項目が推奨者になりやすさをどれだ
    A slot that takes multiple columns is an array, and a slot with just 1 column is a string.
    Which one is shown by multiple in the slots of get_analytics_template.
 
-**When you make categories with `case_when` / `if_else`, separate missing values first.**
-Do not make `TRUE ~` the default for 「the remaining valid values」. Rows with missing values (NA) match none of the conditions,
-so if written naively they fall to the last `TRUE ~` and get mixed into the last category (for example, when a 0-10 recommendation score is split into 批判者 / 中立者 / 推奨者, the NA rows end up in 「推奨者」).
-**Always make `is.na(...) ~ NA_character_` the first condition, do not use `TRUE ~`, and
-write the last condition with the same range specification as the others (`>= 9` and so on)**.
+**When you make categories with the case_when command, separate missing values first.**
+Rows with missing values (NA) match none of the conditions, so they fall to defaultValue and get mixed into the last category
+(for example, when a 0-10 recommendation score is split into 批判者 / 中立者 / 推奨者, the NA rows end up in 「推奨者」).
+**Make the first case `{"conditions":[{"operator":"isNA"}],"valueType":"na"}`**, then the ranges. Do not write the categories with if_else / case_when in a mutate expression; the tool refuses it.
 
 **After making the categories, confirm with execute_r_script the count per category and the count of missing values before moving on**
 (example: `as.data.frame(table(df$推奨者区分, useNA = "ifany"))`). Confirm that the sum of the category counts + the missing count

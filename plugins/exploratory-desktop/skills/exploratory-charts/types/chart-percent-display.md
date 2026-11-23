@@ -1,0 +1,5 @@
+- **Show a share as %, not as 0.44.** On a Bar or Line chart, set `yAxisNumberFormatting: "percentage"` (also for a horizontal bar, not `xAxisNumberFormatting`) and the digits with `numDecimalDigits`.
+  - An aggregated ordinary numeric column (`ave`, `sum`) is multiplied by 100 by the query: keep it 0 to 1 (multiplying first doubles it).
+  - Measure Values (several numeric columns put together) are not multiplied in the app released today: for 0 to 1 columns, make columns multiplied by 100 first and put those together, or pivot longer into one ordinary value column and aggregate that.
+  - Value labels take the axis `%`: use `yValueOnPlot: "on"`, with no `percentage` on the label number format.
+  - A pivot has no % format: keep the digits equal with `numDecimalDigits` and put 「（%）」 in the heading, or make a column multiplied by 100 first.

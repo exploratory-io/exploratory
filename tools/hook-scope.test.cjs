@@ -13,7 +13,6 @@ const cases = [
   ['note', 'create_note', {}],
   ['wrangling', 'create_wrangling_step', {}],
   ['plan-record', 'create_chart', {}],
-  ['plan-guard', 'create_note', {}],
   ['plan-custom-r', 'create_wrangling_step', { command: 'exp_custom', params: { expression: 'filter(x > 0)' } }],
   ['plan-custom-r', 'create_wrangling_step', { command: 'exp_custom', params: { expression: 'd <- .' } }],
   ['settings', 'get_environment', {}]
@@ -23,7 +22,7 @@ function run(mode, tool_name, tool_input, dir) {
     input: JSON.stringify({ session_id: 'scope', tool_name, tool_input,
       tool_response: { structuredContent: { chartId: 'chart', marker: 'bar', noteId: 'note' } } }),
     encoding: 'utf8', env: { ...process.env, PLUGIN_DATA: dir, CLAUDE_PLUGIN_DATA: dir,
-      EXPLORATORY_PLAN_GATE: 'true', CLAUDE_PLUGIN_OPTION_PLAN_GATE: 'true', EXPLORATORY_REVIEW_HOOK: 'true', CLAUDE_PLUGIN_OPTION_REVIEW_HOOK: 'true' }
+      EXPLORATORY_REVIEW_HOOK: 'true', CLAUDE_PLUGIN_OPTION_REVIEW_HOOK: 'true' }
   }).trim();
 }
 test('hook matchers exclude other MCP servers and unqualified tool names', () => {

@@ -9,6 +9,7 @@ For analyses (significance tests, correlations, regression, drivers, prediction,
 
 Do data wrangling with create_wrangling_step. What gets created is an ordinary Exploratory step, and
 the user can open and edit it in the step diagram.
+When creating a step through MCP, write issue.label and issue.summary in display_language (the app's UI language); translate English examples instead of copying them. In Japanese, use concise labels such as 「欠損値の削除」「欠損値の置き換え」「値を欠損値に置き換え」.
 When you do not know the names or values of the settings to pass in a command's params, first look them up with get_wrangling_command.
 A name not listed there has no effect even if you pass it.
 
@@ -32,15 +33,8 @@ For a wrangling request, do the following 4 things in this order. Do not skip an
 - ステップで間違いに気付いたら、後ろに直しのステップを足して上書きせず、間違えたステップ自体を直す。create_wrangling_step に間違えたステップの stepName を渡して、そのステップを書き直す（後ろのステップもまとめて作り直すときは、下の「Undo it and recreate」の手順で delete_wrangling_step を使う）。
 - 絞り込みで行が減ったら、条件ごとに何行減ったかを報告する。合計が合わなければ調べ直す。
 - 日付が今日より後の行（これから始まる契約など）を、推移や新規の数に入れるかを決める（計画・予約など将来分を含む指標なら残す）。入れないなら加工で除くか印の列を作り、図ごとのフィルタで隠さない。どちらにしたかと件数を報告する。
-- 加工を終えたら、依頼された指標（例: 年別の件数と売上）を 1 回集計して値が出ることを確かめる。検算の式が失敗したら、直して流し直してから報告する。
-
-2 値の列（0/1、Yes/No、TRUE/FALSE、はい/いいえ など）は、get_wrangling_command(command="mutate") で設定を確認し、mutate の expression に str_logical(列) または値と TRUE/FALSE の対応を明示した論理式を指定して、論理値（logical）に変える（NA はそのまま保つ）。「あり/なし」などの文字列ラベルへの置換はせず、表示に日本語のラベルが要るときはチャートの表示名で付ける。
 
 **2. Break the processing down**
-
-- **To combine multiple-answer columns into one column, use the 「複数回答の列をまとめる」 command (exp_combine_multiple_answers); do not rebuild it with mutate or R.**
-- **When creating a TRUE/FALSE column from a column containing NA, keep those rows NA unless the user asks otherwise.**
-  `%in%` turns an NA input into FALSE; handle is.na first, for example `if_else(is.na(x), NA, x %in% values)`.
 
 - Split the request into one Exploratory step each. 「集計して並べ替えて上位 3 件」 is 3 steps
 - Make each operation its own editable step, so that the user can still edit just a middle part; do not fold several operations into one step.
@@ -57,34 +51,7 @@ For a wrangling request, do the following 4 things in this order. Do not skip an
 - For params, write only flat specifications that match how the command's description writes them.
   The executing side fills in default values and shapes the structure, so there is no need to write the full JSON of the step
 
-**ai_wrangle (「AI データ加工」, the AI prompt dialog).** Call it only when the user asks to use 「AI データ加工」: it sends the request to Exploratory's AI and returns an R script (`script`) with its explanation (`answer`),
-and with `run: true` it adds that script as a step. For any other wrangling, use create_wrangling_step. Show the returned script to the user; if they want changes, call again with the edited `script` and its `answer` and `run: true`.
-
-**Have the AI judge each row (AI functions)**
-
-**Before answering 「Exploratory にはその機能がありません」, always consider whether it can be solved with an AI function.**
-
-Use it when making, from free-text, **values that cannot be decided without reading the context.**
-
-- Sentiment, emotion, and polarity scores
-- Sorting free text into labels decided in advance
-- Unifying inconsistently written company or organization names into the official name
-- Summarization, translation, and name matching of addresses
-
-自由記述や記録の意味を読む加工（話題の分類・感情の判定・要約）は、get_ai_function_presets で現在のプリセットを確かめ、create_wrangling_step の params.aiPreset（指示を調整するときだけ params.aiPrompt も指定）で AI 関数の列を作る。キーワード・正規表現・case_when などの条件式で意味を推し量って分類しない。プリセットの取得や AI 関数の実行が失敗したら、条件式や自作の指示文へ黙って切り替えず、失敗と理由を利用者に伝える。分類後は結果を原文数件と照合し、分類の方法・照合の件数・重複の扱いを記録してから、話題別の人数や件数と結果指標を集計する。
-
-**For the analysis of free-text, consider AI functions (classification, sentiment, and so on) first.**
-Use tokenization (`do_tokenize` / `do_tokenize_icu`) and word clouds
-**only when word frequency itself is the purpose.** Classification, emotion, and labeling that read the context are
-the job of AI functions.
-
 **Choose the product command before writing R.** A group aggregation uses summarize_group with groupBy and aggregate. Use summarize for ungrouped or already-grouped data; its summaries can include a custom expression. A formula inside mutate or summarize is still a product step that the user can edit. Build what Exploratory can do with product commands, and use exp_custom (the step's custom R command) only for what no product command, including a combination of product steps, can do. Being deterministic is not a reason to choose exp_custom.
-
-For per-group NPS on a confirmed 0-10 score, create one numeric contribution column with mutate: 0-6 -> -100, 7-8 -> 0, 9-10 -> 100; missing scores stay NA. Then summarize_group by the requested category, with aggregate [{column: the returned contribution column, func: "mean", as: "NPS"}]. The product mean excludes missing values. This is promoter percentage minus detractor percentage, in points. Do not put group_by/summarise into exp_custom, and do not run separate promoter and detractor pipelines. Look up unknown params with get_wrangling_command.
-
-自由記述や記録の意味を読む加工（話題の分類・感情の判定・要約）は、get_ai_function_presets で現在のプリセットを確かめ、create_wrangling_step の params.aiPreset（指示を調整するときだけ params.aiPrompt も指定）で AI 関数の列を作る。キーワード・正規表現・case_when などの条件式で意味を推し量って分類しない。プリセットの取得や AI 関数の実行が失敗したら、条件式や自作の指示文へ黙って切り替えず、失敗と理由を利用者に伝える。分類後は結果を原文数件と照合し、分類の方法・照合の件数・重複の扱いを記録してから、話題別の人数や件数と結果指標を集計する。
-
-AI functions are for row values that require reading context (sentiment, classification, translation, summarization or name matching). For deterministic rules such as thresholds or age groups, use mutate or another product command; do not use an AI function.
 
 **3. Plan known operations together and execute them in order**
 
@@ -98,18 +65,9 @@ AI functions are for row values that require reading context (sentiment, classif
 - **The returned columns are the columns after that wrangling.** Build the next operation using these column names.
   Do not write by guesswork the name of a column born in the previous operation
 - **If it fails, stop there and fix it. Do not move on to the next step.**
-  A plan stops at the first failure. Applied steps stay in place; `failedStep` and the per-step statuses
-  show what ran. Fix the failed operation and send only the remaining operations; do not repeat applied steps.
+  Steps applied before the failure stay in place; do not repeat them.
   The returned reason says what was wrong and how to fix it. Read it, fix
   the specification, and **recreate the same step**. Move on after it succeeds
-  - When 「このステップは取り消したので、データフレームは前の状態のままです」 comes back,
-    **the chain is not broken.** Just recreating that step is enough.
-    Do not try to work around it by adding a different step
-  - When 「R が前のステップ（...）で止まりました」 comes back, **that step is broken.**
-    Whatever you add after it will fail. Tell the user to fix or delete that step
-  - When 「このデータフレームに無い列を指しています」 comes back, the list of usable columns comes back
-    with it. **Choose again from that list**
-  - When 「operator ... は使えません」 comes back, the usable operators come back with it
 - **Do not repeat the same specification unchanged.** When you do not know what to fix,
   check the current state with select_data_frame or get_data_frame and then rebuild
 - If it still does not pass after fixing the same step 3 times, stop there. Tell the user what you tried and what came back,
@@ -136,18 +94,6 @@ This cannot be omitted. **Being able to create the steps and getting the result 
 - Call select_data_frame again and confirm **the final list of columns**
 - Look at whether all the columns the request wanted are there, and whether there are extra columns or mix-ups
 - When you want to check whether row counts or values match the request's conditions, use execute_r_script
-- **When the request states a value, a time of day, a unit, or a format in words, compare the result with those words before you report.**
-  Look at the first rows (get_data_frame) and check each stated part against the request: the fixed part (for example the hour and minute it fixed),
-  the unit (hours or days, hour or minute), the time zone, the order of the parts, the number of decimals.
-  A result that only looks like the right kind of value is not enough. **Do not put a value that already exists in the data in place of a value the request fixed.**
-- **When the request gives an example (an input and the value it becomes), find that input in the result and compare the value with the example, character by character.**
-  When a later step converts a value back (a conversion and its reverse), the result must equal the original values: compare the first rows with the source column.
-  Count the missing values (NA) in every column you created or converted, and compare with the count before. A new NA means the conversion did not read the value:
-  a function that returns a number without an error has not proved the number is the right one. Fix the step
-  If a part is missing or different, fix the step (for date-times, read the guidance on writing R for dates and times)
-- **Do not throw away a formula that ran without error only because you doubt it.** If you doubt one, build the alternative in execute_r_script on the source data
-  and compare the two results on all rows (count the rows where they differ) before you change the step.
-  A rewritten formula is as unchecked as the first one: after any rewrite, compare it with the formula it replaces and read the rows where they differ
 - **Before you finish, list every operation the request names, in its order, and check that each one was built.** A request that joins operations
   with 「続けて」「そのあと」「その上で」 is one request: build all of them in this turn. Do not stop after the first one and write the rest
   in the reply as something to do next
@@ -170,17 +116,14 @@ This cannot be omitted. **Being able to create the steps and getting the result 
   **Do not say 「できました」 before checking**
 </wrangling_rules>
 
+**分岐**
 
 In one chain, one data frame can have only one shape.
-**The criterion for creating a branch is whether the granularity of the data, the rows, or the structure of the table changes.**
-Wrangling that changes the row count, the unit one row represents, or the arrangement of columns, such as aggregation, long/wide conversion, join, row filtering, and
-de-duplication, is done in a branch so that the original shape is kept too and can be compared and joined.
+**Create a branch only when both are true: the unit one row represents changes (aggregation, long/wide conversion), and the original rows are still needed by another chart, table or join.** Charts and tables with the same row unit share one branch.
 
-**If you only add a helper column with mutate, do not create a branch.** Wrangling such as binning existing values into a new column,
-making a year-month column from a date, and adding flag, score, or prediction columns is added
-as is to the selected data frame. When just adding 1 column for analysis, you must not copy the source data into a separate branch.
+**Do not create a branch for these; add the step to the data frame itself:** adding a column (binning values into a new column, a year-month column from a date, flag, score or prediction columns), changing a column's type, changing values in a column (for example turning 9 into NA with case_when), and a filter that every chart should see. A filter, top N, sort, aggregation or ratio that only one chart needs is set on the chart (filters and settings), not as a branch. When just adding 1 column for analysis, you must not copy the source data into a separate branch.
 
-Only when you need to overwrite an existing column itself with a different type and also keep the original type, create a branch as an exception.
+Keep one purpose in one chain: do not cut a branch from a branch to continue the same work (for example a filter-only branch followed by a long-format branch).
 
 Examples where a branch is needed:
 - From an access log, compute daily DAU and monthly MAU, join them on the month as the key, and compute the share of active days (DAU / MAU)

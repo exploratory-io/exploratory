@@ -1,6 +1,6 @@
 **Express the ratio of counts with the aggregate function `count_ratio` (「割合」 on the screen), for cross tabulations (pivot) and Bar charts alike.**
 
-A table or bar of counts alone cannot be read. **Include the ratio in the table rather than calculating it only in the explanation.**
+For a new table or bar, counts alone cannot be read. When rebuilding an existing report whose table or bar shows counts only, or when the user asks for counts only, keep counts only. **Include the ratio in the table rather than calculating it only in the explanation.**
 
 **The denominator matches the unit the user wants to compare.** Use the whole-composition ratio only when the intended denominator is the **whole**.
 正しい例: When adding category counts and percentages to a metric based on valid responses (such as NPS, a mean, or a satisfaction rate), use the metric's valid-response denominator unless the user explicitly requests a different denominator. If the user requests percentages of all respondents, retain nonresponses in that denominator and state that it differs from the metric's valid-response base; otherwise filter out nonresponses and correct any mismatch in the artifact in this turn.

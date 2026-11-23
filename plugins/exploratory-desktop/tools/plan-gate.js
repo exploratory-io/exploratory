@@ -1,55 +1,19 @@
 #!/usr/bin/env node
 'use strict';
-// R レポート後の「計画の関所」。plan_gate=true のときだけ runtime-hook.js から呼ばれる。
-// 状態はセッションごとの JSON 1 つ: { html: 記録した R のレポート（HTML）の絶対パス, plan: 記録済みの計画ファイルの絶対パス, ... }。
-// R の作業を記録した後に効き、session_id が無い・状態が読めないなど迷うときは通す。
+// 分析の関所。review_hook=true のときだけ runtime-hook.js から呼ばれる。
+// plan-stop: 分析スキルで作ったノートかダッシュボードに載せたチャートのうち、その成果物の全体画像で見ていないものがあれば 1 回だけ止める。
+//   対象は作ったときに記録する（notes: ノートの ID → 埋め込んだチャートの ID、dashboards: ダッシュボードの ID）。別の成果物の画像では見た扱いにしない。
+// 状態はセッションごとの JSON 1 つ。session_id が無い・状態が読めないなど迷うときは通す。
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const GATED = /^(?:mcp__.+__)?(?:create_wrangling_step|create_branch|create_chart|create_analytics|create_note|update_note|create_dashboard|save_result_as_dataframe)$/;
-const isPlanName = file => /\.md$/i.test(file) && /計画|plan/i.test(path.basename(file));
-const isScenarioName = file => /\.md$/i.test(file) && /シナリオ|scenario/i.test(path.basename(file));
-// ノートに必ず入れる分析の出力。予測モデルは変数重要度と影響度、クラスタはレーダー。
-const requiredOutputs = (model, embedded) => model.kind === 'cluster'
-  ? (model.radarTypes.some(type => embedded.includes(type)) ? [] : model.radarTypes)
-  : [...(embedded.includes('feature_importance_bar') ? [] : ['feature_importance_bar']),
-    ...((model.impactTypes || []).length && !model.impactTypes.some(type => embedded.includes(type)) ? model.impactTypes : [])];
-// create_note の markdown に埋め込んだ分析の出力 {{analytics:ID|出力}} を集める。
-const embeddedOutputs = markdown => [...String(markdown || '').matchAll(/\{\{\s*analytics\s*:\s*([^|}\s]+)\s*\|\s*([^}\s]+)\s*\}\}/g)].map(m => ({ id: m[1], type: m[2] }));
+// create_note / update_note の markdown に埋め込んだチャートの ID {{chart:ID}} を集める。
+const embeddedCharts = markdown => [...new Set([...String(markdown || '').matchAll(/\{\{\s*chart\s*:\s*([^|}\s]+)/g)].map(m => m[1]))];
+// 分析スキルの作業中か。スキルを読んだ後（exploratory: true）か、このセッションでそのスキルからノートを作った後で、別のスキルに移っていないとき。
+const analysing = state => state.exploratory === true || (Object.hasOwn(state, 'exploratory') && state.note === true && state.otherSkill !== true);
 const HTML_NAME = /[^\s"'\x60()（）\[\]<>|｜、,，*]+\.html?\b/gi;
 // 応答が JSON 文字列でも、isError などを見られるように解析する。
 const parse = response => { if (typeof response !== 'string') return response; try { return JSON.parse(response); } catch { return response; } };
 const failed = response => { const value = parse(response); return typeof value === 'string' ? /^error/i.test(value) : !!(value && (value.isError || value.is_error || value.error)); };
-// 計画の本文に書かれた HTML 名のどれかが、実在するか。
-const hasHtml = (target, content, base) => (content.match(HTML_NAME) || []).some(html => [path.resolve(path.dirname(target), html), path.resolve(base, html)].some(p => fs.existsSync(p)));
-function replyText(input) {
-  if (typeof input.last_assistant_message === 'string') return input.last_assistant_message;
-  if (!input.transcript_path) return '';
-  let text = '';
-  for (const line of fs.readFileSync(input.transcript_path, 'utf8').split(/\r?\n/).filter(Boolean)) {
-    let row; try { row = JSON.parse(line); } catch { continue; }
-    if (row.type !== 'assistant' || row.isSidechain) continue;
-    const content = row.message?.content;
-    if (typeof content === 'string') text = content;
-    else if (Array.isArray(content) && !content.some(block => block.type === 'tool_use')) text = content.filter(block => block.type === 'text').map(block => block.text).join('\n');
-  }
-  return text;
-}
-// 自分で「直せる」と付けた表の行だけを見る。表でない文章や判断できない行は通す。
-function unfinishedRows(text) {
-  const unfinished = [], complete = /^(?:修正済み?|対応済み?|直した|修正した|解消済み?|ずれなし)$/;
-  let previous = [], statusColumn = -1;
-  for (const line of text.split(/\r?\n/)) {
-    if (!/^\s*\|/.test(line)) { previous = []; statusColumn = -1; continue; }
-    const cells = line.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/).map(cell => cell.replace(/\*\*|`/g, '').trim());
-    if (cells.every(cell => /^:?-+:?$/.test(cell))) { statusColumn = previous.findIndex(cell => /^(?:状態|修正状況|対応状況|修正結果)$/.test(cell)); continue; }
-    previous = cells;
-    const fixable = cells.findIndex(cell => /^直せる(?:[（(].*[）)])?$/.test(cell));
-    if (fixable < 0) continue;
-    const status = cells[statusColumn >= 0 ? statusColumn : fixable + 1] || '';
-    if (!complete.test(status)) unfinished.push(line);
-  }
-  return unfinished;
-}
 // 引用の境界は標準の shlex に任せる。利用できない・解釈できない入力は通す。
 function shellRWork(command) {
   if (!/Rscript|\brender\s*\(/.test(command)) return false;
@@ -85,7 +49,7 @@ def check():
     return False
 try: print(json.dumps(check()))
 except (ValueError, TypeError): print('false')
-`], { input: command, encoding: 'utf8', timeout: 1000 });
+`], { input: command, encoding: 'utf8', timeout: 5000 });
   return !result.error && result.status === 0 && result.stdout.trim() === 'true';
 }
 function resultObjects(response) {
@@ -139,12 +103,6 @@ function chartValue(result) {
   const digits = Math.max(0, (mantissa.split('.')[1] || '').length - Number(exponent));
   return { kind, ...(kind === 'number' ? { main: value } : { last: value }), digits };
 }
-function matches(value, pool, digits) {
-  const rounded = r => Number(r.toFixed(Math.min(digits, 100)));
-  // R の出力は小数 4 桁に丸まって返るので、その丸めの幅（0.00005。% に直した値なら 0.005）までの違いは一致とみなす。
-  const close = (r, tolerance) => Math.abs(r - value) <= tolerance + 1e-12;
-  return pool.some(r => r === value || rounded(r) === value || rounded(r * 100) === value || rounded(r / 100) === value || close(r, 5e-5) || close(r * 100, 5e-3));
-}
 function main(mode, input) {
   // session_id が無いときは状態を持てないので、止めずに通す。
   if (!input.session_id) return;
@@ -160,89 +118,39 @@ function main(mode, input) {
   const save = state => { fs.mkdirSync(dir, { recursive: true }); const tmp = file + '.' + process.pid + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(state)); fs.renameSync(tmp, file); };
   const say = (hookEventName, extra) => console.log(JSON.stringify({ hookSpecificOutput: { hookEventName, ...extra } }));
   if (mode === 'plan-stop') {
-    // ノートかダッシュボードを作った後に、Number 以外の画像を確認する。画像の不足で止めるのは 2 回まで。
+    // 分析スキルを使い、ノートかダッシュボードを作った後に、Number 以外のチャートを全体画像で見たかを確かめる。止めるのは 1 回だけ。
     const state = load();
-    if (!Object.hasOwn(state, 'exploratory') || !state.plan || !(state.note || state.dashboard)) return;
-    // Number は画像の確認から外し、ほかのチャートの PNG なしをデータの取得で代用しない。
+    if (!Object.hasOwn(state, 'exploratory') || !(state.note || state.dashboard)) return;
     const seen = new Set(state.seen || []);
-    const images = (state.charts || []).filter(id => !(state.numbers || []).includes(id));
-    const missing = images.filter(id => !seen.has(id));
-    const block = reason => console.log(JSON.stringify({ decision: 'block', reason }));
-    const unfinished = unfinishedRows(replyText(input));
-    if (unfinished.length && (state.unfixedStops || 0) < 2) {
-      save({ ...state, unfixedStops: (state.unfixedStops || 0) + 1 });
-      block('照合の確認: 照合表に「直せる」のまま未修正の行が ' + unfinished.length + ' 行あります。直して照合表を更新するか、直せない理由と探した設定名を記録してください。');
-      return;
-    }
-    const values = state.values || {}, unread = (state.numbers || []).filter(id => !values[id] && !(state.unparsedValues || []).includes(id));
-    const pool = [...(state.rValues || []), ...(state.rValuesAfter || [])];
-    const targets = [...new Set([...(state.numbers || []), ...(state.lines || [])])];
-    const mismatch = targets.filter(id => values[id] && !matches(values[id].main ?? values[id].last, pool, values[id].digits));
+    let missing = (state.charts || []).filter(id => !(state.numbers || []).includes(id) && !seen.has(id));
+    // ノートは、対象のノートに埋め込んだチャートだけを求める（記録が無い古い状態では作ったチャート全部）。
+    if (state.note && state.notes && !state.dashboard) { const inNotes = new Set(Object.values(state.notes).flat()); missing = missing.filter(id => inNotes.has(id)); }
     // 全体画像が撮れなかったときは、画像の不足で止めない（撮れない画像を求め続けない）。
-    if (state.dashboard ? state.dashboardImageFailed : state.noteImageFailed) missing.length = 0;
-    if ((unread.length || mismatch.length) && (state.valueStops || 0) < 2) {
-      save({ ...state, valueStops: (state.valueStops || 0) + 1 });
-      block('数値の確認: ' + (unread.length ? 'Number ' + unread.length + ' 枚の値を get_chart_data で読み直していません（' + unread.join(', ') + '）。' : '') +
-        (mismatch.length ? '読み直した値が R の計算結果に現れません（' + mismatch.map(id => id + '=' + (values[id].main ?? values[id].last)).join(', ') + '）。' : '') +
-        '計画の定義で R の値を 1 行の表として返し、違えば Exploratory の加工を直してください。R を Exploratory の値に合わせて書き換えない。直すのは Exploratory の加工');
-      return;
+    if (state.dashboard ? state.dashboardImageFailed : state.noteImageFailed) return;
+    // ダッシュボードの画像は 1 ページずつ撮る。構成を記録できていれば、どのページにも載っていないチャートは求めず、撮るページを番号で示す。
+    const boards = Object.entries(state.dashboard && !state.note && state.dashboardPages || {})
+      .filter(([board, pages]) => Array.isArray(pages) && (!state.dashboards || state.dashboards.includes(board)));
+    const pagesToTake = [];
+    if (boards.length) {
+      missing = missing.filter(id => boards.some(([, pages]) => dashboardChartIds(pages).includes(id)));
+      for (const [board, pages] of boards) pages.forEach((page, i) => {
+        if (dashboardChartIds(page).some(id => missing.includes(id))) pagesToTake.push('dashboard_id ' + JSON.stringify(board) + ' の page=' + (i + 1));
+      });
     }
-    if (missing.length && (state.stops || 0) < 2) {
+    if (missing.length && (state.stops || 0) < 1) {
       save({ ...state, stops: (state.stops || 0) + 1 });
-      block('照合の確認: 画像で見ていないチャートが ' + missing.length + ' 枚あります（返り値の ID、JSON: ' + missing.map(id => JSON.stringify(id)).join(', ') + '）。' + (state.dashboard ? 'get_dashboard_image で全体画像を撮り直し、R の図（PNG）と比べ、直せるずれを直してから照合表を書き直して報告してください。' : 'get_note_image で全体画像を撮り直し、R の図（PNG）と比べ、直せるずれを直してから照合表を書き直して報告してください。'));
+      const how = pagesToTake.length ? 'get_dashboard_image を ' + pagesToTake.join('、') + ' で撮り'
+        : state.dashboard && !state.note ? 'get_dashboard_image をページごとに（page を指定して）1 回ずつ撮り' : 'get_note_image で全体画像を 1 回撮り';
+      console.log(JSON.stringify({ decision: 'block', reason: '全体画像（get_note_image / get_dashboard_image）で見ていないチャートが ' + missing.length + ' 枚あります（返り値の ID、JSON: ' + missing.map(id => JSON.stringify(id)).join(', ') + '）。' + how + '（unsaved_edits なら open_note にその成果物の id を渡して開き直してから撮り、identity_mismatch なら開き直さず同じ引数でもう 1 回撮る）、元の成果物があればそれと見比べ、直せるずれを直してから報告してください。' }));
     }
-    return;
-  }
-  if (mode === 'plan-guard') {
-    if (!GATED.test(name)) return;
-    const state = load();
-    const deny = reason => say('PreToolUse', { permissionDecision: 'deny', permissionDecisionReason: reason });
-    // ノートを作る前に、このセッションで作った予測モデルとクラスタの必須の出力が埋め込まれているかを見る。拒否は 2 回まで。
-    // update_note は本文を置き換える（mode: replace）ときだけ見る。追記は既存の本文が分からないので見ない。
-    if ((/(?:^|__)create_note$/.test(name) || (/(?:^|__)update_note$/.test(name) && args.mode === 'replace')) && (state.noteGateStops || 0) < 2) {
-      const embedded = embeddedOutputs(args.markdown);
-      const lacking = (state.predictive || []).map(model => ({ model, missing: requiredOutputs(model, embedded.filter(o => o.id === model.id).map(o => o.type)) })).filter(x => x.missing.length);
-      if (lacking.length) {
-        save({ ...state, noteGateStops: (state.noteGateStops || 0) + 1 });
-        deny('ノートの関所: 次の分析の出力をノートの本文に {{analytics:ID|出力}} で入れてから作り直してください。' + lacking.map(({ model, missing }) =>
-          (model.kind === 'cluster' ? 'クラスタ（' : '予測モデル（') + model.title + '、ID ' + model.id + '）: ' + missing.join(' または ')).join(' / '));
-        return;
-      }
-    }
-    if (/(?:^|__)update_note$/.test(name) || !state.exploratory || !(state.r || state.html) || (state.plan && state.scenario)) return;
-    // Write の記録を取り逃したときのために、作業フォルダのシナリオと計画のファイルを探し、記録のときと同じ検査を通れば記録して通す。
-    const dirs = [...new Set([cwd, state.html && path.isAbsolute(state.html) ? path.dirname(state.html) : cwd])].filter(folder => fs.existsSync(folder));
-    const next = { ...state };
-    for (const folder of dirs) for (const entry of fs.readdirSync(folder).sort()) {
-      const file = path.join(folder, entry);
-      if (!next.scenario && isScenarioName(entry)) next.scenario = file;
-      if (!next.plan && isPlanName(entry) && (!state.html || hasHtml(file, fs.readFileSync(file, 'utf8'), cwd))) next.plan = file;
-    }
-    if (next.plan !== state.plan || next.scenario !== state.scenario) save(next);
-    const lacks = [!next.scenario && 'シナリオ（<題名>_シナリオ.md）', !next.plan && '計画（<題名>_Exploratory作成計画.md）'].filter(Boolean);
-    if (lacks.length) deny('計画の関所: R の作業の後は、先に' + lacks.join('と') + 'を保存してください。');
     return;
   }
   const response = input.tool_response, ok = !failed(response);
   const chartId = String(args.chartId || args.chart_id || '');
   const responseText = typeof response === 'string' ? response : JSON.stringify(response || '');
-  if (/(?:^|__)create_analytics$/.test(name) && ok) {
-    const values = resultObjects(response);
-    if (values.some(failed)) return;
-    const result = values.find(value => value?.analyticsId && Array.isArray(value.outputs));
-    const outputs = (result?.outputs || []).filter(type => typeof type === 'string');
-    const radarTypes = outputs.filter(type => /^radar/.test(type));
-    if (outputs.includes('feature_importance_bar') || radarTypes.length) {
-      const state = load(), model = { id: result.analyticsId, title: result.displayName || args.title || result.analyticsId,
-        kind: outputs.includes('feature_importance_bar') ? 'predictive' : 'cluster', radarTypes,
-        impactTypes: outputs.filter(type => type.startsWith('local_importance_')) };
-      save({ ...state, predictive: [...(state.predictive || []).filter(value => value.id !== model.id), model] });
-    }
-    return;
-  }
   if (name === 'Skill') {
-    if (ok && /^(?:exploratory:)?exploratory-analysis$/.test(args.skill || '')) save({ ...load(), exploratory: true });
-    else if (ok && !String(args.skill || '').startsWith('exploratory:') && load().exploratory) save({ ...load(), exploratory: false });
+    if (ok && /^(?:exploratory:)?exploratory-analysis$/.test(args.skill || '')) save({ ...load(), exploratory: true, otherSkill: false });
+    else if (ok && !String(args.skill || '').startsWith('exploratory:') && Object.hasOwn(load(), 'exploratory')) save({ ...load(), exploratory: false, otherSkill: true });
     return;
   }
   const withRValues = state => {
@@ -262,9 +170,8 @@ function main(mode, input) {
   if (html !== false) {
     if (!ok || !load().exploratory) return;
     if (!html) { save(withRValues({ ...load(), r: true })); return; }
-    const key = html ? path.resolve(cwd, html.replace(/^.*=/, '')) : 'unknown';
-    // 同じレポートの再保存（手順 4 の直し）では状態を消さない。新しいレポートなら前の依頼の状態をリセットする。
-    save(withRValues(load().html !== key ? { exploratory: true, html: key, r: true } : load()));
+    // HTML は元の成果物（見本）として読むこともあるので、記録しても他の状態（作ったモデル・チャート）は消さない。
+    save(withRValues({ ...load(), html: path.resolve(cwd, html.replace(/^.*=/, '')), r: true }));
     return;
   }
   const rWork = /(?:^|__)execute_r_script$/.test(name) || (name === 'Bash' && shellR);
@@ -300,17 +207,21 @@ function main(mode, input) {
   if (/(?:^|__)get_(?:dashboard|note)_image$/.test(name)) { const key = /dashboard/.test(name) ? 'dashboardImageFailed' : 'noteImageFailed', state = load(); if (!ok) { save({ ...state, [key]: true }); return; } if (state[key]) save({ ...state, [key]: false }); }
   if (/(?:^|__)get_dashboard_image$/.test(name) && ok) {
     const state = load(), image = resultObjects(response).find(v => v?.scope === 'full' && v.truncated === false) || (/\\?"scope\\?"\s*:\s*\\?"full\\?"/.test(responseText) && /\\?"truncated\\?"\s*:\s*false\b/.test(responseText) ? {} : undefined);
-    const pages = state.dashboardPages?.[args.dashboard_id || args.dashboardId];
-    if (state.dashboard && !state.note && image && pages) {
+    const board = args.dashboard_id || args.dashboardId, pages = state.dashboardPages?.[board];
+    // 対象のダッシュボードの画像だけを数える（別のダッシュボードの画像では見た扱いにしない）。
+    if (state.dashboard && !state.note && image && pages && (!state.dashboards || state.dashboards.includes(board))) {
       const charts = dashboardChartIds(pages[(args.page || 1) - 1]);
       save({ ...state, seen: [...new Set([...(state.seen || []), ...charts])] });
     }
     return;
   }
-  // ノートは全体画像 1 枚（get_note_image）で全チャートを見る。全体が写っていれば、作ったチャートを見た扱いにする。
+  // ノートは全体画像 1 枚（get_note_image）で見る。全体が写っていれば、そのノートのチャートを見た扱いにする。
   if (/(?:^|__)get_note_image$/.test(name) && ok) {
     const state = load(), full = resultObjects(response).some(v => v?.scope === 'full' && v.truncated === false) || (/\\?"scope\\?"\s*:\s*\\?"full\\?"/.test(responseText) && /\\?"truncated\\?"\s*:\s*false\b/.test(responseText));
-    if (state.note && full) save({ ...state, seen: [...new Set([...(state.seen || []), ...(state.charts || [])])] });
+    // 対象のノートの画像だけで、そのノートに埋め込んだチャートを見た扱いにする。別のノートの画像は数えない。
+    const noteId = String(args.note_id || args.noteId || '');
+    const charts = state.notes ? (Object.hasOwn(state.notes, noteId) ? state.notes[noteId] : []) : (state.charts || []);
+    if (state.note && full) save({ ...state, seen: [...new Set([...(state.seen || []), ...charts])] });
     return;
   }
   const add = (state, key, id) => ({ ...state, [key]: [...new Set([...(state[key] || []), id])] });
@@ -335,6 +246,11 @@ function main(mode, input) {
   }
   if (/(?:^|__)(?:update_chart|update_analytics|update_note|update_dashboard)$/.test(name) && ok) {
     const state = load(), next = { ...state, fixes: (state.fixes || 0) + 1 };
+    // 対象のノートに埋め込んだチャートを更新する（replace は置き換え、追記は足す）。
+    const noteId = String(args.note_id || args.noteId || '');
+    if (/(?:^|__)update_note$/.test(name) && state.notes && Object.hasOwn(state.notes, noteId) && typeof args.markdown === 'string') {
+      next.notes = { ...state.notes, [noteId]: args.mode === 'replace' ? embeddedCharts(args.markdown) : [...new Set([...state.notes[noteId], ...embeddedCharts(args.markdown)])] };
+    }
     if (/(?:^|__)update_chart$/.test(name) && chartId) {
       const result = resultObjects(response).find(value => value?.marker || value?.chartType) || {};
       const marker = args.marker || args.chartType || result.marker || result.chartType;
@@ -349,16 +265,23 @@ function main(mode, input) {
     if (/(?:^|__)update_(?:chart|analytics)$/.test(name) && chartId) for (const key of ['seen', 'pngFail', 'data']) if (next[key]) next[key] = next[key].filter(id => id !== chartId);
     save(next); return;
   }
+  // 分析スキルの作業中に作ったノート・ダッシュボードだけを点検の対象として記録する。
   if (/(?:^|__)create_note$/.test(name) && ok) {
     const state = load();
-    if (Object.hasOwn(state, 'exploratory')) save({ ...state, note: true, exploratory: false });
+    if (!analysing(state)) return;
+    const result = resultObjects(response).find(value => value?.noteId || value?.note_id) || {};
+    const noteId = result.noteId || result.note_id || (responseText.match(/\\?"(?:noteId|note_id)\\?"\s*:\s*\\?"([^"\\]+)/) || [])[1];
+    save({ ...state, note: true, exploratory: false, ...(noteId ? { notes: { ...state.notes, [noteId]: embeddedCharts(args.markdown) } } : {}) });
     return;
   }
-  if (/(?:^|__)create_dashboard$/.test(name) && ok) { save({ ...load(), dashboard: true }); return; }
-  if (name === 'Write' && ok && isScenarioName(target)) { save({ ...load(), scenario: target }); return; }
-  if (name !== 'Write' || !isPlanName(target) || typeof args.content !== 'string' || !ok) return;
-  if (load().html && !hasHtml(target, args.content, cwd)) { say('PostToolUse', { additionalContext: '計画の関所: この計画は記録されません。計画に、実在する HTML のファイル名が書かれていません。' }); return; }
-  save({ ...load(), plan: target });
+  if (/(?:^|__)create_dashboard$/.test(name) && ok) {
+    const state = load();
+    if (!analysing(state)) return;
+    const result = resultObjects(response).find(v => v?.dashboardId || v?.dashboard_id) || {};
+    const id = result.dashboardId || result.dashboard_id;
+    save({ ...state, dashboard: true, ...(id ? { dashboards: [...new Set([...(state.dashboards || []), id])] } : {}) });
+    return;
+  }
 }
 // 想定外の失敗では止めない（関所は迷うときは通す）。
 module.exports = (mode, input) => { try { main(mode, input); } catch { /* 何も返さず通す */ } };
