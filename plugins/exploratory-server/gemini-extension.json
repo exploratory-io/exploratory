@@ -1,7 +1,7 @@
 {
   "name": "exploratory-server",
-  "version": "0.1.5",
-  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server.",
+  "version": "0.1.6",
+  "description": "Search and read notes, dashboards, charts, analytics and data published on Exploratory, and query data on the server. It can also create, update and delete Pages (HTML pages); new Pages are always private.",
   "mcpServers": {
     "exploratory-server": {
       "httpUrl": "https://exploratory.io/mcp"

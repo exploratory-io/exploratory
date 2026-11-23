@@ -1,6 +1,20 @@
 **Do not make rating items / question columns that are lined up horizontally into long form before using them.** Without adding wrangling,
 pass those columns as they are to the 「複数の変数」 slot.
 
+**Default for 「評価項目ごとの満足度を属性（年代・性別・地域など）でクロス集計して」 when the items are stage ratings (1 to 5):**
+one pivot with the attributes side by side (flat) in rows, the rating value (1 to 5) in columns, the count and the row ratio of each value,
+and the rating items in 「繰り返し」 (one table per item). Do not switch to the mean score, and do not recommend the mean when you ask;
+use func: "ave" only when the user asks for an average score.
+Before building it, set the order of every attribute that goes in rows, age included, with set_factor_levels on the data frame itself (one step per attribute; in the same create_wrangling_step call with steps): age from youngest to oldest, region in its usual geographic order, 「その他・回答しない」 and similar last. Without it the rows follow character order.
+
+```
+axes: { rowh: ["age_group", "gender", "region"],
+  colh: "(変数の値)",
+  facet: { "column": "(複数の変数)", "columns": ["attr_assortment", "attr_quality", ...], "keyName": "評価項目" },
+  meas: [{ "column": "行数", "func": "count" }, { "column": "行数", "func": "count_ratio" }] }
+settings: { "pivotRowMode": "flat", "meas1WindowFuncDirection": "table_across" }
+```
+
 ```
 axes: { rowh: "性別",
   colh: { "column": "(複数の変数)", "columns": ["サービスの使いやすさ", "サービスの品質",

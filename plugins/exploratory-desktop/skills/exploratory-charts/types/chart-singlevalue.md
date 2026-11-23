@@ -153,7 +153,7 @@
   "usable": true,
   "summary": "比較の指定は svWindowFunc / svWindowFuncGroup を使う。svComparisonType は現在の設定一覧に無いため使わない",
   "in_exploratory": [
-    "svWindowFuncGroup（diff / pdiff）と svWindowFunc（svWindowFuncGroup が diff なら df で始まる値、pdiff なら rdf で始まる値）、メイン/サブの表示は svWindowFuncMainDisplay / svWindowFuncSubDisplay"
+    "svWindowFuncGroup: \"diff\" と svWindowFunc（df で始まる値）。差か変化率かは svWindowFuncSubDisplay（diff / pdiff）で選ぶ（新しく作るチャートの svWindowFuncGroup に pdiff、svWindowFunc に rdf で始まる値は入れられない）、メイン/サブの表示は svWindowFuncMainDisplay / svWindowFuncSubDisplay"
   ]
 }
 

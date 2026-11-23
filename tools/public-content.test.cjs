@@ -6,19 +6,12 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 
-// The Microsoft 365 Copilot package holds the reviewer prompts and is built for Partner Center, not published.
-const NOT_PUBLISHED_DIR = 'm365-copilot/';
+// The list of internal-only files exists only in the internal repository; the public copy has none of them.
+const listFile = path.join(__dirname, 'published-files.cjs');
+const isPublished = fs.existsSync(listFile) ? require(listFile).isPublished : () => true;
 
 // Names and patterns are assembled from pieces so this file does not contain them literally.
 const j = (...parts) => parts.join('');
-
-// Files that are not published: internal tooling and the OpenAI review data.
-const NOT_PUBLISHED = new Set([
-  j('build-from-data', 'blog.js'), 'compare-knowledge.js', 'internal.test.cjs', 'mcp-source.js',
-  j('sync-from-data', 'blog.sh'), 'verify-contract.js', 'verify.js', 'build-server-zip.js',
-  'distribution.test.cjs', 'note-importance.test.cjs', 'server-plugin.test.cjs', 'server-skill.md',
-  'openai-review-info.json',
-].map(name => 'tools/' + name));
 
 const FORBIDDEN = [
   j('GFd0hmj', '1Gv'), j('mcp_', 'sample'), j('Share-Test-', 'Dashboard'), j('uZ0', 'KSa'),
@@ -30,7 +23,7 @@ const FORBIDDEN = [
 
 test('published files contain no review-only data or internal release status', () => {
   const files = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], { cwd: root, encoding: 'utf8' })
-    .split('\n').filter(Boolean).filter(file => fs.existsSync(path.join(root, file)) && !NOT_PUBLISHED.has(file) && !file.startsWith(NOT_PUBLISHED_DIR));
+    .split('\n').filter(Boolean).filter(file => fs.existsSync(path.join(root, file)) && isPublished(file));
   assert(files.length > 20, 'population must be discovered');
   const hits = [];
   for (const file of files) {

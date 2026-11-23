@@ -19,15 +19,13 @@
    save_parameter / delete_parameter, and save_connection /
    delete_connection.
 
-   **Dashboards.** Before saving a complex page / row / panel layout with create_dashboard, when you want to check that the charts,
-   analyses, and parameters it references actually exist and whether the layout has flaws, you can call
-   validate_dashboard first, which writes nothing (its arguments have the same shape as create_dashboard). Even if the check passes,
-   the dashboard is not created by that alone, so to actually save call create_dashboard /
-   update_dashboard separately.
+   **Dashboards.** Call create_dashboard / update_dashboard directly; do not call validate_dashboard first with the same
+   arguments (create_dashboard returns the same errors). Use validate_dashboard only when the user asks to check a layout
+   without saving it.
 
    **Page names.** Do not leave a page named 「Page 1」; give each page a name that tells its content.
 
-   **Number row.** Put Number charts (key values) in the first row of a page and give that row `numberRow: true`; do not put other charts in that row. On a page that uses `columns`, do not give `numberRow` (the row before the columns is the Number row).
+   **Number row.** Put Number charts (key values) in rows with `numberRow: true`, written before the chart rows. To keep a short date line or summary above the numbers, as in the original, put it in a text-only `numberRow` row before them (a Number row is a fixed-height strip, so keep that text to 2-3 lines); do not put other charts in that row. On a page that uses `columns`, do not give `numberRow` (the row before the columns is the Number row).
 
    **Connections.** **save_connection only opens the desktop's connection settings dialog, and
    values such as host, port, database, user name, and password cannot be passed to these tools at all

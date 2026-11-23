@@ -1,4 +1,4 @@
-Even for the same 1-to-5 rating column, **in the branch used as input to exp_lca, convert it to an ordered factor**
+Even for the same 1-to-5 rating column, **in the column used as input to exp_lca, convert it to an ordered factor**
 (set_factor_levels with `columns`, `levels`, `ordered: true`).
 The type becomes `ordered,factor` and goes into the slots of exp_lca / k-modes.
 A bare `as.character` is used only for categories with no order.
