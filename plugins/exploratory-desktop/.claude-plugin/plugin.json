@@ -1,7 +1,7 @@
 {
   "name": "exploratory",
   "displayName": "Exploratory Desktop",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
   "author": {
     "name": "Exploratory, Inc.",
@@ -44,7 +44,7 @@
     "review_hook": {
       "type": "string",
       "title": "Review hook",
-      "description": "false: never review. true: review after creating: check custom R steps (exp_custom) that start in the wrong form or that product commands can do, ask the agent to review its work (before the first chart or analytics create, after wrangling, after a note is created, after chart and analytics create or edit calls, up to 8 per session), and ask once to look at the whole note or each dashboard page image before the final report.",
+      "description": "The agent reviews what it made during the work and at the end. It fixes problems on the spot and reports what it could not fix. It reviews after creating charts, analytics, wrangling steps and so on. When it writes custom R for wrangling that a product command can do, it is stopped and asked to use the product command instead. Before its final report, it also checks the whole note or dashboard as an image. Off by default.",
       "default": "false",
       "options": [
         "false",

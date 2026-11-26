@@ -1,5 +1,20 @@
 # Changelog
 
+## Desktop 0.1.10 - 2026-11-25
+
+Codex
+
+- A new skill, `exploratory-codex-scripts`, is installed for Codex only. When Codex calls an Exploratory Desktop tool from a `functions.exec` script, it prints the fields it needs from the result's `structuredContent` instead of the whole result, which skips printing the same JSON twice, so large results are less likely to be cut at 10,000 tokens. Errors and images are still read from the result's content. Claude Code, Cursor and Antigravity do not load it.
+
+Results of slow tools
+
+- Exploratory Desktop v17.0 returns results directly for `publish_dashboard`, `publish_note`, `publish_data_frame`, `create_analytics`, `update_analytics`, `create_data_source`, `replace_data_source`, `ai_wrangle`, `ask_note_ai`, `export_note_html`, `export_dashboard_html`, `export_note_pdf` and `export_dashboard_pdf`. Newer Desktop versions return completed results of these tools in `operations[0].result`. The skills read both formats: `operations[0].result` when `status` is `completed`, `operations[0].error` when it is `failed`, and `get_execution` to wait when it is `running`. On the newer Desktop, a large publish therefore no longer fails after 120 seconds while it finishes in the background.
+- The core skill no longer treats a returned `operation_id` as "still running": a tool that finished within the first wait also carries one.
+
+Settings
+
+- The description of the `review_hook` setting now says first what it does: the agent reviews what it made, fixes problems and reports what it could not fix. The checks themselves are unchanged.
+
 ## Desktop 0.1.9 - 2026-11-23
 
 Analysis and reports

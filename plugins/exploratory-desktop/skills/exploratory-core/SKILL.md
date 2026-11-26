@@ -15,7 +15,9 @@ exploratory-desktop が使えない・エラーのときは、~/.exploratory・t
 
 Exploratory Desktop はプロジェクトを自動で保存する。「保存していません」と書かず、利用者にプロジェクトの保存を頼まない（ノートの手編集が未保存で書き込めないときは別で、画面で保存か破棄をしてもらう）。
 
-create_analytics などが operation_id を返したら、まだ実行中なので get_execution（wait_ms）で終わるまで待ち、同じ作成を繰り返さない。データを変えた後は、2 つ目の成果物を作らず、同じ成果物を rerun_artifact で更新する。
+時間のかかる道具（公開・書き出し・create_analytics・create_data_source など）は、エラーならエラーとして扱う。エラーでない返答に status があれば、completed は operations[0].result、failed は operations[0].error を読み、running は返答の next_step のとおり get_execution（wait_ms）で待ち、同じ作成を繰り返さない（これらは cancel_execution では止まらない。rerun_artifact は止められる）。get_execution の返答は operations[0].status を見て、同じように読む。status が無ければ（Desktop v17.0）返答そのものが結果。ほかのスキルの「返った dataFrameId」「返った analyticsId」などは、この結果の中の値を指す。完了した返答にも operation_id が付くので、operation_id だけで実行中と判断しない。
+
+データを変えた後は、2 つ目の成果物を作らず、同じ成果物を rerun_artifact で更新する。
 
 search_artifacts で見つかる既存の成果物は、使えるものを使い、人が作った成果物は利用者に頼まれたときだけ直す（試すものは新しく作る）。
 

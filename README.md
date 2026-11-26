@@ -20,7 +20,7 @@ Find your case in the table, then follow that guide.
 | Plugin | Plugin name | Where it comes from |
 |---|---|---|
 | [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server` (0.1.6) | Your AI client's official plugin directory |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.9) | This repository's marketplace (`exploratory-io/exploratory`) |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.10) | This repository's marketplace (`exploratory-io/exploratory`) |
 
 The two plugins do not share tools or skills. You can install both, in any order.
 
@@ -177,7 +177,7 @@ Claude Code has three plugin settings:
 |---|---|---|
 | `ai_summary` | `false` | Creates and saves an AI Summary for the charts and analytics you create |
 | `save_comments` | `false` | Saves an explanatory comment on the charts you create |
-| `review_hook` | `false` | Asks the agent to review its work, checks custom R steps, and asks for one look at the whole image before the final report (see below and [Privacy](#privacy)) |
+| `review_hook` | `false` | The agent reviews what it made during the work and at the end. It fixes problems on the spot and reports what it could not fix. It reviews after creating charts, analytics, wrangling steps and so on. When it writes custom R for wrangling that a product command can do, it is stopped and asked to use the product command instead. Before its final report, it also checks the whole note or dashboard as an image. See below and [Privacy](#privacy). |
 
 With `review_hook` on, the agent reviews its work at four times:
 
