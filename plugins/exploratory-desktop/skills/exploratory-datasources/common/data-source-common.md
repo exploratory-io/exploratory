@@ -33,7 +33,7 @@ fails, report the error and direct the user to the connection settings.
 After exploration, call create_data_source with dataFrameName, the final r_script, and
 connection_ids. The final R must return the complete requested data frame, retaining connection
 placeholders. A sample or a temporary R result does not finish a retrieval request.
-Confirm the returned saved dataFrameId with get_data_frame, including its source step, columns
+Confirm the saved dataFrameId (in operations[0].result once status is completed) with get_data_frame, including its source step, columns
 and row count. Report success only from the saved result. If preview or registration fails,
 report that failure instead of claiming the data was saved.
 
@@ -44,7 +44,7 @@ PDFは list_pdf_tables で表を確認し、extract_pdf_tables で対象を抽�
 1. 指定されたパスを使う。不明なら確認する。CSV等は read_file_header で文字コード・区切り・列名・ヘッダー位置を調べる。Excelは execute_r_script で readxl::excel_sheets と対象シートの先頭数行を確認する。複数ファイルでは全ファイルのシートを調べ、対象が曖昧なら文章で確認する。
 2. 接続が必要なら lookup_connection で接続を確かめる → lookup_reference で接続先のリファレンスを読む → その書き方と返ったプレースホルダーで R を書く。接続不要ならファイルの種類で lookup_reference を呼ぶ。
 execute_r_script で読み込みRを確認する。文字コード・区切り・ヘッダー位置を反映し、型変換はDesktopに任せる。最終Rは下見の件数制限を外し、依頼された全ファイル・シートを含むデータフレームを返す。
-3. create_data_source に dataFrameName、最終 r_script、connection_ids（接続不要なら空配列）を渡して保存する。返った dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認してから結果を伝える。
+3. create_data_source に dataFrameName、最終 r_script、connection_ids（接続不要なら空配列）を渡して保存する。status が completed になったら operations[0].result の dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認してから結果を伝える。
 よくある失敗: 文字化けは検出した fileEncoding を指定して読み直す。列名が ...1 等なら先頭を再確認し、タイトル行をスキップして正しいヘッダーを読む。
 </data_source_file_rules>
 <data_source_db_rules>
@@ -54,7 +54,7 @@ DBの取得:
 1. lookup_connection で選択済み接続を確かめる → lookup_reference で接続先のリファレンスを読む → その書き方と返ったプレースホルダーで R を書く。秘密値は表示しない。
 2. search_schema で保存済み列を確認する。同梱schemaがあれば使う。階層DBは list_schema_nodes のpathを後続探索に渡す。不足時は sample_collections（sample_size: 0）で名前を調べ、対象だけをサンプルする。save_schema_info で名前のスタブ（空のcolumns）、確認後の列情報を保存し、行の値は保存しない。
 3. 接続先の手順に従い execute_r_script で取得Rを確認する。絞り込み・集計はクエリ側で行い、最終Rでは下見用の制限を外す。
-4. create_data_source に dataFrameName、プレースホルダー付き r_script、connection_ids を渡す。返った dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
+4. create_data_source に dataFrameName、プレースホルダー付き r_script、connection_ids を渡す。status が completed になったら operations[0].result の dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
 失敗への対処: 未記録のテーブルは一覧を探索する。sample_collections が未対応なら execute_r_script で少量サンプルを確認する。
 </data_source_db_rules>
 <data_source_oauth_rules>
@@ -64,7 +64,7 @@ OAuthサービスの取得:
 1. lookup_connection で選択済み接続を確かめる → lookup_reference で接続先のリファレンスを読む → その書き方と返ったプレースホルダーで R を書く。トークンを要求・表示・保存Rへ埋め込まない。
 2. BigQuery等のDBはDBの探索手順（search_schema、必要なら list_schema_nodes と sample_collections）を使う。APIの種類では sample_collections ではなく lookup_reference を使い、execute_r_script で少量の応答を取得して実際の項目と入れ子を確認する。
 3. execute_r_script で取得Rを確認する。OAuthの更新とRへの設定は既存Desktop処理に任せる。最終Rは依頼範囲のデータフレームを返す。
-4. create_data_source に dataFrameName、プレースホルダー付き r_script、connection_ids を渡す。返った dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
+4. create_data_source に dataFrameName、プレースホルダー付き r_script、connection_ids を渡す。status が completed になったら operations[0].result の dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
 よくある失敗: 認証エラーはエラー内容を伝え、接続設定で再認証してから再実行する。接続が見つからなければ対象サービスの接続を選択してもらい、lookup_connection で確認し直す。
 </data_source_oauth_rules>
 <data_source_api_rules>
@@ -75,6 +75,6 @@ APIの取得:
 APIの種類では sample_collections ではなく lookup_reference を使う。
 2. 保存済みschemaで分かる部分は再探索しない。不足する項目は execute_r_script の少量リクエストで列名・型・入れ子の末端まで確認する。URLや項目名を推測せず、個人情報・秘密値は説明に転載しない。
 3. execute_r_script で取得Rを確認する。最終Rは下見用の件数制限を外し、サービスのページング手順に従って依頼範囲を取得し、必要な入れ子を表にしてデータフレームを返す。
-4. create_data_source に dataFrameName、最終 r_script、connection_ids（接続不要なら空配列）を渡す。返った dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
+4. create_data_source に dataFrameName、最終 r_script、connection_ids（接続不要なら空配列）を渡す。status が completed になったら operations[0].result の dataFrameId を get_data_frame で開き、ソースステップ・行数・列を確認する。
 よくある失敗: 列が無ければ少量応答の実際の項目名・入れ子を見直す。認証エラーは接続設定で認証を確認し、秘密値をRへ直接書かず再実行する。
 </data_source_api_rules>
