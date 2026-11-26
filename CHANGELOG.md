@@ -1,5 +1,12 @@
 # Changelog
 
+## Desktop 0.1.10 - 2026-11-25
+
+Results of slow tools
+
+- The skills read the result of the slow Desktop tools (publishing a dashboard, note or data frame, creating or editing analytics, creating or replacing a data source, AI wrangling, the note AI, and HTML / PDF export) from `operations[0].result` when `status` is `completed`, wait with `get_execution` (`wait_ms`) when it is `running`, and read `operations[0].error` when it is `failed`. The Exploratory Desktop release that pairs with this version answers these tools this way, so a large publish no longer fails after 120 seconds while it finishes in the background.
+- The core skill no longer treats a returned `operation_id` as "still running": a tool that finished within the first wait also carries one.
+
 ## Desktop 0.1.9 - 2026-11-23
 
 Analysis and reports

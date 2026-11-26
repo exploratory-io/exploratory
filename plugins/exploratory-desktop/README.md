@@ -1,6 +1,6 @@
 # Exploratory Desktop
 
-Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.9).
+Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.10).
 
 ## Requirements and release status
 

@@ -1,4 +1,4 @@
-**ai_wrangle (「AI データ加工」, the AI prompt dialog).** Call it only when the user asks to use 「AI データ加工」: it sends the request to Exploratory's AI and returns an R script (`script`) with its explanation (`answer`),
+**ai_wrangle (「AI データ加工」, the AI prompt dialog).** Call it only when the user asks to use 「AI データ加工」: it sends the request to Exploratory's AI and returns, in operations[0].result once status is completed, an R script (`script`) with its explanation (`answer`),
 and with `run: true` it adds that script as a step. For any other wrangling, use create_wrangling_step. Show the returned script to the user; if they want changes, call again with the edited `script` and its `answer` and `run: true`.
 
 **Have the AI judge each row (AI functions)**
