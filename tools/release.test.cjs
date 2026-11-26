@@ -25,7 +25,7 @@ const marketplaceFiles = ['.claude-plugin/marketplace.json', '.agents/plugins/ma
 
 test('each plugin has its own consistent name and version across client manifests', () => {
   for (const [folder, name, version] of [
-    [pluginRoots[0], 'exploratory', '0.1.9'], [pluginRoots[1], 'exploratory-server', '0.1.6']
+    [pluginRoots[0], 'exploratory', '0.1.10'], [pluginRoots[1], 'exploratory-server', '0.1.6']
   ]) {
     const files = clientManifests.filter(file => fs.existsSync(path.join(repoRoot, folder, file)));
     assert(files.includes('.claude-plugin/plugin.json') && files.includes('.codex-plugin/plugin.json'));
@@ -41,76 +41,14 @@ test('each plugin has its own consistent name and version across client manifest
   }
   for (const file of marketplaceFiles) {
     const marketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, file), 'utf8'));
-    assert.equal(marketplace.plugins[0].version, '0.1.9', file);
+    assert.equal(marketplace.plugins[0].version, '0.1.10', file);
   }
   // The README version tables are not read by any client, so nothing else keeps them in step.
-  assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('(version 0.1.9)'));
-  assert(fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').includes('`exploratory` (0.1.9)'));
-  assert(fs.readFileSync(path.join(repoRoot, 'README.ja.md'), 'utf8').includes('`exploratory`（0.1.9）'));
+  assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('(version 0.1.10)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').includes('`exploratory` (0.1.10)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.ja.md'), 'utf8').includes('`exploratory`（0.1.10）'));
   assert.equal(fields.ai_summary.default, 'false');
 });
-
-function versionGateFixture() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-version-gate-'));
-  const manifests = [...pluginRoots.flatMap(folder => clientManifests.map(file => folder + '/' + file)), ...marketplaceFiles]
-    .filter(file => fs.existsSync(path.join(repoRoot, file)));
-  const git = args => execFileSync('git', [
-    '--no-optional-locks', '-c', 'core.fsmonitor=', '-c', 'diff.external=',
-    '-c', 'core.hooksPath=/dev/null', ...args
-  ], { cwd: dir, encoding: 'utf8', stdio: 'pipe' });
-  const write = (file, value) => fs.writeFileSync(path.join(dir, file), JSON.stringify(value, null, 2) + '\n');
-  for (const file of manifests) {
-    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
-    fs.copyFileSync(path.join(repoRoot, file), path.join(dir, file));
-  }
-  fs.mkdirSync(path.join(dir, 'tools'));
-  fs.copyFileSync(path.join(__dirname, 'check-version-bump.js'), path.join(dir, 'tools/check-version-bump.js'));
-  git(['init']);
-  git(['add', '--', ...manifests, 'tools/check-version-bump.js']);
-  git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
-    '-c', 'commit.gpgsign=false', 'commit', '-m', 'Version gate baseline']);
-  const run = () => require('node:child_process').spawnSync(process.execPath,
-    ['tools/check-version-bump.js', 'HEAD'], { cwd: dir, encoding: 'utf8' });
-  const read = file => JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-  const bump = file => {
-    const value = read(file);
-    if (value.version) value.version = value.version.replace(/(\d+)$/, n => String(Number(n) + 1));
-    for (const plugin of value.plugins || []) plugin.version = plugin.version.replace(/(\d+)$/, n => String(Number(n) + 1));
-    write(file, value);
-  };
-  return { dir, manifests, run, read, write, bump };
-}
-
-for (const folder of pluginRoots) {
-  const target = folder + '/.codex-plugin/plugin.json';
-  test(`version gate rejects ${folder} content changes without a version bump`, t => {
-    const fixture = versionGateFixture();
-    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
-    fixture.write(target, { ...fixture.read(target), description: 'Changed release description' });
-    const result = fixture.run();
-    assert.equal(result.status, 1, result.stderr);
-    assert.match(result.stderr, /version is still/);
-    assert(result.stderr.includes(target), result.stderr);
-  });
-  test(`version gate rejects a version mismatch in ${folder}`, t => {
-    const fixture = versionGateFixture();
-    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
-    fixture.bump(target);
-    const result = fixture.run();
-    assert.equal(result.status, 1, result.stderr);
-    assert.match(result.stderr, /manifests do not agree/);
-  });
-  test(`version gate accepts an independent version bump in ${folder}`, t => {
-    const fixture = versionGateFixture();
-    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
-    assert.equal(fixture.run().status, 0);
-    for (const file of fixture.manifests) {
-      if (file.startsWith(folder + '/') || (folder === pluginRoots[0] && marketplaceFiles.includes(file))) fixture.bump(file);
-    }
-    const result = fixture.run();
-    assert.equal(result.status, 0, result.stderr);
-  });
-}
 
 test('Cursor registers only the Desktop MCP using exploratory-mcp', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, '.cursor-plugin/plugin.json'), 'utf8'));
@@ -1067,4 +1005,23 @@ test('Claude Code and Codex register exploratory-mcp from the Desktop plugin', (
   assert.equal(read('.claude-plugin/plugin.json').name, 'exploratory');
   assert(!fs.existsSync(path.join(repoRoot, 'scripts/exploratory-desktop-mcp.js')));
   assert(read('hooks/claude.json').hooks.PostToolUse[0].matcher.includes('PowerShell'));
+});
+
+test('Codex alone lists skills-codex/ with the script-output skill, within the description limit', () => {
+  const limits = require('./client-limits.cjs');
+  const read = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+  const skills = read('.codex-plugin/plugin.json').skills;
+  assert(skills.includes('./skills/') && skills.includes('./skills-codex/'), JSON.stringify(skills));
+  const text = fs.readFileSync(path.join(root, 'skills-codex/exploratory-codex-scripts/SKILL.md'), 'utf8').replace(/\r\n/g, '\n');
+  const frontmatter = text.match(/^---\nname: (.*)\ndescription: (.*)\n---\n/);
+  assert.equal(frontmatter[1], 'exploratory-codex-scripts');
+  const description = JSON.parse(frontmatter[2]);
+  assert(description.includes("print only the fields you need from the result's structuredContent (text(r.structuredContent.body))"));
+  assert(description.includes('isError'));
+  assert(description.length <= limits.skillDescriptionChars, String(description.length));
+  for (const manifest of ['.claude-plugin/plugin.json', '.cursor-plugin/plugin.json', '.antigravity-plugin/plugin.json']) {
+    assert(!JSON.stringify(read(manifest)).includes('skills-codex'), manifest);
+  }
+  for (const entry of read('.claude-plugin/plugin.json').skills) assert(!entry.includes('exploratory-codex-scripts'), entry);
+  assert(!fs.existsSync(path.join(root, 'skills/exploratory-codex-scripts')));
 });

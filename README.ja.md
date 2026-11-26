@@ -20,7 +20,7 @@
 | プラグイン | プラグイン名 | 入手先 |
 |---|---|---|
 | [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.6） | 各 AI クライアントの公式のプラグイン一覧 |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.9） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.10） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
 
 2 つのプラグインは、ツールもスキルも重なりません。両方を、どちらの順番でも入れられます。
 
@@ -177,7 +177,7 @@ Desktop MCP のツールには、変更や削除を伴うものがあります�
 |---|---|---|
 | `ai_summary` | `false` | 作成したチャートとアナリティクスに、AI サマリを作って保存します |
 | `save_comments` | `false` | 作成したチャートに、説明のコメントを保存します |
-| `review_hook` | `false` | エージェントに作業の見直しを促し、カスタム R のステップを点検し、最後の報告の前に全体画像を 1 回見るよう求めます（下の説明と[プライバシー](#プライバシー)を見てください） |
+| `review_hook` | `false` | エージェントが作業の途中と最後に、自分の作ったものを見直します。問題があればその場で直し、直せなかった点は報告します。見直すのは、チャートやアナリティクス、加工のステップなどを作ったあとです。また、製品のコマンドでできる加工をカスタム R で書こうとしたときは止めて、製品のコマンドで作り直すよう促します。最後の報告の前には、ノートやダッシュボードの全体も画像で点検します。下の説明と[プライバシー](#プライバシー)を見てください。 |
 
 `review_hook` がオンのとき、エージェントは次のタイミングで作業を見直します。
 

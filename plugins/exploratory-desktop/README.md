@@ -1,6 +1,6 @@
 # Exploratory Desktop
 
-Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.9).
+Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.10).
 
 ## Requirements and release status
 
@@ -34,7 +34,7 @@ Use one way only: this plugin or a direct `exploratory-mcp` entry in your client
 
 ## Contents and settings
 
-This folder contains only the Desktop MCP, 11 Desktop skills and the routing skill directly under `skills/`, Claude Code hooks and their scripts, and the report reviewer. The Claude Code settings remain `ai_summary`, `save_comments` and `review_hook`. Its hooks need Node.js on PATH. The Codex plugin manifest does not currently connect these hooks or settings; Codex itself has a hook mechanism.
+This folder contains only the Desktop MCP, 11 Desktop skills and the routing skill directly under `skills/`, Claude Code hooks and their scripts, and the report reviewer. The Claude Code settings remain `ai_summary`, `save_comments` and `review_hook`. Its hooks need Node.js on PATH. The Codex plugin manifest does not currently connect these hooks or settings; Codex itself has a hook mechanism. Codex also loads one Codex-only skill from `skills-codex/` (`exploratory-codex-scripts`), which tells scripts to print a tool result's `structuredContent` once; the other clients do not load it.
 
 For published content on exploratory.io, add **Exploratory Server** separately: install the Exploratory Server plugin from your AI client's official plugin directory where it is listed, or add the MCP URL `https://exploratory.io/mcp` directly (see [Guide 1](../../README.md#guide-1-server-only)). If you use both, install both in either order. When Server tools are absent, the routing skill uses Desktop, but a request naming exploratory.io or a published URL requires adding Server rather than substituting local data.
 
