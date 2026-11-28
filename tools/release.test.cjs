@@ -87,7 +87,7 @@ function versionGateFixture() {
       write(file, value);
     }
     git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
-      '-c', 'commit.gpgsign=false', 'commit', '-am', 'Desktop ' + version]);
+      '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-am', 'Desktop ' + version]);
   };
   return { dir, manifests, run, read, write, bump, setDesktopVersion };
 }
