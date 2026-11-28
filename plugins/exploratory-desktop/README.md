@@ -45,3 +45,4 @@ Documentation: [Exploratory MCP: Desktop](https://docs.exploratory.io/en/mcp/des
 Support: https://exploratory.io/ (use the chat at the bottom right of the site) or support@exploratory.io
 
 License: [MIT](LICENSE)
+
