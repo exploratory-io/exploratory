@@ -20,6 +20,8 @@ jobs:
             branch="${{ github.ref_name }}"
           fi
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            # The first push of a branch: nothing to compare, but the version must still belong to the branch.
+            node tools/check-version-bump.js HEAD "$branch"
             exit 0
           fi
           node tools/check-version-bump.js "$base" "$branch"

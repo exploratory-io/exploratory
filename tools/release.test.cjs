@@ -164,6 +164,9 @@ test('version-bump workflow runs on main and desktop-* and passes the branch', (
   assert(workflow.includes('github.base_ref'));
   assert(workflow.includes('github.ref_name'));
   assert.match(workflow, /node tools\/check-version-bump\.js "\$base" "\$branch"/);
+  // The first push of a new line branch has no earlier commit: only the line check runs (HEAD has no diff against itself).
+  assert.match(workflow, /node tools\/check-version-bump\.js HEAD "\$branch"/);
+  assert(!/0000000000000000000000000000000000000000" \]; then\n\s*exit 0/.test(workflow), 'the first push must not skip the check');
 });
 
 test('Cursor registers only the Desktop MCP using exploratory-mcp', () => {
