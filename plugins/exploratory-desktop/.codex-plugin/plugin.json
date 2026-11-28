@@ -1,7 +1,7 @@
 {
   "name": "exploratory",
-  "version": "0.1.10",
-  "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
+  "version": "17.2.0",
+  "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17.2.",
   "author": {
     "name": "Exploratory, Inc.",
     "url": "https://exploratory.io",
@@ -25,7 +25,7 @@
   "interface": {
     "displayName": "Exploratory Desktop",
     "shortDescription": "Build in Exploratory Desktop",
-    "longDescription": "Work in Exploratory Desktop on your computer from Codex: create and edit data frames, wrangling steps, charts, analytics, notes and dashboards in your local projects, including changes you have not published.\n\nRequires Exploratory Desktop v17 or later, installed, signed in and running. In Desktop, open System Settings > MCP / CLI, turn on MCP, and choose Save. To let the AI create, change or delete content, also check Allow create, edit and delete; without it, the AI can only read. Desktop asks you before deletes, publishing and running R code unless you turn that off.\n\nThe plugin starts the exploratory-mcp command that Desktop puts on your PATH. Calls run in the app on your computer as the user signed in to Desktop. To read content published on exploratory.io, use the separate Exploratory Server plugin.",
+    "longDescription": "Work in Exploratory Desktop on your computer from Codex: create and edit data frames, wrangling steps, charts, analytics, notes and dashboards in your local projects, including changes you have not published.\n\nRequires Exploratory Desktop v17.2, installed, signed in and running. In Desktop, open System Settings > MCP / CLI, turn on MCP, and choose Save. To let the AI create, change or delete content, also check Allow create, edit and delete; without it, the AI can only read. Desktop asks you before deletes, publishing and running R code unless you turn that off.\n\nThe plugin starts the exploratory-mcp command that Desktop puts on your PATH. Calls run in the app on your computer as the user signed in to Desktop. To read content published on exploratory.io, use the separate Exploratory Server plugin.",
     "developerName": "Exploratory, Inc.",
     "category": "Productivity",
     "capabilities": [

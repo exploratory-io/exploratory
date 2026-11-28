@@ -14,13 +14,13 @@ Find your case in the table, then follow that guide.
 | You want to | Guide | What you install |
 |---|---|---|
 | Read and query content published on exploratory.io, and create Pages | [Server only](#guide-1-server-only) | Exploratory Server |
-| Build data, charts, analytics, notes and dashboards in Exploratory Desktop | [Desktop only](#guide-2-desktop-only) | Exploratory Desktop v17 or later, and the Exploratory Desktop plugin |
+| Build data, charts, analytics, notes and dashboards in Exploratory Desktop | [Desktop only](#guide-2-desktop-only) | Exploratory Desktop v17.2, and the Exploratory Desktop plugin |
 | Do both | [Server and Desktop](#guide-3-server-and-desktop) | Both of the above |
 
 | Plugin | Plugin name | Where it comes from |
 |---|---|---|
 | [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server` (0.1.6) | Your AI client's official plugin directory |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (0.1.10) | This repository's marketplace (`exploratory-io/exploratory`) |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory` (17.2.0) | This repository's marketplace (`exploratory-io/exploratory`) |
 
 The two plugins do not share tools or skills. You can install both, in any order.
 
@@ -65,7 +65,7 @@ Start a new session and sign in. In Claude Code, open `/mcp`, select `explorator
 
 You need these:
 
-- Exploratory Desktop v17 or later, signed in and running. When it starts, it puts the `exploratory-mcp` command on your PATH. The plugin starts this command. On macOS, if you run Desktop directly from the disk image, the command is not added. Move Exploratory to the Applications folder and start it from there.
+- Exploratory Desktop v17.2, signed in and running. When it starts, it puts the `exploratory-mcp` command on your PATH. The plugin starts this command. On macOS, if you run Desktop directly from the disk image, the command is not added. Move Exploratory to the Applications folder and start it from there.
 - For Claude Code: `node` on your PATH. The plugin's review hooks run with it.
 
 ### Step 1. Turn on MCP and install the plugin in System Settings
@@ -82,12 +82,12 @@ In Exploratory Desktop, choose your name at the bottom left of the screen, then 
 
 For example when Exploratory Desktop can't reach the network, install by hand. The plugin is not in the official plugin directories: add this repository as a marketplace, then install the plugin. Run the commands yourself, or ask your AI tool to run them. Installing from the Claude app, the ChatGPT app and the Cursor app is described in [Install the plugin](https://docs.exploratory.io/en/mcp/desktop/install#manual).
 
-The commands below are for Exploratory Desktop 17.1 and earlier. For Exploratory Desktop 17.2, follow the README of the [`desktop-17.2` branch](https://github.com/exploratory-io/exploratory/tree/desktop-17.2#readme); each Desktop version installs from its own branch ([release lines](docs/release-lines.md)).
+The commands below are for Exploratory Desktop 17.2: they install from the `desktop-17.2` branch. For Exploratory Desktop 17.1 and earlier, follow the README of the [`main` branch](https://github.com/exploratory-io/exploratory/tree/main#readme) ([release lines](docs/release-lines.md)). If you added the marketplace earlier without the branch, remove it first (`claude plugin marketplace remove exploratory`, or `codex plugin marketplace remove exploratory`).
 
 #### Claude Code
 
 ```sh
-claude plugin marketplace add exploratory-io/exploratory
+claude plugin marketplace add exploratory-io/exploratory#desktop-17.2
 claude plugin install exploratory@exploratory
 ```
 
@@ -96,14 +96,14 @@ You can also open `/plugin` in Claude Code, add the marketplace `exploratory-io/
 #### Codex
 
 ```sh
-codex plugin marketplace add exploratory-io/exploratory
+codex plugin marketplace add exploratory-io/exploratory@desktop-17.2
 codex plugin add exploratory@exploratory
 ```
 
 #### Antigravity
 
 ```sh
-git clone https://github.com/exploratory-io/exploratory
+git clone --branch desktop-17.2 https://github.com/exploratory-io/exploratory
 agy plugin install ./exploratory/plugins/exploratory-desktop
 ```
 
@@ -112,7 +112,7 @@ Needs Git. The plugin appears in the Antigravity app under Customizations > Inst
 #### Cursor
 
 ```sh
-git clone --depth 1 https://github.com/exploratory-io/exploratory
+git clone --branch desktop-17.2 --depth 1 https://github.com/exploratory-io/exploratory
 mkdir -p ~/.cursor/plugins/local
 cp -R exploratory/plugins/exploratory-desktop ~/.cursor/plugins/local/exploratory
 ```
@@ -232,7 +232,7 @@ Uninstalling does not revoke Server MCP access. To revoke it, also remove the cl
 
 | Problem | What to do |
 |---|---|
-| `exploratory-mcp` is not found | Start Exploratory Desktop v17 or later; it adds the command when it starts. On macOS, if Exploratory runs from the disk image or a temporary location, the command is not added: move Exploratory to the Applications folder, start it again, and choose **Reinstall** on the AI tool's row in **System Settings > MCP / CLI**. If the command could not be added to `/usr/local/bin`, System Settings shows where it was placed instead. Then restart your AI client. |
+| `exploratory-mcp` is not found | Start Exploratory Desktop v17.2; it adds the command when it starts. On macOS, if Exploratory runs from the disk image or a temporary location, the command is not added: move Exploratory to the Applications folder, start it again, and choose **Reinstall** on the AI tool's row in **System Settings > MCP / CLI**. If the command could not be added to `/usr/local/bin`, System Settings shows where it was placed instead. Then restart your AI client. |
 | A Claude Code hook cannot find `node` | Install Node.js and add `node` to your PATH. |
 | The Desktop MCP tools return a not-running error | Start Exploratory Desktop. Then use the tools again in the same conversation. |
 | The Server MCP asks you to sign in | With the browser sign-in, sign in again: `/mcp` in Claude Code, `codex mcp login exploratory-server` in Codex, `agent mcp login exploratory-server` in Cursor. In Grok Bot, remove the connection and add it again. With an API key, signing in does not help: check that your account can still use API keys and replace an invalid, expired or revoked key under Account Settings > API Keys (only Authors can create keys). |

@@ -1,10 +1,10 @@
 # Exploratory Desktop
 
-Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 0.1.10).
+Create and edit local data frames, wrangling steps, charts, analytics, notes and dashboards through Exploratory Desktop. The plugin name stays `exploratory`; the display name is **Exploratory Desktop** (version 17.2.0).
 
 ## Requirements and release status
 
-Requires the MCP-enabled Exploratory Desktop v17 or later, signed in and running, with `exploratory-mcp` on the AI client's PATH. Exploratory Desktop v17 or later installs `exploratory-mcp` on the PATH when it starts. The MCP configuration runs `exploratory-mcp` with no arguments; it uses the app's local relay. Installing the plugin does not start the app.
+Requires the MCP-enabled Exploratory Desktop v17.2, signed in and running, with `exploratory-mcp` on the AI client's PATH. Exploratory Desktop v17.2 installs `exploratory-mcp` on the PATH when it starts. The MCP configuration runs `exploratory-mcp` with no arguments; it uses the app's local relay. Installing the plugin does not start the app.
 
 Before using Desktop MCP, open Exploratory Desktop **System Settings > MCP / CLI** (システム設定 > MCP / CLI) and turn on the **MCP** switch. To create or change charts, notes and other content, also check **Allow create, edit and delete** (作成、変更、削除を許可する). Both are off by default. Then choose **Save** (保存) at the bottom of the screen; without it, neither setting takes effect.
 
@@ -17,14 +17,14 @@ The usual way is **System Settings > MCP / CLI** in Exploratory Desktop: turn on
 Claude Code:
 
 ```sh
-claude plugin marketplace add exploratory-io/exploratory
+claude plugin marketplace add exploratory-io/exploratory#desktop-17.2
 claude plugin install exploratory@exploratory
 ```
 
 Codex:
 
 ```sh
-codex plugin marketplace add exploratory-io/exploratory
+codex plugin marketplace add exploratory-io/exploratory@desktop-17.2
 codex plugin add exploratory@exploratory
 ```
 

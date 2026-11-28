@@ -1,5 +1,13 @@
 # Changelog
 
+## Desktop 17.2.0 - 2026-11-28
+
+Release line for Exploratory Desktop 17.2
+
+- From Exploratory Desktop 17.2, the Desktop plugin is released from the `desktop-17.2` branch, and its version starts with the Desktop version (`17.2.n`). Exploratory Desktop 17.1 and earlier keep installing `0.x` from `main`. See [release lines](docs/release-lines.md).
+- Exploratory Desktop 17.2 moves an installed `0.x` plugin to this line when you choose **Update** on the AI tool's row in **System Settings > MCP / CLI**. In Claude Code, the options you set are kept.
+- The plugin contents are the same as Desktop 0.1.10.
+
 ## Desktop 0.1.10 - 2026-11-25
 
 Codex

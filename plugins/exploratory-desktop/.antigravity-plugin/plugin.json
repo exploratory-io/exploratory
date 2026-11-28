@@ -2,8 +2,8 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "exploratory",
   "displayName": "Exploratory Desktop",
-  "version": "0.1.10",
-  "description": "Work with Exploratory Desktop v17 or later.",
+  "version": "17.2.0",
+  "description": "Work with Exploratory Desktop v17.2.",
   "logo": "assets/icon.png",
   "suggestedPrompts": [
     "List data frames in my open Desktop project",

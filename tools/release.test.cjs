@@ -25,7 +25,7 @@ const marketplaceFiles = ['.claude-plugin/marketplace.json', '.agents/plugins/ma
 
 test('each plugin has its own consistent name and version across client manifests', () => {
   for (const [folder, name, version] of [
-    [pluginRoots[0], 'exploratory', '0.1.10'], [pluginRoots[1], 'exploratory-server', '0.1.6']
+    [pluginRoots[0], 'exploratory', '17.2.0'], [pluginRoots[1], 'exploratory-server', '0.1.6']
   ]) {
     const files = clientManifests.filter(file => fs.existsSync(path.join(repoRoot, folder, file)));
     assert(files.includes('.claude-plugin/plugin.json') && files.includes('.codex-plugin/plugin.json'));
@@ -41,12 +41,12 @@ test('each plugin has its own consistent name and version across client manifest
   }
   for (const file of marketplaceFiles) {
     const marketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, file), 'utf8'));
-    assert.equal(marketplace.plugins[0].version, '0.1.10', file);
+    assert.equal(marketplace.plugins[0].version, '17.2.0', file);
   }
   // The README version tables are not read by any client, so nothing else keeps them in step.
-  assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('(version 0.1.10)'));
-  assert(fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').includes('`exploratory` (0.1.10)'));
-  assert(fs.readFileSync(path.join(repoRoot, 'README.ja.md'), 'utf8').includes('`exploratory`（0.1.10）'));
+  assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('(version 17.2.0)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').includes('`exploratory` (17.2.0)'));
+  assert(fs.readFileSync(path.join(repoRoot, 'README.ja.md'), 'utf8').includes('`exploratory`（17.2.0）'));
   assert.equal(fields.ai_summary.default, 'false');
 });
 
@@ -87,7 +87,7 @@ function versionGateFixture() {
       write(file, value);
     }
     git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
-      '-c', 'commit.gpgsign=false', 'commit', '-am', 'Desktop ' + version]);
+      '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-am', 'Desktop ' + version]);
   };
   return { dir, manifests, run, read, write, bump, setDesktopVersion };
 }

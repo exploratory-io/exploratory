@@ -14,13 +14,13 @@
 | やりたいこと | ガイド | 入れるもの |
 |---|---|---|
 | exploratory.io にパブリッシュされたコンテンツを読む・集計する。ページを作成する | [Server だけを使う](#ガイド-1-server-だけを使う) | Exploratory Server |
-| Exploratory Desktop で、データ・チャート・アナリティクス・ノート・ダッシュボードを作る | [Desktop だけを使う](#ガイド-2-desktop-だけを使う) | Exploratory Desktop v17 以降と、Exploratory Desktop プラグイン |
+| Exploratory Desktop で、データ・チャート・アナリティクス・ノート・ダッシュボードを作る | [Desktop だけを使う](#ガイド-2-desktop-だけを使う) | Exploratory Desktop v17.2と、Exploratory Desktop プラグイン |
 | 両方 | [Server と Desktop を両方使う](#ガイド-3-server-と-desktop-を両方使う) | 上の両方 |
 
 | プラグイン | プラグイン名 | 入手先 |
 |---|---|---|
 | [Exploratory Server](plugins/exploratory-server/README.md) | `exploratory-server`（0.1.6） | 各 AI クライアントの公式のプラグイン一覧 |
-| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（0.1.10） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
+| [Exploratory Desktop](plugins/exploratory-desktop/README.md) | `exploratory`（17.2.0） | このリポジトリのマーケットプレイス（`exploratory-io/exploratory`） |
 
 2 つのプラグインは、ツールもスキルも重なりません。両方を、どちらの順番でも入れられます。
 
@@ -65,7 +65,7 @@ Cursor、Grok Bot などは、[MCP リファレンス](docs/mcp.ja.md)を見て�
 
 次のものが必要です。
 
-- Exploratory Desktop v17 以降。サインインして、起動しておきます。起動すると、`exploratory-mcp` コマンドが PATH に入ります。プラグインは、このコマンドを起動します。macOS で、ディスクイメージから直接動かすと、このコマンドは入りません。Exploratory をアプリケーションフォルダに移してから起動してください。
+- Exploratory Desktop v17.2。サインインして、起動しておきます。起動すると、`exploratory-mcp` コマンドが PATH に入ります。プラグインは、このコマンドを起動します。macOS で、ディスクイメージから直接動かすと、このコマンドは入りません。Exploratory をアプリケーションフォルダに移してから起動してください。
 - Claude Code で使う場合は、PATH に `node`。プラグインのレビューのフックが使います。
 
 ### 手順 1. システム設定で MCP をオンにして、プラグインを入れる
@@ -82,12 +82,12 @@ Exploratory Desktop で、画面の左下にある自分の名前を選び、開
 
 Exploratory Desktop がネットワークに接続できないときなどは、手作業で入れます。このプラグインは公式の一覧にはないので、このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドは自分で打つか、AI ツールに実行を頼んでください。Claude アプリ・ChatGPT アプリ・Cursor の画面から入れる手順は、[プラグインのインストール](https://docs.exploratory.io/ja/mcp/desktop/install#manual)を見てください。
 
-下のコマンドは Exploratory Desktop 17.1 以前のものです。Exploratory Desktop 17.2 では、[`desktop-17.2` ブランチ](https://github.com/exploratory-io/exploratory/tree/desktop-17.2#readme)の README に従ってください。Desktop のバージョンごとに、入れるブランチが分かれています（[リリースライン](docs/release-lines.md)、英語）。
+下のコマンドは Exploratory Desktop 17.2 用で、`desktop-17.2` ブランチから入れます。Exploratory Desktop 17.1 以前では、[`main` ブランチ](https://github.com/exploratory-io/exploratory/tree/main#readme)の README に従ってください（[リリースライン](docs/release-lines.md)、英語）。以前にブランチを付けずにマーケットプレイスを足していた場合は、先に外してください（`claude plugin marketplace remove exploratory`、または `codex plugin marketplace remove exploratory`）。
 
 #### Claude Code
 
 ```sh
-claude plugin marketplace add exploratory-io/exploratory
+claude plugin marketplace add exploratory-io/exploratory#desktop-17.2
 claude plugin install exploratory@exploratory
 ```
 
@@ -96,14 +96,14 @@ Claude Code の `/plugin` から、マーケットプレイス `exploratory-io/e
 #### Codex
 
 ```sh
-codex plugin marketplace add exploratory-io/exploratory
+codex plugin marketplace add exploratory-io/exploratory@desktop-17.2
 codex plugin add exploratory@exploratory
 ```
 
 #### Antigravity
 
 ```sh
-git clone https://github.com/exploratory-io/exploratory
+git clone --branch desktop-17.2 https://github.com/exploratory-io/exploratory
 agy plugin install ./exploratory/plugins/exploratory-desktop
 ```
 
@@ -112,7 +112,7 @@ Git が必要です。入れたプラグインは、Antigravity のアプリの 
 #### Cursor
 
 ```sh
-git clone --depth 1 https://github.com/exploratory-io/exploratory
+git clone --branch desktop-17.2 --depth 1 https://github.com/exploratory-io/exploratory
 mkdir -p ~/.cursor/plugins/local
 cp -R exploratory/plugins/exploratory-desktop ~/.cursor/plugins/local/exploratory
 ```
@@ -232,7 +232,7 @@ Desktop プラグインの更新と削除は、入れた方法によって違い
 
 | 問題 | 対処 |
 |---|---|
-| `exploratory-mcp` が見つからない | Exploratory Desktop v17 以降を起動します。起動するとコマンドが入ります。macOS で Exploratory がディスクイメージか一時的な場所から動いていると、コマンドは入りません。Exploratory をアプリケーションフォルダに移して起動し直し、**システム設定 > MCP / CLI** のその AI ツールの行で「再インストール」を選びます。`/usr/local/bin` に入れられなかったときは、置いた場所がシステム設定に表示されます。そのあと AI クライアントを再起動します。 |
+| `exploratory-mcp` が見つからない | Exploratory Desktop v17.2を起動します。起動するとコマンドが入ります。macOS で Exploratory がディスクイメージか一時的な場所から動いていると、コマンドは入りません。Exploratory をアプリケーションフォルダに移して起動し直し、**システム設定 > MCP / CLI** のその AI ツールの行で「再インストール」を選びます。`/usr/local/bin` に入れられなかったときは、置いた場所がシステム設定に表示されます。そのあと AI クライアントを再起動します。 |
 | Claude Code のフックで `node` が見つからない | Node.js を入れ、`node` を PATH に通します。 |
 | Desktop MCP のツールが、アプリが起動していないというエラーを返す | Exploratory Desktop を起動します。そのあと、同じ会話でもう一度ツールを使います。 |
 | Server MCP がサインインを求める | ブラウザでサインインする接続なら、もう一度サインインします。Claude Code は `/mcp`、Codex は `codex mcp login exploratory-server`、Cursor は `agent mcp login exploratory-server` です。Grok Bot は、接続を外してから追加し直します。API キーで接続している場合は、サインインでは直りません。アカウントが引き続き API キーを使えるかを確かめ、無効・期限切れ・取り消し済みのキーを「アカウント設定 > API キー」で作り直します（キーを作れるのは Author です）。 |

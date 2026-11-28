@@ -1,8 +1,8 @@
 {
   "name": "exploratory",
   "displayName": "Exploratory Desktop",
-  "version": "0.1.10",
-  "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17 or later.",
+  "version": "17.2.0",
+  "description": "Create data, charts, analytics, and reports in Exploratory Desktop v17.2.",
   "author": {
     "name": "Exploratory, Inc.",
     "email": "support@exploratory.io"
