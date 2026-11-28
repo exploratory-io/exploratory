@@ -82,6 +82,8 @@ Exploratory Desktop で、画面の左下にある自分の名前を選び、開
 
 Exploratory Desktop がネットワークに接続できないときなどは、手作業で入れます。このプラグインは公式の一覧にはないので、このリポジトリをマーケットプレイスとして足してから、プラグインを入れます。コマンドは自分で打つか、AI ツールに実行を頼んでください。Claude アプリ・ChatGPT アプリ・Cursor の画面から入れる手順は、[プラグインのインストール](https://docs.exploratory.io/ja/mcp/desktop/install#manual)を見てください。
 
+下のコマンドは Exploratory Desktop 17.1 以前のものです。Exploratory Desktop 17.2 では、[`desktop-17.2` ブランチ](https://github.com/exploratory-io/exploratory/tree/desktop-17.2#readme)の README に従ってください。Desktop のバージョンごとに、入れるブランチが分かれています（[リリースライン](docs/release-lines.md)、英語）。
+
 #### Claude Code
 
 ```sh

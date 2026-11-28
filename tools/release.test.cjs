@@ -50,6 +50,125 @@ test('each plugin has its own consistent name and version across client manifest
   assert.equal(fields.ai_summary.default, 'false');
 });
 
+function versionGateFixture() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exploratory-version-gate-'));
+  const manifests = [...pluginRoots.flatMap(folder => clientManifests.map(file => folder + '/' + file)), ...marketplaceFiles]
+    .filter(file => fs.existsSync(path.join(repoRoot, file)));
+  const git = args => execFileSync('git', [
+    '--no-optional-locks', '-c', 'core.fsmonitor=', '-c', 'diff.external=',
+    '-c', 'core.hooksPath=/dev/null', ...args
+  ], { cwd: dir, encoding: 'utf8', stdio: 'pipe' });
+  const write = (file, value) => fs.writeFileSync(path.join(dir, file), JSON.stringify(value, null, 2) + '\n');
+  for (const file of manifests) {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.copyFileSync(path.join(repoRoot, file), path.join(dir, file));
+  }
+  fs.mkdirSync(path.join(dir, 'tools'));
+  fs.copyFileSync(path.join(__dirname, 'check-version-bump.js'), path.join(dir, 'tools/check-version-bump.js'));
+  git(['init']);
+  git(['add', '--', ...manifests, 'tools/check-version-bump.js']);
+  git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
+    '-c', 'commit.gpgsign=false', 'commit', '-m', 'Version gate baseline']);
+  const run = branch => require('node:child_process').spawnSync(process.execPath,
+    ['tools/check-version-bump.js', 'HEAD', ...(branch === undefined ? [] : [branch])], { cwd: dir, encoding: 'utf8' });
+  const read = file => JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+  const bump = file => {
+    const value = read(file);
+    if (value.version) value.version = value.version.replace(/(\d+)$/, n => String(Number(n) + 1));
+    for (const plugin of value.plugins || []) plugin.version = plugin.version.replace(/(\d+)$/, n => String(Number(n) + 1));
+    write(file, value);
+  };
+  // Sets the one Desktop plugin version in every file that carries it, then commits, so only the line check can fail.
+  const setDesktopVersion = version => {
+    for (const file of manifests) {
+      const value = read(file);
+      if (file.startsWith(pluginRoots[0] + '/')) value.version = version;
+      for (const plugin of value.plugins || []) plugin.version = version;
+      write(file, value);
+    }
+    git(['-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
+      '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-am', 'Desktop ' + version]);
+  };
+  return { dir, manifests, run, read, write, bump, setDesktopVersion };
+}
+
+for (const folder of pluginRoots) {
+  const target = folder + '/.codex-plugin/plugin.json';
+  test(`version gate rejects ${folder} content changes without a version bump`, t => {
+    const fixture = versionGateFixture();
+    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+    fixture.write(target, { ...fixture.read(target), description: 'Changed release description' });
+    const result = fixture.run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /version is still/);
+    assert(result.stderr.includes(target), result.stderr);
+  });
+  test(`version gate rejects a version mismatch in ${folder}`, t => {
+    const fixture = versionGateFixture();
+    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+    fixture.bump(target);
+    const result = fixture.run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /manifests do not agree/);
+  });
+  test(`version gate accepts an independent version bump in ${folder}`, t => {
+    const fixture = versionGateFixture();
+    t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+    assert.equal(fixture.run().status, 0);
+    for (const file of fixture.manifests) {
+      if (file.startsWith(folder + '/') || (folder === pluginRoots[0] && marketplaceFiles.includes(file))) fixture.bump(file);
+    }
+    const result = fixture.run();
+    assert.equal(result.status, 0, result.stderr);
+  });
+}
+
+
+const lineFixture = (t, version) => {
+  const fixture = versionGateFixture();
+  t.after(() => fs.rmSync(fixture.dir, { recursive: true, force: true }));
+  fixture.setDesktopVersion(version);
+  return fixture;
+};
+
+test('version line gate: desktop-17.2 accepts 17.2.0 and rejects 0.1.x and 17.3.0', t => {
+  assert.equal(lineFixture(t, '17.2.0').run('desktop-17.2').status, 0);
+  const old = lineFixture(t, '0.1.11').run('desktop-17.2');
+  assert.equal(old.status, 1, old.stderr);
+  for (const part of ['desktop-17.2', '17.2.', '0.1.11']) assert(old.stderr.includes(part), old.stderr);
+  assert.equal(lineFixture(t, '17.3.0').run('desktop-17.2').status, 1);
+});
+
+test('version line gate: main accepts 0.x and rejects 17.2.0', t => {
+  assert.equal(lineFixture(t, '0.1.11').run('main').status, 0);
+  const result = lineFixture(t, '17.2.0').run('main');
+  assert.equal(result.status, 1, result.stderr);
+  assert(result.stderr.includes('main'), result.stderr);
+});
+
+test('version line gate: other branches and no branch skip the line check', t => {
+  const fixture = lineFixture(t, '17.2.0');
+  assert.equal(fixture.run('fix/x').status, 0);
+  assert.equal(fixture.run().status, 0);
+});
+
+test('version line gate ignores the Server plugin', t => {
+  const fixture = lineFixture(t, '17.2.0');
+  assert.match(fixture.read(pluginRoots[1] + '/.claude-plugin/plugin.json').version, /^0\./);
+  assert.equal(fixture.run('desktop-17.2').status, 0);
+});
+
+test('version-bump workflow runs on main and desktop-* and passes the branch', () => {
+  const workflow = fs.readFileSync(path.join(repoRoot, '.github/workflows/version-bump.yml'), 'utf8').replace(/\r\n/g, '\n');
+  assert.match(workflow, /branches: \[main, 'desktop-\*'\]/);
+  assert(workflow.includes('github.base_ref'));
+  assert(workflow.includes('github.ref_name'));
+  assert.match(workflow, /node tools\/check-version-bump\.js "\$base" "\$branch"/);
+  // The first push of a new line branch has no earlier commit: only the line check runs (HEAD has no diff against itself).
+  assert.match(workflow, /node tools\/check-version-bump\.js HEAD "\$branch"/);
+  assert(!/0000000000000000000000000000000000000000" \]; then\n\s*exit 0/.test(workflow), 'the first push must not skip the check');
+});
+
 test('Cursor registers only the Desktop MCP using exploratory-mcp', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, '.cursor-plugin/plugin.json'), 'utf8'));
   assert.deepEqual(manifest.mcpServers, {

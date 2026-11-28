@@ -82,6 +82,8 @@ In Exploratory Desktop, choose your name at the bottom left of the screen, then 
 
 For example when Exploratory Desktop can't reach the network, install by hand. The plugin is not in the official plugin directories: add this repository as a marketplace, then install the plugin. Run the commands yourself, or ask your AI tool to run them. Installing from the Claude app, the ChatGPT app and the Cursor app is described in [Install the plugin](https://docs.exploratory.io/en/mcp/desktop/install#manual).
 
+The commands below are for Exploratory Desktop 17.1 and earlier. For Exploratory Desktop 17.2, follow the README of the [`desktop-17.2` branch](https://github.com/exploratory-io/exploratory/tree/desktop-17.2#readme); each Desktop version installs from its own branch ([release lines](docs/release-lines.md)).
+
 #### Claude Code
 
 ```sh
